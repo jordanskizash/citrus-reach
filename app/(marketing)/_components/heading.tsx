@@ -23,7 +23,7 @@ export const Heading = () => {
           <span className="underline">Citrus Reach</span>
         </h1>
         <h3 className="text-base sm:text-xl md:text-2xl font-medium mb-10">
-          Citrus Reach helps you generate unique microsite for your customers, clients prospects, investors....
+          Citrus Reach helps you generate unique microsites for your customers, clients prospects, investors....
         </h3>
       </main>
       {isLoading && (

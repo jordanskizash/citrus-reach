@@ -15,8 +15,9 @@ import {
 import { useEdgeStore } from "@/lib/edgestore";
 
 import { useTheme } from "next-themes";
-import "@blocknote/core/style.css"
-import "@blocknote/mantine/style.css"
+import "@blocknote/core/style.css";
+import "@blocknote/mantine/style.css";
+
 
 
 
