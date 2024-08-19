@@ -7,6 +7,8 @@ import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { Poly} from '@next/font/google';
 
+
+
 const roboto = Poly({
   subsets: ['latin'],
   weight: ['400']
@@ -23,7 +25,7 @@ export const Heading = () => {
           <span className="underline">Citrus Reach</span>
         </h1>
         <h3 className="text-base sm:text-xl md:text-2xl font-medium mb-10">
-          Citrus Reach helps you generate unique microsites for your customers, clients prospects, investors....
+          Citrus Reach helps you generate unique content-powered microsites for your clients
         </h3>
       </main>
       {isLoading && (

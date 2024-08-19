@@ -9,31 +9,31 @@ export const Hero = () => {
   const features = [
     {
       title: "Rich Text Editor",
-      description: "Make collaboration seamless with built-in code review tools and real-time updates.",
+      description: "Built-in full-stack text editor with everything you need to deliver written messaging.",
       image: "/writebetter.png",
     },
     {
       title: "File Upload",
       description:
-        "Automate your workflow with continuous integration and delivery, so your team can focus on shipping features.",
-      image: "/medianow.png",
+        "Upload files, including video to enhance your site. ",
+      image: "/fileupload.png",
     },
     {
       title: "Personalization",
       description:
-        "Deploy to the cloud with a single click and scale your infrastructure as needed, without managing it yourself.",
-      image: "/placeholder.svg",
+        "Create multiple sites and tailor each one to your specific needs. Publish all or none.",
+      image: "/personalizee.png",
     },
     {
       title: "Custom Domain",
       description:
-        "Get granular, first-party, real-user metrics on site performance per deployment, so you can optimize for your users.",
-      image: "/placeholder.svg",
+        "Add your domain. Or use ours at yourcompany.citrusreach.com",
+      image: "/domain.png",
     },
     {
       title: "Publish",
       description:
-        "Deliver dynamic, personalized content to your users, while ensuring they only see the best version of your site.",
+        "Publish your site, and get better content over to your clients.",
       image: "/publish.png",
     },
   ]
