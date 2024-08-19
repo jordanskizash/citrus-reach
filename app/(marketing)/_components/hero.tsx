@@ -16,7 +16,7 @@ export const Hero = () => {
       title: "File Upload",
       description:
         "Upload files, including video to enhance your site. ",
-      image: "/fileupload.png",
+      image: "/filesupload.png",
     },
     {
       title: "Personalization",
@@ -34,7 +34,7 @@ export const Hero = () => {
       title: "Publish",
       description:
         "Publish your site, and get better content over to your clients.",
-      image: "/publish.png",
+      image: "/publishnow.png",
     },
   ]
   return (
