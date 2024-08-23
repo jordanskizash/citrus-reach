@@ -46,8 +46,8 @@ export const Heading = () => {
           <div className="flex justify-center space-x-2">
             <SignInButton mode="modal">
               <Button style={{
-                padding: '10px 20px',
-                fontSize: '28px',
+                padding: '20px 20px',
+                fontSize: '18px',
                 border: 'none',
                 borderRadius: '5px'
               }}>
