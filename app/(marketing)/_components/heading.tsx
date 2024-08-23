@@ -43,17 +43,20 @@ export const Heading = () => {
           </Button>
         )}
         {!isAuthenticated && !isLoading && (
-          <div className="flex space-x-2">
+          <div className="flex justify-center space-x-2">
             <SignInButton mode="modal">
-              <Button>
+              <Button style={{
+                backgroundColor: 'orange',
+                color: 'white',
+                padding: '10px 20px',
+                fontSize: '16px',
+                border: 'none',
+                borderRadius: '5px'
+              }}>
                 Get Citrus free
                 <ArrowRight className="h-4 w-4 ml-2" />
               </Button>
             </SignInButton>
-            <Button className="hover:shadow-bottom-right">
-              Try it Live
-              <ArrowRight className="h-4 w-4 ml-2" />
-            </Button>
           </div>
         ) }
       </div>
