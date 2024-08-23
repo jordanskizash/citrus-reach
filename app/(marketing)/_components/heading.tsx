@@ -5,11 +5,11 @@ import { SignInButton } from "@clerk/clerk-react";
 import { useConvexAuth } from "convex/react";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
-import { Poly} from '@next/font/google';
+import { EB_Garamond } from '@next/font/google';
 
 
 
-const roboto = Poly({
+const roboto = EB_Garamond({
   subsets: ['latin'],
   weight: ['400']
 })

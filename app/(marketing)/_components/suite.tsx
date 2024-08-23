@@ -13,7 +13,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Calendar, NotepadText, Video } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 
@@ -38,8 +38,9 @@ export const Suite = () => {
             </h2>
         </div>
         <div className="flex justify-center items-center space-x-4">
-        <Card className="w-50 h-120 hover:shadow-xl">
+        <Card className="w-50 h-120 hover:shadow-xl ease-in-out duration-300">
           <CardHeader>
+            <NotepadText className="mb-8" />
             <CardTitle className="mb-2">Editor</CardTitle>
             <CardDescription style={{ maxWidth: '200px' }}>Powerful built-in text editor to give you all the functionality of written email and much more.</CardDescription>
             </CardHeader>
@@ -52,26 +53,28 @@ export const Suite = () => {
             </CardFooter>
           </Card>
 
-          <Card className="w-50 h-120 hover:shadow-xl">
+          <Card className="w-50 h-120 hover:shadow-xl ease-in-out duration-300">
           <CardHeader>
-            <CardTitle className="mb-2">Calendar</CardTitle>
-            <CardDescription style={{ maxWidth: '200px'}}>Connect your micro-site directly to your calendly for prospects to book meetings instantly</CardDescription>
+            <Video className="mb-8"/>
+            <CardTitle className="mb-5">Video Creation</CardTitle>
+            <CardDescription style={{ maxWidth: '200px' }}>Create videos personalized to your clients and embed them in your site. Speak directly to prospects.</CardDescription>
             </CardHeader>
             <CardContent>
-              <Badge className="mb-5" style={{ maxWidth: '100px'}} variant="outline">Flexible Meetings</Badge>
+              <Badge className="mb-5" style={{ maxWidth: '100px'}} variant="outline">Personalized</Badge>
             </CardContent>
             <CardFooter>
               <Button variant="link">Learn More <ArrowRight size="14" /></Button>
             </CardFooter>
           </Card>
 
-          <Card className="w-50 h-120 hover:shadow-xl">
+          <Card className="w-50 h-120 hover:shadow-xl ease-in-out duration-300">
           <CardHeader>
-            <CardTitle className="mb-2">Video Creation</CardTitle>
-            <CardDescription style={{ maxWidth: '200px' }}>Create videos personalized to your clients and embed them in your site. Speak directly to prospects.</CardDescription>
+            <Calendar className="mb-8"/>
+            <CardTitle className="mb-2">Calendar</CardTitle>
+            <CardDescription style={{ maxWidth: '200px'}}>Connect your micro-site directly to your calendly for prospects to book meetings instantly</CardDescription>
             </CardHeader>
             <CardContent>
-              <Badge className="mb-5" style={{ maxWidth: '100px'}} variant="outline">Personalized</Badge>
+              <Badge className="mb-5" style={{ maxWidth: '100px'}} variant="outline">Flexible Meetings</Badge>
             </CardContent>
             <CardFooter>
               <Button variant="link">Learn More <ArrowRight size="14" /></Button>

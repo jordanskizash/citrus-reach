@@ -22,7 +22,7 @@ export const Refs = () =>  {
   ]
 
   return (
-    <section className="w-full py-12 bg-gray-50 dark:bg-gray-900">
+    <section className="w-full py-12 bg-gray-50 dark:bg-[#1F1F1F]">
       <div className="container px-4 md:px-6">
         <h2 className="text-3xl font-bold text-center mb-8">Trusted by Industry Leaders</h2>
         <Carousel
@@ -36,7 +36,7 @@ export const Refs = () =>  {
             {companies.map((company, index) => (
               <CarouselItem key={index} className="pl-2 md:pl-4 md:basis-1/3 lg:basis-1/4">
                 <div className="p-1">
-                  <Card className="bg-white dark:bg-gray-800">
+                  <Card className="bg-white dark:bg-[#1F1F1F]">
                     <CardContent className="flex items-center justify-center p-6">
                       <Image
                         src={company.logo}
