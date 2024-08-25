@@ -6,10 +6,11 @@ import { useConvexAuth } from "convex/react";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { EB_Garamond } from '@next/font/google';
+import { Lato, Poly, Roboto } from "next/font/google";
 
 
 
-const roboto = EB_Garamond({
+const roboto = Poly({
   subsets: ['latin'],
   weight: ['400']
 })
@@ -21,12 +22,12 @@ export const Heading = () => {
     <div>
       <div className="max-w-3xl space-y-4">
         <main className={roboto.className}>
-          <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold mb-8">
-            Professional microsites made simple. Welcome to{" "}
-            <span className="underline">Citrus Reach</span>
+          <h1 className="text-4xl sm:text-4xl md:text-7xl font-extrabold mb-8">
+            Professional Microsites that help you reach {" "}
+            <h2 className="text-6xl font-semibold text-orange-500 mt-8">Prospects</h2>
           </h1>
-          <h3 className="text-base sm:text-xl md:text-2xl font-medium mb-10">
-            Citrus Reach helps you generate unique content-powered microsites for your clients
+          <h3 className="text-base sm:text-xl md:text-2xl font-small mb-10">
+            Citrus Reach helps you create professional microsites utilizing video, files, and field input to more effectively communicate professionally.
           </h3>
         </main>
         {isLoading && (

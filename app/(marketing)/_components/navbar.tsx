@@ -18,8 +18,8 @@ export const Navbar = () => {
 
     return ( 
         <div className={cn(
-            "z-50 bg-background dark:bg-[#1F1F1F] fixed top-0 flex items-center w-full p-6",
-            scrolled && "border-b shadow-sm"
+            "z-50 opacity-95 bg-background dark:bg-[#1F1F1F] fixed top-0 flex items-center w-full p-6",
+            scrolled && "border-b shadow-md"
         )}>
             <Logo />
             <div className="md:ml-auto md:justify-end justify-between w-full flex items-center gap-x-2">
