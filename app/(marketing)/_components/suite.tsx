@@ -37,7 +37,7 @@ export const Suite = () => {
               Features built to enhance your prospecting efforts
             </h2>
         </div>
-        <div className="flex justify-center items-center space-x-4">
+        <div className="justify-center items-center space-x-4 container grid gap-6 px-4 md:grid-cols-2 lg:grid-cols-3 md:px-6 lg:gap-8 ">
         <Card className="w-50 h-120 hover:shadow-xl ease-in-out duration-300">
           <CardHeader>
             <NotepadText className="mb-8" />
@@ -45,8 +45,7 @@ export const Suite = () => {
             <CardDescription style={{ maxWidth: '200px' }}>Powerful built-in text editor to give you all the functionality of written email and much more.</CardDescription>
             </CardHeader>
             <CardContent>
-              <Badge className="mb-5 mr-3" style={{ maxWidth: '80px'}} variant="outline">Content Driven</Badge>
-              <Badge className="mb-5" style={{ maxWidth: '80px'}} variant="outline">File Uploads</Badge>
+              <Badge className="mb-5 mr-3" style={{ maxWidth: '80px'}} variant="outline">Cusotm Editor</Badge>
             </CardContent>
             <CardFooter>
               <Button variant="link">Learn More <ArrowRight size="14" /></Button>

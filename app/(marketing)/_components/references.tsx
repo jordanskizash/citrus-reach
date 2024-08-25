@@ -11,7 +11,6 @@ import {
 
 export const Refs = () =>  {
   const companies = [
-    { name: "IBM", logo: "/IBMlogo.png" },
     { name: "Globex Corporation", logo: "/IBMLogo.png" },
     { name: "Soylent Corp", logo: "/IBMLogo.png" },
     { name: "Initech", logo: "/IBMLogo.png" },
