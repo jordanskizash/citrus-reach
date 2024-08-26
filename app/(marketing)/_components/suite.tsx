@@ -25,9 +25,9 @@ const roboto = Poly({
 
 export const Suite = () => {
     return (
-      <div className={roboto.className}>
-        <div className="max-w-3xl space-y-4 mb-8">
-            <h3 className="text-xl sm:text-lg md:text-xl font-serif text-orange-500 mb-4">
+      <div className={roboto.className} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <div className="flex flex-col items-center justify-center text-center max-w-3xl space-y-4 mb-8">
+            <h3 className="text-xl sm:text-lg md:text-xl font-serif text-orange-500 mt-4">
               POWERFUL FEATURES
             </h3>
             <h2 className="text-base sm:text-xl md:text-5xl font-serif mb-4">
@@ -37,8 +37,8 @@ export const Suite = () => {
               Features built to enhance your prospecting efforts
             </h2>
         </div>
-        <div className="justify-center items-center space-x-4 container grid gap-6 px-4 md:grid-cols-2 lg:grid-cols-3 md:px-6 lg:gap-8 ">
-        <Card className="w-50 h-120 hover:shadow-xl ease-in-out duration-300">
+        <div className="justify-center items-center space-x-4 container grid gap-6 px-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 md:px-6 lg:gap-8 ">
+        <Card className="w-50 h-120 hover:shadow-xl ease-in-out duration-300 text-center">
           <CardHeader>
             <NotepadText className="mb-8" />
             <CardTitle className="mb-2">Editor</CardTitle>

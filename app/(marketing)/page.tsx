@@ -6,6 +6,7 @@ import { Car } from "lucide-react";
 import { Hero } from "./_components/hero";
 import { Suite } from "./_components/suite";
 import { Refs } from "./_components/references"; 
+import { FAQ } from "./_components/faq";
 
 
 const MarketingPage = () => {
@@ -16,6 +17,7 @@ const MarketingPage = () => {
         <Hero />
         <Refs />
         <Suite />
+        <FAQ />
       </div>
       <Footer />
     </div>
