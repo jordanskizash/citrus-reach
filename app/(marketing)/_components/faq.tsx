@@ -14,16 +14,14 @@ import { Poly } from "next/font/google";
   
   export function FAQ() {
     return (
-        <div className="flex w-full mt-10 mr-20">
-            <div className="w-1/3 flex justify-center items-center">
-                <h1 className="text-xl font-extrabold">Frequently Asked Questions</h1>
-            </div>
-            <div className="w-2/3" style={{ maxWidth: '700px', margin: '0 auto' }}>
+        <div className="flex flex-col w-full mt-10 mx-auto max-w-4xl"> {/* Ensure the container is centered and has a max width */}
+            <h1 className="text-xl font-extrabold text-center">Frequently Asked Questions</h1>
+            <div className="w-full mt-4"> {/* This container holds the accordion */}
                 <Accordion type="single" collapsible className="w-full">
                     <AccordionItem value="item-1">
                         <AccordionTrigger>Can I add a custom domain to my sites?</AccordionTrigger>
                         <AccordionContent>
-                            Yes. Clients can link their own domains or use subdomains on our site. An example would be acme.citrusrach.com.
+                            Yes. Clients can link their own domains or use subdomains on our site. An example would be acme.citrusreach.com.
                         </AccordionContent>
                     </AccordionItem>
                     <AccordionItem value="item-2">
@@ -42,4 +40,4 @@ import { Poly } from "next/font/google";
             </div>
         </div>
     )
-}
+  }    

@@ -7,6 +7,7 @@ import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { EB_Garamond } from '@next/font/google';
 import { Lato, Poly, Roboto } from "next/font/google";
+import Typewriter from 'typewriter-effect';
 
 
 
@@ -20,11 +21,25 @@ export const Heading = () => {
 
   return (
     <div>
-      <div className="max-w-3xl space-y-4">
+      <div className="max-w-3xl space-y-4 dark: ">
         <main className={roboto.className}>
           <h1 className="text-4xl sm:text-4xl md:text-7xl font-extrabold mb-8">
             Professional Microsites that help you reach {" "}
-            <h2 className="text-6xl font-semibold text-orange-500 mt-8">Prospects</h2>
+            <h2 className="text-5xl sm:text-3xl md:text-6xl font-semibold text-orange-500 mt-8 mb-8">
+              <Typewriter
+                options={{
+                  strings: [
+                    'Prospects',
+                    'Clients',
+                    'Employers',
+                    'Investors',
+                    'Your Team'
+                  ],
+                  autoStart: true,
+                  loop: true,
+                }}
+              />
+            </h2>
           </h1>
           <h3 className="text-base sm:text-xl md:text-2xl font-small mb-10">
             Citrus Reach helps you create professional microsites utilizing video, files, and field input to more effectively communicate professionally.

@@ -37,25 +37,25 @@ export const Suite = () => {
               Features built to enhance your prospecting efforts
             </h2>
         </div>
-        <div className="justify-center items-center space-x-4 container grid gap-6 px-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 md:px-6 lg:gap-8 ">
-        <Card className="w-50 h-120 hover:shadow-xl ease-in-out duration-300 text-center">
+        <div className="justify-center items-center space-x-4 container grid gap-6 px-4 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-3 md:px-6 lg:gap-8 text-center ">
+          <Card className="w-full h-120 hover:shadow-xl ease-in-out duration-300 text-center">
           <CardHeader>
-            <NotepadText className="mb-8" />
+            <Video className="mb-8"/>
             <CardTitle className="mb-2">Editor</CardTitle>
-            <CardDescription style={{ maxWidth: '200px' }}>Powerful built-in text editor to give you all the functionality of written email and much more.</CardDescription>
+            <CardDescription className="text-center md:text-center mb-2" style={{ maxWidth: '200px'}}>Powerful built-in text editor to giveyou all the functionality of written email and much more.</CardDescription>
             </CardHeader>
             <CardContent>
-              <Badge className="mb-5 mr-3" style={{ maxWidth: '80px'}} variant="outline">Cusotm Editor</Badge>
+              <Badge className="mb-5" style={{ maxWidth: '100px'}} variant="outline">Personalized</Badge>
             </CardContent>
             <CardFooter>
               <Button variant="link">Learn More <ArrowRight size="14" /></Button>
             </CardFooter>
           </Card>
 
-          <Card className="w-50 h-120 hover:shadow-xl ease-in-out duration-300">
+          <Card className="w-full h-120 hover:shadow-xl ease-in-out duration-300">
           <CardHeader>
             <Video className="mb-8"/>
-            <CardTitle className="mb-5">Video Creation</CardTitle>
+            <CardTitle className="mb-2">Video Creation</CardTitle>
             <CardDescription style={{ maxWidth: '200px' }}>Create videos personalized to your clients and embed them in your site. Speak directly to prospects.</CardDescription>
             </CardHeader>
             <CardContent>
@@ -66,7 +66,7 @@ export const Suite = () => {
             </CardFooter>
           </Card>
 
-          <Card className="w-50 h-120 hover:shadow-xl ease-in-out duration-300">
+          <Card className="w-full h-120 hover:shadow-xl ease-in-out duration-300">
           <CardHeader>
             <Calendar className="mb-8"/>
             <CardTitle className="mb-2">Calendar</CardTitle>

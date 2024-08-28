@@ -12,17 +12,31 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/spinner";
 
 
+
+
+
 export const Navbar = () => {
     const { isAuthenticated, isLoading } = useConvexAuth();
     const scrolled = useScrollTop();
 
-    return ( 
+    return (
         <div className={cn(
-            "z-50 opacity-95 bg-background dark:bg-[#1F1F1F] fixed top-0 flex items-center w-full p-6",
+            "z-50 opacity-95 bg-background dark:bg-[#1F1F1F] fixed top-0 flex items-center justify-between w-full p-6",
             scrolled && "border-b shadow-md"
         )}>
             <Logo />
-            <div className="md:ml-auto md:justify-end justify-between w-full flex items-center gap-x-2">
+            <div className="flex-grow flex justify-center items-center">
+                <Link href="/blog" className="mx-2">
+                    <Button variant="ghost">Blog</Button>
+                </Link>
+                <Link href="/pricing" className="mx-2">
+                    <Button variant="ghost">Pricing</Button>
+                </Link>
+                <Link href="/company" className="mx-2">
+                    <Button variant="ghost">Company</Button>
+                </Link>
+            </div>
+            <div className="flex items-center gap-x-2">
                 {isLoading && (
                     <Spinner />
                 )}
@@ -55,5 +69,5 @@ export const Navbar = () => {
                 <ModeToggle />
             </div>
         </div>
-     );
+    );
 }
