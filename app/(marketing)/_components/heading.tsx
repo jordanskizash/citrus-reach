@@ -21,7 +21,7 @@ export const Heading = () => {
 
   return (
     <div>
-      <div className="max-w-3xl space-y-4 dark: ">
+      <div className="max-w-3xl space-y-4  justify-center items-center ">
         <main className={roboto.className}>
           <h1 className="text-4xl sm:text-4xl md:text-7xl font-extrabold mb-8">
             Professional Microsites that help you reach {" "}
