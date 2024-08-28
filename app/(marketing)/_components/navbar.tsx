@@ -25,17 +25,6 @@ export const Navbar = () => {
             scrolled && "border-b shadow-md"
         )}>
             <Logo />
-            <div className="flex-grow flex justify-center items-center">
-                <Link href="/blog" className="mx-2">
-                    <Button variant="ghost">Blog</Button>
-                </Link>
-                <Link href="/pricing" className="mx-2">
-                    <Button variant="ghost">Pricing</Button>
-                </Link>
-                <Link href="/company" className="mx-2">
-                    <Button variant="ghost">Company</Button>
-                </Link>
-            </div>
             <div className="flex items-center gap-x-2">
                 {isLoading && (
                     <Spinner />
