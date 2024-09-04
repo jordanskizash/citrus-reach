@@ -13,7 +13,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { ArrowRight, Calendar, NotepadText, Video } from "lucide-react";
+import { ArrowRight, Calendar, NotepadText, NotepadTextIcon, Video } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 
@@ -37,12 +37,12 @@ export const Suite = () => {
               Features built to enhance your prospecting efforts
             </h2>
         </div>
-        <div className="justify-center items-center space-x-4 container grid gap-6 px-4 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-3 md:px-6 lg:gap-8 text-center ">
-          <Card className="w-full h-120 hover:shadow-xl ease-in-out duration-300 text-center">
+        <div className="container grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-3 gap-6 px-4 md:px-6 lg:gap-8 text-center">
+          <Card className="col-span-1 w-full h-120 hover:shadow-xl ease-in-out duration-300 text-center">
           <CardHeader>
-            <Video className="mb-8"/>
+            <NotepadTextIcon className="mb-8"/>
             <CardTitle className="mb-2">Editor</CardTitle>
-            <CardDescription className="text-center md:text-center mb-2" style={{ maxWidth: '200px'}}>Powerful built-in text editor to giveyou all the functionality of written email and much more.</CardDescription>
+            <CardDescription className="text-center mx-auto mb-2" style={{ maxWidth: '200px'}}>Powerful built-in text editor to giveyou all the functionality of written email and much more.</CardDescription>
             </CardHeader>
             <CardContent>
               <Badge className="mb-5" style={{ maxWidth: '100px'}} variant="outline">Personalized</Badge>
@@ -52,11 +52,11 @@ export const Suite = () => {
             </CardFooter>
           </Card>
 
-          <Card className="w-full h-120 hover:shadow-xl ease-in-out duration-300">
+          <Card className="col-span-1 w-full h-120 hover:shadow-xl ease-in-out duration-300">
           <CardHeader>
             <Video className="mb-8"/>
             <CardTitle className="mb-2">Video Creation</CardTitle>
-            <CardDescription style={{ maxWidth: '200px' }}>Create videos personalized to your clients and embed them in your site. Speak directly to prospects.</CardDescription>
+            <CardDescription className="text-center mx-auto mb-2" style={{ maxWidth: '200px' }}>Create videos personalized to your clients and embed them in your site. Speak directly to prospects.</CardDescription>
             </CardHeader>
             <CardContent>
               <Badge className="mb-5" style={{ maxWidth: '100px'}} variant="outline">Personalized</Badge>
@@ -66,11 +66,11 @@ export const Suite = () => {
             </CardFooter>
           </Card>
 
-          <Card className="w-full h-120 hover:shadow-xl ease-in-out duration-300">
+          <Card className="col-span-1 w-full h-120 hover:shadow-xl ease-in-out duration-300">
           <CardHeader>
             <Calendar className="mb-8"/>
             <CardTitle className="mb-2">Calendar</CardTitle>
-            <CardDescription style={{ maxWidth: '200px'}}>Connect your micro-site directly to your calendly for prospects to book meetings instantly</CardDescription>
+            <CardDescription className="text-center mx-auto mb-2" style={{ maxWidth: '200px'}}>Connect your micro-site directly to your calendly for prospects to book meetings instantly</CardDescription>
             </CardHeader>
             <CardContent>
               <Badge className="mb-5" style={{ maxWidth: '100px'}} variant="outline">Flexible Meetings</Badge>

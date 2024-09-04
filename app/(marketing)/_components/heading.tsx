@@ -19,13 +19,14 @@ const roboto = Poly({
 export const Heading = () => {
   const { isAuthenticated, isLoading } = useConvexAuth();
 
+
   return (
     <div>
       <div className="max-w-3xl space-y-4  justify-center items-center ">
         <main className={roboto.className}>
           <h1 className="text-4xl sm:text-4xl md:text-7xl font-extrabold mb-8">
             Professional Microsites that help you reach {" "}
-            <h2 className="text-5xl sm:text-3xl md:text-6xl font-semibold text-orange-500 mt-8 mb-8">
+            <main className="text-5xl sm:text-3xl md:text-6xl font-semibold text-orange-500 mt-8 mb-8">
               <Typewriter
                 options={{
                   strings: [
@@ -39,7 +40,7 @@ export const Heading = () => {
                   loop: true,
                 }}
               />
-            </h2>
+            </main>
           </h1>
           <h3 className="text-base sm:text-xl md:text-2xl font-small mb-10">
             Citrus Reach helps you create professional microsites utilizing video, files, and field input to more effectively communicate professionally.
