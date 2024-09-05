@@ -65,10 +65,11 @@ export const Item = ({
         event: React.MouseEvent<HTMLDivElement, MouseEvent>
     ) => {
         event.stopPropagation();
-        if (!id) return;
-        const prommise = archive({ id })
-            .then(() => router.push("/documents"))
-    }
+        onExpand?.();
+        // if (!id) return;
+        // const prommise = archive({ id })
+        //     .then(() => router.push("/documents"))
+    };
 
     const onCreate = async (
         event: React.MouseEvent<HTMLDivElement, MouseEvent>
