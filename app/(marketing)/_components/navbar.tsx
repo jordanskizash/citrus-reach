@@ -80,7 +80,7 @@ export const Navbar: React.FC = () => {
                                     <Link href="/about">About</Link>
                                 </Button>
                                 <Button variant="ghost" asChild onClick={toggleMenu}>
-                                    <Link href="/marketing/blog">Blog</Link>
+                                    <Link href="/blog">Blog</Link>
                                 </Button>
                                 <ModeToggle />
                             </nav>
@@ -92,7 +92,7 @@ export const Navbar: React.FC = () => {
                             <Link href="/about">About</Link>
                         </Button>
                         <Button variant="ghost" size="sm" asChild>
-                            <Link href="/marketing/blog">Blog</Link>
+                            <Link href="/blog">Blog</Link>
                         </Button>
                     </div>
                 </div>
