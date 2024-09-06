@@ -49,8 +49,8 @@ const blogPosts = [
 export default function RecentBlogPosts() {
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-5xl font-bold mb-20 text-center">The latest news from Citrus</h1>
-      <h2 className="text-2xl mb-20 text-center">Learn about all the ways we&apos;re helping you make better content</h2>
+      <h1 className="text-5xl font-bold mb-20 text-center text-orange-500">The latest news from Citrus</h1>
+      <h2 className="text-2xl mb-20 text-center text-muted-foreground">Learn about all the ways we&apos;re increasing response rates</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {blogPosts.map((post, index) => (
           <Card key={index} className="overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1">
