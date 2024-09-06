@@ -48,13 +48,13 @@ export default function Component() {
                   <h3 className="text-xl font-bold text-orange-500">Intelligent Automation</h3>
                   <p className="text-muted-foreground">
                     Send your site via email to prospects, and get more meetings. Citrus sites have gotten 400% more responses than traditional cold email 
-                    by standing out in your prospect's inbox.
+                    by standing out in your prospect&apos;s inbox.
                   </p>
                 </div>
                 <div className="grid gap-2">
                   <h3 className="text-xl font-bold text-orange-500">Bespoke Analytics</h3>
                   <p className="text-muted-foreground">
-                    See who's viewing your site, and get their contact information and intent signals delivered directly to salesforce.
+                    See who&apos;s viewing your site, and get their contact information and intent signals delivered directly to salesforce.
                   </p>
                 </div>
               </div>
