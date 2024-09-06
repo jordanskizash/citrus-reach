@@ -92,7 +92,7 @@ export const Navbar: React.FC = () => {
                             <Link href="/about">About</Link>
                         </Button>
                         <Button variant="ghost" size="sm" asChild>
-                            <Link href="/blog">Blog</Link>
+                            <Link href="/marketing/blog">Blog</Link>
                         </Button>
                     </div>
                 </div>
