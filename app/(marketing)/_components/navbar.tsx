@@ -65,7 +65,7 @@ export const Navbar: React.FC = () => {
             "z-50 opacity-95 bg-background dark:bg-[#1F1F1F] fixed top-0 w-full p-4 md:p-6",
             scrolled && "border-b shadow-md"
         )}>
-            <div className="flex items-center justify-between max-w-6xl mx-auto">
+            <div className="flex items-center justify-between max-w-8xl mx-auto">
                 <div className="flex items-center flex-1">
                     <Sheet open={isOpen} onOpenChange={setIsOpen}>
                         <SheetTrigger asChild className="md:hidden mr-4">
@@ -80,14 +80,14 @@ export const Navbar: React.FC = () => {
                                     <Link href="/about">About</Link>
                                 </Button>
                                 <Button variant="ghost" asChild onClick={toggleMenu}>
-                                    <Link href="/blog">Blog</Link>
+                                    <Link href="/marketing/blog">Blog</Link>
                                 </Button>
                                 <ModeToggle />
                             </nav>
                         </SheetContent>
                     </Sheet>
                     <Logo />
-                    <div className="hidden md:flex items-center ml-4">
+                    <div className="hidden md:flex items-center ml-16">
                         <Button variant="ghost" size="sm" asChild>
                             <Link href="/about">About</Link>
                         </Button>
