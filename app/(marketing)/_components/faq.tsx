@@ -16,7 +16,7 @@ import { Poly } from "next/font/google";
     return (
         <div className="flex flex-col w-full mt-10 mx-auto max-w-4xl"> {/* Ensure the container is centered and has a max width */}
             <h1 className="text-xl font-extrabold text-center">Frequently Asked Questions</h1>
-            <div className="w-full mt-4"> {/* This container holds the accordion */}
+            <div className="w-full mt-4 text-left"> {/* This container holds the accordion */}
                 <Accordion type="single" collapsible className="w-full">
                     <AccordionItem value="item-1">
                         <AccordionTrigger>Can I add a custom domain to my sites?</AccordionTrigger>

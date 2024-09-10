@@ -7,6 +7,7 @@ import { Hero } from "./_components/hero";
 import { Suite } from "./_components/suite";
 import { Refs } from "./_components/references"; 
 import { FAQ } from "./_components/faq";
+import { Teams } from "./_components/teams";
 
 
 const MarketingPage = () => {
@@ -17,6 +18,7 @@ const MarketingPage = () => {
         <Hero />
         <Refs />
         <Suite />
+        <Teams />
         <FAQ />
       </div>
       <Footer />

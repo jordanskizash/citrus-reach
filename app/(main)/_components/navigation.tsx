@@ -38,6 +38,10 @@ export const Navigation = () => {
     const [isResetting, setIsResetting] = useState(false);
     const [isCollapsed, setIsCollapsed] = useState(false);
 
+    const navigateToAnalytics = () => {
+        router.push('/analytics');  // Replace '/analytics' with the path you want to navigate to
+    };
+
     useEffect (() => {
         if(isMobile) {
             collapse();
@@ -146,7 +150,7 @@ export const Navigation = () => {
                     <Item
                         label="Analytics" 
                         icon={LineChart}
-                        onClick={() => {}}
+                        onClick={navigateToAnalytics}
                     />
                     <Item
                         label="Search" 

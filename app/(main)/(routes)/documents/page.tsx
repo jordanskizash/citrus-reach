@@ -17,7 +17,7 @@ const DocumentsPage = () => {
     const router = useRouter();
     const create = useMutation(api.documents.create);
 
-    const onCreate = () => {
+    const onCreateNote = () => {
         const promise = create({ title: "Untitled" })
             .then((documentId) => router.push(`/documents/${documentId}`))
 
@@ -27,6 +27,25 @@ const DocumentsPage = () => {
             error: "Failed to create a new site.",
         });
     };
+
+    const onCreateSales = () => {
+      const promise = create({ title: "Start a brief..." })
+          .then((documentId) => router.push(`/documents/${documentId}`))
+
+      toast.promise(promise, {
+          loading: "Creating a new site...",
+          success: "New site created!",
+          error: "Failed to create a new site.",
+      });
+  };
+  
+    
+
+    
+
+    
+
+
 
     // return ( 
     //     <div className="h-full flex flex-col items-center justify-center space-y-4">
@@ -63,7 +82,7 @@ const DocumentsPage = () => {
             </p>
           </div>
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            <Card className="overflow-hidden rounded-lg shadow-lg hover:shadow-orange-300" onClick={onCreate}>
+            <Card className="overflow-hidden rounded-lg shadow-lg hover:shadow-orange-300" onClick={onCreateNote}>
               <div className="relative h-48 w-full">
                 <img
                   src="/writebetter.png"
@@ -79,7 +98,7 @@ const DocumentsPage = () => {
                 <p className="mt-2 text-muted-foreground">A clean, functional text-editor to store notes.</p>
               </CardContent>
             </Card>
-            <Card className="overflow-hidden rounded-lg shadow-lg shadow-orange-300" onClick={onCreate}>
+            <Card className="overflow-hidden rounded-lg shadow-lg shadow-orange-300" onClick={onCreateSales}>
               <div className="relative h-48 w-full">
                 <img
                   src="/write.png"
@@ -95,7 +114,7 @@ const DocumentsPage = () => {
                 <p className="mt-2 text-muted-foreground">Showcase your work and skills with this portfolio template.</p>
               </CardContent>
             </Card>
-            <Card className="overflow-hidden rounded-lg shadow-lg hover:shadow-orange-300" onClick={onCreate}>
+            <Card className="overflow-hidden rounded-lg shadow-lg hover:shadow-orange-300" onClick={onCreateNote}>
               <div className="relative h-48 w-full">
                 <img
                   src="/checkout.png"
@@ -111,7 +130,7 @@ const DocumentsPage = () => {
                 <p className="mt-2 text-muted-foreground">Sell your products with this modern e-commerce template.</p>
               </CardContent>
             </Card>
-            <Card className="overflow-hidden rounded-lg shadow-lg hover:shadow-orange-300" onClick={onCreate}>
+            <Card className="overflow-hidden rounded-lg shadow-lg hover:shadow-orange-300" onClick={onCreateNote}>
               <div className="relative h-48 w-full">
                 <img
                   src="/resume.png"
@@ -127,7 +146,7 @@ const DocumentsPage = () => {
                 <p className="mt-2 text-muted-foreground">Showcase your business with this professional template.</p>
               </CardContent>
             </Card>
-            <Card className="overflow-hidden rounded-lg shadow-lg hover:shadow-orange-300" onClick={onCreate}>
+            <Card className="overflow-hidden rounded-lg shadow-lg hover:shadow-orange-300" onClick={onCreateNote}>
               <div className="relative h-48 w-full">
                 <img
                   src="/eventdetails.png"
@@ -143,7 +162,7 @@ const DocumentsPage = () => {
                 <p className="mt-2 text-muted-foreground">Promote your event with this engaging template.</p>
               </CardContent>
             </Card>
-            <Card className="overflow-hidden rounded-lg shadow-lg hover:shadow-orange-300" onClick={onCreate}>
+            <Card className="overflow-hidden rounded-lg shadow-lg hover:shadow-orange-300" onClick={onCreateNote}>
               <div className="relative h-48 w-full">
                 <img
                   src="/domain.png"
@@ -161,7 +180,7 @@ const DocumentsPage = () => {
             </Card>
           </div>
           <div className="mt-8 text-center">
-            <Button onClick={onCreate} size="lg" className="w-full max-w-md">
+            <Button onClick={onCreateNote} size="lg" className="w-full max-w-md">
               Create Site
               <ArrowRight className="ml-10" />
             </Button>
