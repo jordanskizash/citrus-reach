@@ -6,12 +6,12 @@ import { useConvexAuth } from "convex/react";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { EB_Garamond } from '@next/font/google';
-import { Lato, Poly, Roboto } from "next/font/google";
+import { Lato, Oswald, Poly, Raleway, Roboto } from "next/font/google";
 import Typewriter from 'typewriter-effect';
 
 
 
-const roboto = Poly({
+const roboto = Raleway({
   subsets: ['latin'],
   weight: ['400']
 })
