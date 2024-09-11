@@ -81,15 +81,6 @@ export const DocumentList = ({
             >
                 No pages inside
             </p>
-            <div className="flex items-center justify-between ml-4 mb-2">
-                <h1 className="text-sm text-muted-foreground">Blogs</h1>
-                <div 
-                    onClick={() => {}} 
-                    className="cursor-pointer group-hover:opacity-100 h-full ml-auto rounded-md hover:bg-neutral-300 dark:hover:bg-neutral-600 mr-2"
-                >
-                    <CirclePlusIcon className="h-5 w-5 text-muted-foreground" onClick={onCreateBlog} />  
-                </div>
-            </div>
             {documents.map((document) => (
                 <div key={document._id} style={{ paddingLeft: `${level * 15}px` }}>
                     <Item 

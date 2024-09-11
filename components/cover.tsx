@@ -39,7 +39,7 @@ export const Cover = ({
 
     return (
         <div className={cn(
-            "relative w-full h-[35vh] group", 
+            "relative w-full h-[50vh] group", 
             !url && "h-[12vh]",
             url && "bg-muted"
         )}>
@@ -48,7 +48,7 @@ export const Cover = ({
                     src={url}
                     fill
                     alt="Cover"
-                    className="object-cover"
+                    className="object-cover rounded-lg"
                 />
             )}
             {url && !preview && (

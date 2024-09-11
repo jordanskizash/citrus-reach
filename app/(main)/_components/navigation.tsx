@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronsLeft, LineChart, MenuIcon, Plus, PlusCircle, Search, Settings, Trash } from "lucide-react";
+import { ChevronsLeft, CirclePlusIcon, LineChart, MenuIcon, Plus, PlusCircle, Search, Settings, Trash } from "lucide-react";
 import { ElementRef, useRef, useState, useEffect } from "react";
 import { useMediaQuery } from "usehooks-ts";
 import { useParams, usePathname, useRouter } from "next/navigation";
@@ -39,7 +39,7 @@ export const Navigation = () => {
     const [isCollapsed, setIsCollapsed] = useState(false);
 
     const navigateToAnalytics = () => {
-        router.push('/analytics');  // Replace '/analytics' with the path you want to navigate to
+        router.push('/analytics');  
     };
 
     useEffect (() => {
@@ -122,9 +122,9 @@ export const Navigation = () => {
             .then((documentId) => router.push(`/documents/${documentId}`))
 
         toast.promise(promise, {
-            loading: "Creating a new note",
-            success: "New Note Created!",
-            error: "Failed to create a new note",
+            loading: "Creating a new blog",
+            success: "New Blog Created!",
+            error: "Failed to create a new blog",
         })
     }
 
@@ -170,6 +170,15 @@ export const Navigation = () => {
                     />
                 </div>
                 <div className="mt-4">
+                    <div className="flex items-center justify-between ml-4 mb-2">
+                    <h1 className="text-sm text-muted-foreground">Blogs</h1>
+                    <div 
+                        onClick={() => {}} 
+                        className="cursor-pointer group-hover:opacity-100 h-full ml-auto rounded-md hover:bg-neutral-300 dark:hover:bg-neutral-600 mr-2"
+                    >
+                        <CirclePlusIcon className="h-5 w-5 text-muted-foreground" onClick={handleCreate} />  
+                    </div>
+                </div>
                     <DocumentList />
                     <Item 
                         onClick={handleCreate} 

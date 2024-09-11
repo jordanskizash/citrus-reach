@@ -53,7 +53,7 @@ const Editor = ({
     };
 
     return (
-        <div>
+        <div className="max-w-7xl">
             <BlockNoteView 
                 editable={editable}
                 editor={editor}

@@ -41,7 +41,7 @@ export const Navbar = ({
     }
     return (
         <>
-            <nav className="bg-background dark:bg-[#1F1F1F] px-3 py-2 w-full flex items-center gap-x-4 justify-between">
+            <nav className="bg-background dark:bg-[#1F1F1F] px-3 py-2  lg:max-w-screen-2xl md:max-w-screen-xl sm:max-w-screen-md flex items-center justify-between flex-wrap">
                 {isCollapsed && (
                     <MenuIcon 
                         role="button"
@@ -49,9 +49,9 @@ export const Navbar = ({
                         className="h-6 w-6 text-muted-foreground"
                     />
                 )}
-                <div className="flex items-center justify-between w-full">
+                <div className="flex items-center justify-between w-full flex-wrap">
                     <Title initialData={document} />
-                    <div className="flex items-center gap-x-2 flex-shrink-0">
+                    <div className="items-center gap-x-2 flex-shrink-0 ">
                         <Publish initialData={document} />
                         <Menu documentId={document._id}/>
                     </div>

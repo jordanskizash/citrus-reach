@@ -9,6 +9,7 @@ import { Cover } from "@/components/cover";
 import { Skeleton } from "@/components/ui/skeleton";
 import dynamic from "next/dynamic";
 import { useMemo } from "react";
+import { Status } from "@/app/(main)/_components/status";
 
 interface DocumentIdPageProps {
     params: {
@@ -59,7 +60,8 @@ const DocumentIdPage = ({
     }
 
     return(
-        <div className="pb-40 mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="pb-40 py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[80vh]">
+            <Status />
             <Cover url={document.coverImage} />
             <div className="mx-auto">
                 <Toolbar initialData={document} />

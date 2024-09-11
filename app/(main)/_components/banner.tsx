@@ -25,9 +25,9 @@ export const Banner = ({
         const promise = remove({ id: documentId })
 
         toast.promise(promise, {
-            loading: "Deleting note...",
-            success: "Note deleted!",
-            error: "Failed to delete note."
+            loading: "Deleting blog...",
+            success: "blog deleted!",
+            error: "Failed to delete blog."
         });
 
         router.push("/documents");
