@@ -21,7 +21,7 @@ export const Refs = () =>  {
   ]
 
   return (
-    <section className="w-full py-12 bg-gray-50 dark:bg-[#0b0b0b]">
+    <section className="w-full py-12 background-color:transparent dark:bg-[#0b0b0b]">
       <div className="container px-4 sm:px-9 md:px-12">
         <h2 className="text-3xl font-bold text-center mb-8">Trusted by Industry Leaders</h2>
         <Carousel

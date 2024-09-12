@@ -62,7 +62,7 @@ export const Navbar: React.FC = () => {
 
     return (
         <div className={cn(
-            "z-50 opacity-95 bg-background dark:bg-[#1F1F1F] fixed top-0 w-full p-4 md:p-6",
+            "z-50 opacity-95 background-color:transparent dark:bg-[#1F1F1F] fixed top-0 w-full p-4 md:p-6",
             scrolled && "border-b shadow-md"
         )}>
             <div className="flex items-center justify-between max-w-8xl mx-auto">
@@ -88,10 +88,10 @@ export const Navbar: React.FC = () => {
                     </Sheet>
                     <Logo />
                     <div className="hidden md:flex items-center ml-16">
-                        <Button variant="ghost" size="sm" asChild>
+                        <Button variant="link" size="lg" asChild>
                             <Link href="/about">About</Link>
                         </Button>
-                        <Button variant="ghost" size="sm" asChild>
+                        <Button variant="link" size="sm" asChild>
                             <Link href="/blog">Blog</Link>
                         </Button>
                     </div>

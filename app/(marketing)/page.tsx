@@ -8,6 +8,8 @@ import { Suite } from "./_components/suite";
 import { Refs } from "./_components/references"; 
 import { FAQ } from "./_components/faq";
 import { Teams } from "./_components/teams";
+import { CardFeatures } from "./_components/appfeatures";
+import { Sections } from "./_components/sections";
 
 
 const MarketingPage = () => {
@@ -16,8 +18,10 @@ const MarketingPage = () => {
       <div className="flex flex-col items-center justify-center md:justify-start text-center gap-y-8 flex-1 px-6 pb-10  ">
         <Heading />
         <Hero />
-        <Refs />
-        <Suite />
+        <CardFeatures />
+        {/* <Refs /> */}
+        {/* <Suite /> */}
+        <Sections />
         <FAQ />
       </div>
       <Footer />

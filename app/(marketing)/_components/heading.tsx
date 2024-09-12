@@ -6,12 +6,12 @@ import { useConvexAuth } from "convex/react";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { EB_Garamond } from '@next/font/google';
-import { Lato, Oswald, Poly, Raleway, Roboto } from "next/font/google";
+import { Lato, Merriweather, Oswald, Poly, Raleway, Roboto, Zilla_Slab } from "next/font/google";
 import Typewriter from 'typewriter-effect';
 
 
 
-const roboto = Raleway({
+const roboto = Zilla_Slab({
   subsets: ['latin'],
   weight: ['400']
 })
@@ -22,7 +22,7 @@ export const Heading = () => {
 
   return (
     <div>
-      <div className="max-w-3xl space-y-4  justify-center items-center ">
+      <div className="max-w-4xl space-y-4  justify-center items-center ">
         <main className={roboto.className}>
           <h1 className="text-4xl sm:text-4xl md:text-7xl font-extrabold mb-8">
             Professional Microsites that help you reach {" "}
@@ -42,7 +42,7 @@ export const Heading = () => {
               />
             </main>
           </h1>
-          <h3 className="text-base sm:text-xl md:text-2xl font-small mb-10">
+          <h3 className="text-base sm:text-xl md:text-2xl font-small ">
             Citrus Reach helps you create professional microsites utilizing video, files, and field input to more effectively communicate professionally.
           </h3>
         </main>
