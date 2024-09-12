@@ -148,7 +148,7 @@ export const Navigation = () => {
                 <div>
                     <UserItem />
                     <Item
-                        label="Analytics - In Beta" 
+                        label="Analytics" 
                         icon={LineChart}
                         onClick={navigateToAnalytics}
                     />

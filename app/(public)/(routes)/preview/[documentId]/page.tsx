@@ -1,5 +1,6 @@
 "use client";
 
+import Head from "next/head";
 import { useMutation, useQuery } from "convex/react";
 
 import { api } from "@/convex/_generated/api";
@@ -59,7 +60,15 @@ const DocumentIdPage = ({
     }
 
     return(
-        <div className="pb-40 py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[80vh]">
+        <div className="pb-40 py-20 max-w-7xl mx-auto px-4 sm:px-2 lg:px-8 h-[80vh]">
+            <Head>
+                <title>{document.title || 'Document Page'}</title>
+                <meta property="og:title" content={document.title || 'Document'} />
+                <meta property="og:description" content="Description of the document" />
+                <meta property="og:image" content={document?.coverImage} />
+                <meta property="og:url" content={window.location.href} />
+                <meta name="twitter:card" content="summary_large_image" />
+            </Head>
             <Cover preview url={document.coverImage} />
             <div className="mx-auto">
                 <Toolbar preview initialData={document} />
