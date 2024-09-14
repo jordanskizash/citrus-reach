@@ -3,19 +3,31 @@
 import Image from "next/image";
 import { useUser } from "@clerk/clerk-react";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, PlusCircle } from "lucide-react";
+import { ArrowRight, Bell, ChevronRight, Home, Mail, PlusCircle, Settings, User, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 import { useMutation} from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { toast } from "react-hot-toast";
+import { useState } from "react";
+
 
 
 const DocumentsPage = () => {
     const { user } = useUser();
     const router = useRouter();
     const create = useMutation(api.documents.create);
+
+    const [selectedImage, setSelectedImage] = useState<number | null>(null)
+
+    const handleImageClick = (index: number) => {
+      setSelectedImage(selectedImage === index ? null : index)
+
+    }
+
+    const [sidebarOpen, setSidebarOpen] = useState(false)
 
     const onCreateNote = () => {
         const promise = create({ title: "Untitled" })
@@ -39,8 +51,18 @@ const DocumentsPage = () => {
       });
   };
   
-    
-
+  const images = [
+    { src: "/doc.png", label: "Start from Scratch", action: () => alert("Home clicked") },
+    { src: "/proftemp.png", label: "Personal Page", action: () => alert("Settings clicked") },
+    { src: "/blogpic.png", label: "Blog", action: () => alert("Notifications clicked") },
+    { src: "/eventpic.png", label: "Event", action: () => alert("Profile clicked") },
+  ]
+  
+  const moreOptions = [
+    { label: "Search", action: () => alert("Search clicked") },
+    { label: "Help", action: () => alert("Help clicked") },
+    { label: "About", action: () => alert("About clicked") },
+  ]
     
 
     
@@ -81,108 +103,75 @@ const DocumentsPage = () => {
               Select from our collection of templates to start building your microsite.
             </p>
           </div>
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            <Card className="overflow-hidden rounded-lg shadow-lg hover:shadow-orange-300" onClick={onCreateNote}>
-              <div className="relative h-48 w-full">
-                <img
-                  src="/writebetter.png"
-                  alt="Card Image"
-                  width={600}
-                  height={400}
-                  className="h-full w-full object-cover"
-                  style={{ aspectRatio: "600/400", objectFit: "cover" }}
-                />
+          <div className="bg-background flex items-center">
+            <div className="container mx-auto px-4">
+              <div className="grid grid-cols-3 gap-4 mb-4">
+                {images.slice(0, 3).map(({ src, label, action }) => (
+                  <div key={label} className="flex flex-col items-center">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="w-18 h-18 p-0  overflow-hidden"
+                      onClick={onCreateNote}
+                    >
+                      <Image src={src} alt={label} width={64} height={64} />
+                    </Button>
+                    <span className="mt-1 text-xs text-muted-foreground">{label}</span>
+                  </div>
+                ))}
               </div>
-              <CardContent className="p-4">
-                <h3 className="text-xl font-semibold">Note Pad</h3>
-                <p className="mt-2 text-muted-foreground">A clean, functional text-editor to store notes.</p>
-              </CardContent>
-            </Card>
-            <Card className="overflow-hidden rounded-lg shadow-lg shadow-orange-300" onClick={onCreateSales}>
-              <div className="relative h-48 w-full">
-                <img
-                  src="/write.png"
-                  alt="Card Image"
-                  width={600}
-                  height={400}
-                  className="h-full w-full object-cover"
-                  style={{ aspectRatio: "600/400", objectFit: "cover" }}
-                />
+              <div className="grid grid-cols-3 gap-4">
+                {images.slice(3, 5).map(({ src, label, action }, index) => (
+                  <div key={label} className={`flex flex-col items-center ${index === 1 ? 'col-start-2' : ''}`}>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="w-18 h-18 p-0 overflow-hidden"
+                      onClick={onCreateNote}
+                    >
+                      <Image src={src} alt={label} width={64} height={64} />
+                    </Button>
+                    <span className="mt-1 text-xs text-muted-foreground">{label}</span>
+                  </div>
+                ))}
+                <div className="flex flex-col items-center justify-end">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="w-16 h-16 rounded-full"
+                    onClick={() => setSidebarOpen(true)}
+                  >
+                    <ChevronRight className="h-8 w-8" />
+                    <span className="sr-only">View More</span>
+                  </Button>
+                  <span className="mt-1 text-xs text-muted-foreground">View More</span>
+                </div>
               </div>
-              <CardContent className="p-4">
-                <h3 className="text-xl font-semibold">Sales Outreach</h3>
-                <p className="mt-2 text-muted-foreground">Showcase your work and skills with this portfolio template.</p>
-              </CardContent>
-            </Card>
-            <Card className="overflow-hidden rounded-lg shadow-lg hover:shadow-orange-300" onClick={onCreateNote}>
-              <div className="relative h-48 w-full">
-                <img
-                  src="/checkout.png"
-                  alt="Card Image"
-                  width={600}
-                  height={400}
-                  className="h-full w-full object-cover"
-                  style={{ aspectRatio: "600/400", objectFit: "cover" }}
-                />
+            </div>
+            
+            {/* Sidebar */}
+            <div className={`fixed inset-y-0 right-0 w-64 bg-background border-l transform ${sidebarOpen ? 'translate-x-0' : 'translate-x-full'} transition-transform duration-300 ease-in-out`}>
+              <div className="p-4">
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-lg font-semibold">More Options</h2>
+                  <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(false)}>
+                    <X className="h-6 w-6" />
+                    <span className="sr-only">Close sidebar</span>
+                  </Button>
+                </div>
+                <div className="space-y-4">
+                  {moreOptions.map(({ label, action }) => (
+                    <Button key={label} variant="ghost" className="w-full justify-start" onClick={action}>
+                      {label}
+                    </Button>
+                  ))}
+                </div>
               </div>
-              <CardContent className="p-4">
-                <h3 className="text-xl font-semibold">E-commerce</h3>
-                <p className="mt-2 text-muted-foreground">Sell your products with this modern e-commerce template.</p>
-              </CardContent>
-            </Card>
-            <Card className="overflow-hidden rounded-lg shadow-lg hover:shadow-orange-300" onClick={onCreateNote}>
-              <div className="relative h-48 w-full">
-                <img
-                  src="/resume.png"
-                  alt="Card Image"
-                  width={600}
-                  height={400}
-                  className="h-full w-full object-cover"
-                  style={{ aspectRatio: "600/400", objectFit: "cover" }}
-                />
-              </div>
-              <CardContent className="p-4">
-                <h3 className="text-xl font-semibold">Resume</h3>
-                <p className="mt-2 text-muted-foreground">Showcase your business with this professional template.</p>
-              </CardContent>
-            </Card>
-            <Card className="overflow-hidden rounded-lg shadow-lg hover:shadow-orange-300" onClick={onCreateNote}>
-              <div className="relative h-48 w-full">
-                <img
-                  src="/eventdetails.png"
-                  alt="Card Image"
-                  width={600}
-                  height={400}
-                  className="h-full w-full object-cover"
-                  style={{ aspectRatio: "600/400", objectFit: "cover" }}
-                />
-              </div>
-              <CardContent className="p-4">
-                <h3 className="text-xl font-semibold">Event</h3>
-                <p className="mt-2 text-muted-foreground">Promote your event with this engaging template.</p>
-              </CardContent>
-            </Card>
-            <Card className="overflow-hidden rounded-lg shadow-lg hover:shadow-orange-300" onClick={onCreateNote}>
-              <div className="relative h-48 w-full">
-                <img
-                  src="/domain.png"
-                  alt="Card Image"
-                  width={600}
-                  height={400}
-                  className="h-full w-full object-cover"
-                  style={{ aspectRatio: "600/400", objectFit: "cover" }}
-                />
-              </div>
-              <CardContent className="p-4">
-                <h3 className="text-xl font-semibold">Blog</h3>
-                <p className="mt-2 text-muted-foreground">Raise awareness and funds with this non-profit template.</p>
-              </CardContent>
-            </Card>
+            </div>
           </div>
           <div className="mt-8 text-center">
             <Button onClick={onCreateNote} size="lg" className="w-full max-w-md">
               Create Site
-              <ArrowRight className="ml-10" />
             </Button>
           </div>
         </div>

@@ -12,7 +12,7 @@ const MarketingLayout = ({
     children: React.ReactNode;
 }) => {
     return ( 
-        <div className="h-full bg-orange-50 dark:bg-[#1F1F1F] bg-cover bg-center">
+        <div className="min-h-full bg-orange-50 dark:bg-[#1F1F1F] bg-cover bg-center">
             <main className={raleway.className}>
                 <Navbar />
                 <main className="h-full pt-40">

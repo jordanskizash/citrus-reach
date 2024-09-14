@@ -11,8 +11,8 @@ import { EdgeStoreProvider } from "@/lib/edgestore";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Citrus",
-  description: "The connected workspace where better, faster, work happens.",
+  title: "Citrus Reach - Microsites That convert",
+  description: "Publish one-page websites to market your brand",
   icons: {
     icon: [
       {
