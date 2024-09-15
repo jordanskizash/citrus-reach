@@ -60,3 +60,41 @@ export const getById = query ({
         return profile;
     }
 });
+
+export const update = mutation({
+    args: {
+        id: v.id("profiles"),
+        displayName: v.optional(v.string()),
+        description: v.optional(v.string()),
+        bio: v.optional(v.string()),
+        isPublished: v.optional(v.boolean()),
+        isArchived: v.optional(v.boolean())
+    },
+    handler: async(ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+
+        if (!identity) {
+            throw new Error("Unauthenticated");
+        }
+
+        const userId = identity.subject;
+
+        const { id, ...rest } = args;
+        
+        const existingDocument = await ctx.db.get(args.id);
+
+        if (!existingDocument) {
+            throw new Error("Not found");
+        }
+
+        if (existingDocument.userId != userId) {
+            throw new Error("Unauthorized");
+        }
+
+        const document = await ctx.db.patch(args.id, {
+            ...rest,
+        });
+
+        return document;
+    },
+});

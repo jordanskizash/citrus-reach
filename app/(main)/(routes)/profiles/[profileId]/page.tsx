@@ -27,7 +27,6 @@ const ProfileIdPage = ({
     const onChange = (content: string) => {
         update({
             id: params.profileId,
-            content
         });
     };
 
