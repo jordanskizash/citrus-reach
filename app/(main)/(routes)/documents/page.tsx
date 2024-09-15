@@ -19,6 +19,7 @@ const DocumentsPage = () => {
     const { user } = useUser();
     const router = useRouter();
     const create = useMutation(api.documents.create);
+    const createProf = useMutation(api.profiles.create);
 
     const [selectedImage, setSelectedImage] = useState<number | null>(null)
 
@@ -39,6 +40,18 @@ const DocumentsPage = () => {
             error: "Failed to create a new site.",
         });
     };
+
+    const onCreateProfile = () => {
+      const promise = createProf({ displayName: "JSTEIN", bio:"Hello Mates"}) // Adjust parameters as needed for profile creation
+          .then((profileId) => router.push(`/profiles/${profileId}`)) // Make sure the route matches your Next.js file structure
+  
+      toast.promise(promise, {
+          loading: "Creating a new profile...",
+          success: "New profile created!",
+          error: "Failed to create a new profile.",
+      });
+  };
+  
 
     const onCreateSales = () => {
       const promise = create({ title: "Start a brief..." })
@@ -127,7 +140,7 @@ const DocumentsPage = () => {
                       variant="outline"
                       size="icon"
                       className="w-18 h-18 p-0 overflow-hidden"
-                      onClick={onCreateNote}
+                      onClick={onCreateProfile}
                     >
                       <Image src={src} alt={label} width={64} height={64} />
                     </Button>

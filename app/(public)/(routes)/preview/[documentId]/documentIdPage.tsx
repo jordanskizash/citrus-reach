@@ -58,7 +58,7 @@ const DocumentIdPage = ({
     }
 
     return(
-        <div className="pb-40 py-20 max-w-7xl mx-auto px-4 sm:px-2 lg:px-8 h-[80vh]">
+        <div className="pb-40 py-20 max-w-7xl mx-auto px-4 sm:px-2 lg:px-8 h-[80vh] bg-white">
             <Cover preview url={document.coverImage} />
             <div className="mx-auto">
                 <Toolbar preview initialData={document} />

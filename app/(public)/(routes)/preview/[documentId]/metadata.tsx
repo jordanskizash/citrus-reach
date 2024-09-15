@@ -1,4 +1,7 @@
-import { Metadata } from 'next'
+// Add this line to your page or layout file
+export const dynamic = "force-dynamic";
+
+import { Metadata } from 'next';
 import { Id } from "@/convex/_generated/dataModel";
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "@/convex/_generated/api";
@@ -9,14 +12,14 @@ interface DocumentIdPageProps {
     params: {
         documentId: Id<"documents">;
     };
-};
+}
 
 export async function generateMetadata({ params }: DocumentIdPageProps): Promise<Metadata> {
     const document = await convex.query(api.documents.getById, { documentId: params.documentId });
 
     if (!document) {
         return {
-            title: 'Document Not Found'
+            title: 'Document Not Found',
         };
     }
 
