@@ -1,4 +1,4 @@
-import generateMetadata from './metadata'
+import { generateMetadata } from './metadata'
 import DocumentIdPage from './documentIdPage'
 import { Id } from "@/convex/_generated/dataModel";
 
