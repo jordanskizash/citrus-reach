@@ -1,8 +1,8 @@
 import { Metadata } from 'next'
 import DocumentIdPage from './documentIdPage'
 import { Id } from "@/convex/_generated/dataModel";
-import { ConvexHttpClient } from "convex/browser";
 import { api } from "@/convex/_generated/api";
+import { ConvexHttpClient } from "convex/browser";
 
 interface PageProps {
     params: {
@@ -12,9 +12,13 @@ interface PageProps {
 
 export const dynamic = 'force-dynamic'
 
+async function getDocument(documentId: Id<"documents">) {
+  const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
+  return await convex.query(api.documents.getById, { documentId });
+}
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-    const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
-    const document = await convex.query(api.documents.getById, { documentId: params.documentId });
+    const document = await getDocument(params.documentId);
 
     if (!document) {
         return {
