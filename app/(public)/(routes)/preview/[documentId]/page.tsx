@@ -1,8 +1,8 @@
 import { Metadata } from 'next'
-import DocumentIdPage from './documentIdPage'
 import { Id } from "@/convex/_generated/dataModel";
-import { api } from "@/convex/_generated/api";
 import { ConvexHttpClient } from "convex/browser";
+import { api } from "@/convex/_generated/api";
+import DocumentIdPage from './documentIdPage'
 
 interface PageProps {
     params: {
@@ -10,10 +10,9 @@ interface PageProps {
     };
 }
 
-export const dynamic = 'force-dynamic'
+const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
 async function getDocument(documentId: Id<"documents">) {
-  const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
   return await convex.query(api.documents.getById, { documentId });
 }
 
@@ -28,9 +27,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
     const metadata: Metadata = {
         title: document.title || 'Document Page',
+        description: document.content ? document.content.substring(0, 200) : "No content available",
         openGraph: {
             title: document.title || 'Document',
-            description: "Description of the document",
+            description: document.content ? document.content.substring(0, 200) : "No content available",
         },
         twitter: {
             card: 'summary_large_image',
@@ -45,6 +45,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return metadata;
 }
 
-export default function Page({ params }: PageProps) {
-    return <DocumentIdPage params={params} />
+export default async function Page({ params }: PageProps) {
+    const document = await getDocument(params.documentId);
+
+    if (!document) {
+        return <div>Document not found</div>;
+    }
+
+    return <DocumentIdPage params={params} />;
 }
