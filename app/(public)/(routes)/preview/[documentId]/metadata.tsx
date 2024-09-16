@@ -15,6 +15,7 @@ interface DocumentIdPageProps {
 }
 
 export async function generateMetadata({ params }: DocumentIdPageProps): Promise<Metadata> {
+    const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
     const document = await convex.query(api.documents.getById, { documentId: params.documentId });
 
     if (!document) {
