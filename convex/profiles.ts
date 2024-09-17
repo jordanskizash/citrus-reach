@@ -2,6 +2,58 @@ import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { Doc, Id } from "./_generated/dataModel";
 
+export const archive = mutation({
+    args: {
+        parentProfile: v.optional(v.id("profiles")),
+        id: v.id("profiles")
+    },
+    handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+
+        if (!identity) {
+            throw new Error("Not authenticated");
+        }
+
+        const userId = identity.subject;
+
+        const existingProfile = await ctx.db.get(args.id);
+        if (!existingProfile) {
+            throw new Error ("Not found");
+        }
+
+        if (existingProfile.userId !== userId) {
+            throw new Error("Unauthorized");
+        }
+
+        const recursiveArchive = async (documentId: Id<"profiles">) => {
+            const children = await ctx.db
+                .query("profiles")
+                .withIndex("by_user_parent", (q) => (
+                    q
+                        .eq("userId", userId)
+                        .eq("parentProfile", args.parentProfile)
+                ))
+                .collect();
+
+            for (const child of children) {
+                await ctx.db.patch(child._id, {
+                    isArchived: true,
+                });
+
+                await recursiveArchive(child._id);
+            }
+        }
+
+        const profile = await ctx.db.patch(args.id, {
+            isArchived: true,
+        });
+
+        recursiveArchive(args.id);
+
+        return profile;
+    }
+})
+
 export const create = mutation({
     args: {
         displayName: v.string(),
@@ -97,4 +149,35 @@ export const update = mutation({
 
         return document;
     },
+});
+
+export const getSidebar = query({
+    args: {
+        parentProfile: v.optional(v.id("profiles"))
+    },
+    handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+
+        if (!identity) {
+            throw new Error("Not authenticated");
+        }
+
+        const userId = identity.subject;
+
+        const profiles = await ctx.db
+            .query("profiles")
+            .withIndex("by_user_parent", (q) =>
+                q
+                    .eq("userId", userId)
+                    .eq("parentProfile", args.parentProfile)
+            )
+            .filter((q) => 
+                q.eq(q.field("isArchived"), false)
+            )
+            .order("desc")
+            .collect();
+        
+        return profiles;
+    },
+
 });

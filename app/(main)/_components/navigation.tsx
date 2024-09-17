@@ -11,6 +11,7 @@ import { useMutation } from "convex/react";
 import { Item } from "./item";
 import toast from "react-hot-toast";
 import { DocumentList } from "./document-list";
+import { ProfileList } from "./profile-list";
 import{
     Popover,
     PopoverTrigger,
@@ -31,6 +32,7 @@ export const Navigation = () => {
     const pathname = usePathname();
     const isMobile = useMediaQuery("(max-width: 768px)");
     const create = useMutation(api.documents.create);
+    const createProf = useMutation(api.profiles.create);
 
     const isResizingRef = useRef(false);
     const sidebarRef = useRef<ElementRef<"aside">>(null);
@@ -117,6 +119,20 @@ export const Navigation = () => {
         }
     }
 
+    const handlecreateProfile = async () => {
+        const promise = createProf({ displayName: "Untitled", bio: "Ello Mate" });
+        toast
+          .promise(promise, {
+            loading: "Creating a new profile...",
+            success: "New profile created!",
+            error: "Failed to create new profile.",
+          })
+          .then((profileId) => {
+            router.push(`/profiles/${profileId}`);
+          });
+      };
+
+
     const handleCreate = () => {
         const promise = create({ title: "Untitled" })
             .then((documentId) => router.push(`/documents/${documentId}`))
@@ -180,6 +196,18 @@ export const Navigation = () => {
                     </div>
                 </div>
                     <DocumentList />
+
+                {/* Add this block for the Profiles header */}
+                <div className="flex items-center justify-between mt-4 ml-4 mb-2">
+                    <h1 className="text-sm text-muted-foreground">Profiles</h1>
+                    <div 
+                        onClick={() => {}} 
+                        className="cursor-pointer group-hover:opacity-100 h-full ml-auto rounded-md hover:bg-neutral-300 dark:hover:bg-neutral-600 mr-2"
+                    >
+                        <CirclePlusIcon className="h-5 w-5 text-muted-foreground" onClick={handlecreateProfile} />  
+                    </div>
+                </div>
+                    <ProfileList />
                     <Item 
                         onClick={handleCreate} 
                         icon={Plus}

@@ -13,7 +13,7 @@ import {
   
   export function FAQ() {
     return (
-      <div className="flex flex-col md:flex-row w-full mt-10 mx-auto max-w-4xl"> {/* Enable responsive layout */}
+      <div className="flex flex-col md:flex-row w-full mt-10 mx-auto max-w-4xl px-6 md:px-0"> {/* Enable responsive layout */}
         <div className="flex flex-col w-full md:w-1/3"> {/* Adjust width and layout for heading based on screen size */}
           <h1 className="text-xl font-extrabold text-center md:text-left md:mb-0">Frequently Asked Questions</h1>
         </div>

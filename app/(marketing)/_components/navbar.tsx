@@ -62,8 +62,8 @@ export const Navbar: React.FC = () => {
 
     return (
         <div className={cn(
-            "z-50 opacity-99 background-color:transparent dark:bg-[#1F1F1F] fixed top-0 w-full p-4 md:p-6",
-            scrolled && "border-b shadow-md"
+            "z-50 fixed top-0 w-full p-4 md:p-6 backdrop-filter backdrop-blur-lg bg-orange-50/80 dark:bg-[#1F1F1F]/80",
+             scrolled && "border-b shadow-md"
         )}>
             <div className="flex items-center justify-between max-w-8xl mx-auto">
                 <div className="flex items-center flex-1">
