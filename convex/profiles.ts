@@ -181,3 +181,14 @@ export const getSidebar = query({
     },
 
 });
+
+// In your Convex functions (e.g., profiles.ts)
+export const updateVideoUrl = mutation({
+    args: {
+      id: v.id("profiles"),
+      videoUrl: v.optional(v.string()),
+    },
+    handler: async ({ db }, { id, videoUrl }) => {
+      await db.patch(id, { videoUrl });
+    },
+  });

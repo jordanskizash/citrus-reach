@@ -14,6 +14,8 @@ import { Publish } from "./publish";
 interface NavbarProps {
     isCollapsed: boolean;
     onResetWidth: () => void;
+    profileId?: Id<"profiles">;  // Add profileId as an optional prop
+    documentId?: Id<"documents">;
 };
 
 export const Navbar = ({
