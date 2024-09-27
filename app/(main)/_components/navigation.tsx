@@ -21,6 +21,7 @@ import { useSearch } from "@/hooks/use-search";
 import { useSettings } from "@/hooks/use-settings";
 import { TrashBox } from "./trash-box";
 import { Navbar } from "./navbar";
+import { NavbarProfile } from "./navbarprof";
 
 
 
@@ -120,7 +121,7 @@ export const Navigation = () => {
     }
 
     const handlecreateProfile = async () => {
-        const promise = createProf({ displayName: "Untitled", bio: "Ello Mate" });
+        const promise = createProf({ displayName: "Untitled" });
         toast
           .promise(promise, {
             loading: "Creating a new profile...",
@@ -244,7 +245,12 @@ export const Navigation = () => {
                         isCollapsed={isCollapsed}
                         onResetWidth={resetWidth}
                     />
-                ): (
+                ): !!params.profileId ? (
+                    <NavbarProfile
+                      isCollapsed={isCollapsed}
+                      onResetWidth={resetWidth}
+                    />
+                  ) : (
                 <nav className="bg-transparent px-3 py-2 w-full">
                     {isCollapsed && <MenuIcon onClick={resetWidth} role="button" className="h-6 w-6 text-mutued-foreground" />}
                 </nav>

@@ -31,7 +31,7 @@ export const archive = mutation({
                 .withIndex("by_user_parent", (q) => (
                     q
                         .eq("userId", userId)
-                        .eq("parentProfile", args.parentProfile)
+                        .eq("parentProfile", documentId)
                 ))
                 .collect();
 
@@ -58,7 +58,7 @@ export const create = mutation({
     args: {
         displayName: v.string(),
         description: v.optional(v.string()),
-        bio: v.string(), // Use 'description' if that's what the schema defines
+        bio: v.optional(v.string()), // Use 'description' if that's what the schema defines
     },
     handler: async (ctx, args) => {
         const identity = await ctx.auth.getUserIdentity();

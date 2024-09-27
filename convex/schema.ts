@@ -17,7 +17,7 @@ export default defineSchema ({
 
     profiles: defineTable ({
         displayName: v.string(),
-        bio: v.string(),
+        bio: v.optional(v.string()),
         description: v.optional(v.string()),
         videoUrl: v.optional(v.string()),
         userId: v.string(),

@@ -55,29 +55,16 @@ export const ProfToolbar = ({ initialData, preview }: ToolbarProps) => {
           onKeyDown={onKeyDown}
           value={value}
           onChange={(e) => onInput(e.target.value)}
-          className="text-5xl bg-transparent font-bold break-words outline-none text-[#3F3F3F] dark:text-[#CFCFCF] resize-none"
+          className="text-5xl bg-transparent font-bold break-words outline-none text-[#3F3F3F] dark:text-[#CFCFCF] max-w-3xl resize-none"
         />
       ) : (
         <div
           onClick={enableInput}
           className="pb-[11.5px] text-5xl font-bold break-words outline-none text-[#3F3F3F] dark:text-[#CFCFCF] cursor-text relative group"
         >
-          {initialData.displayName || "Enter your name"}
-          {!preview && (
-            <Pencil
-              className="absolute right-0 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-              size={24}
-            />
-          )}
+          Hey, {initialData.displayName} - Check out this recording!
         </div>
       )}
-      <div className="mt-2 text-xl text-[#3F3F3F] dark:text-[#CFCFCF]">
-        Hey,{" "}
-        {isEditing
-          ? value || "your name"
-          : initialData.displayName || "your name"}
-        ! Check out this recording:
-      </div>
     </div>
   );
 };

@@ -1,12 +1,12 @@
 // components/VideoRecorderComponent.tsx
 "use client";
 
+import React, { useEffect, useState, useRef } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import dynamic from "next/dynamic";
 import { useEdgeStore } from "@/lib/edgestore";
-import { useEffect, useState } from "react";
 
 // Dynamic import of MediaRecorder to prevent SSR issues
 const MediaRecorder = dynamic(
@@ -20,8 +20,13 @@ interface VideoRecorderComponentProps {
 }
 
 const VideoRecorder = ({ profileId, videoUrl }: VideoRecorderComponentProps) => {
-  const [isVideoSaved, setIsVideoSaved] = useState<boolean>(!!videoUrl);
+  const [currentVideoUrl, setCurrentVideoUrl] = useState<string | undefined>(videoUrl);
   const [isClient, setIsClient] = useState(false);
+  const [previewStream, setPreviewStream] = useState<MediaStream | null>(null);
+  const [shouldStartRecording, setShouldStartRecording] = useState<boolean>(false);
+
+  // Declare the ref with explicit type
+  const startRecordingRef = useRef<(() => void) | null>(null);
 
   // Mutation to update video URL
   const updateProfileVideoUrl = useMutation(api.profiles.updateVideoUrl);
@@ -35,47 +40,92 @@ const VideoRecorder = ({ profileId, videoUrl }: VideoRecorderComponentProps) => 
   };
 
   const handleDeleteVideo = async () => {
-    if (!videoUrl) return;
+    if (!currentVideoUrl) return;
 
     try {
       // Delete the file from Edgestore
-      await edgestore.publicFiles.delete({ url: videoUrl });
+      await edgestore.publicFiles.delete({ url: currentVideoUrl });
 
       // Update the profile to remove the videoUrl
       await updateProfileVideoUrl({ id: profileId, videoUrl: undefined });
 
       // Update local state
-      setIsVideoSaved(false);
-
-      alert("Video deleted successfully.");
+      setCurrentVideoUrl(undefined);
     } catch (error) {
       console.error("Error deleting video:", error);
       alert("There was an error deleting your video. Please try again.");
     }
   };
 
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
+  // Function to start the camera preview
+  const handleStartPreview = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: true,
+      });
+      setPreviewStream(stream);
+    } catch (error) {
+      console.error("Error accessing media devices.", error);
+      alert("Could not access your camera and microphone. Please check your permissions.");
+    }
+  };
+
+  // Function to stop the camera preview
+  const handleStopPreview = () => {
+    if (previewStream) {
+      previewStream.getTracks().forEach((track) => track.stop());
+      setPreviewStream(null);
+    }
+  };
 
   useEffect(() => {
-    setIsVideoSaved(!!videoUrl);
-  }, [videoUrl]);
+    setIsClient(true);
+
+    // Cleanup on component unmount
+    return () => {
+      handleStopPreview();
+    };
+  }, []);
+
+  // useEffect to start recording when ready
+  useEffect(() => {
+    if (shouldStartRecording && startRecordingRef.current) {
+      startRecordingRef.current();
+      setShouldStartRecording(false);
+    }
+  }, [shouldStartRecording]);
+
+  // Function to handle "Record Again"
+  const handleRecordAgain = async () => {
+    // Delete existing video
+    if (currentVideoUrl) {
+      await handleDeleteVideo();
+    }
+
+    // Start preview
+    await handleStartPreview();
+
+    // Set flag to start recording
+    setShouldStartRecording(true);
+  };
+
+  const isVideoSaved = !!currentVideoUrl;
 
   return (
     <div>
       {/* Display the saved video if it exists */}
-      {videoUrl && (
+      {currentVideoUrl && (
         <>
           <video
             className="max-w-6xl h-[512px] rounded-lg mt-4 object-cover"
             controls
-            src={videoUrl}
+            src={currentVideoUrl}
           />
           <div className="flex space-x-4 mt-4">
             {/* Record Again Button */}
             <button
-              onClick={() => setIsVideoSaved(false)}
+              onClick={handleRecordAgain}
               className="px-4 py-2 bg-blue-500 text-white rounded"
             >
               Record Again
@@ -94,41 +144,70 @@ const VideoRecorder = ({ profileId, videoUrl }: VideoRecorderComponentProps) => 
       {/* Video Recorder and Player */}
       {isClient && !isVideoSaved && (
         <div className="w-full mb-8 rounded-lg flex flex-col items-center">
-          <MediaRecorder
-            video
-            render={({
-              status,
-              startRecording,
-              stopRecording,
-              mediaBlobUrl,
-              previewStream,
-              error,
-            }) => (
-              <div className="flex flex-col items-center">
-                {/* Error Handling */}
-                {error && <p className="text-red-500">{error}</p>}
+          {/* Activate Camera Button */}
+          {!previewStream && (
+            <button
+              onClick={handleStartPreview}
+              className="px-4 py-2 bg-blue-500 text-white rounded"
+            >
+              Activate Camera
+            </button>
+          )}
 
-                {/* Start Recording Button */}
-                {status === "idle" && (
-                <button
-                    onClick={startRecording}
-                    className="flex items-center justify-center w-16 h-16 bg-red-600 hover:bg-red-700 text-white rounded-full"
-                >
-                    {/* Red Circle Icon */}
-                    <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-8 w-8"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                    >
-                    <circle cx="12" cy="12" r="6" />
-                    </svg>
-                </button>
-                )}
+          {/* Media Recorder */}
+          {previewStream && (
+            <MediaRecorder
+              video
+              audio
+              customMediaStream={previewStream}
+              render={({
+                status,
+                startRecording,
+                stopRecording,
+                mediaBlobUrl,
+                error,
+              }) => {
+                // Assign startRecording to the ref
+                startRecordingRef.current = startRecording;
 
-                {/* Recorder and Player */}
-                {(status === "recording" || status === "stopped") && (
-                  <>
+                return (
+                  <div className="flex flex-col items-center">
+                    {/* Error Handling */}
+                    {error && <p className="text-red-500">{error}</p>}
+
+                    {/* Video Preview (During Preview and Recording) */}
+                    {(status === "idle" || status === "recording") && (
+                      <video
+                        className="w-full h-[512px] rounded-lg mt-4 object-cover"
+                        autoPlay
+                        muted
+                        ref={(videoElement) => {
+                          if (videoElement) {
+                            videoElement.srcObject = previewStream;
+                          }
+                        }}
+                      />
+                    )}
+
+                    {/* Start Recording Button */}
+                    {status === "idle" && !shouldStartRecording && (
+                      <>
+                        <button
+                          onClick={startRecording}
+                          className="mt-4 px-4 py-2 bg-red-600 text-white rounded"
+                        >
+                          Start Recording
+                        </button>
+                        {/* Stop Preview Button */}
+                        <button
+                          onClick={handleStopPreview}
+                          className="mt-4 px-4 py-2 bg-gray-500 text-white rounded"
+                        >
+                          Stop Preview
+                        </button>
+                      </>
+                    )}
+
                     {/* Stop Recording Button */}
                     {status === "recording" && (
                       <button
@@ -137,20 +216,6 @@ const VideoRecorder = ({ profileId, videoUrl }: VideoRecorderComponentProps) => 
                       >
                         Stop Recording
                       </button>
-                    )}
-
-                    {/* Video Preview */}
-                    {status === "recording" && previewStream && (
-                      <video
-                        className="w-full h-[512px] rounded-lg mt-4 object-cover"
-                        autoPlay
-                        muted
-                        ref={(video) => {
-                          if (video && previewStream) {
-                            video.srcObject = previewStream;
-                          }
-                        }}
-                      />
                     )}
 
                     {/* Recorded Video Playback */}
@@ -162,7 +227,7 @@ const VideoRecorder = ({ profileId, videoUrl }: VideoRecorderComponentProps) => 
                           src={mediaBlobUrl}
                         />
 
-                        {/* Upload Button */}
+                        {/* Save Video Button */}
                         <button
                           onClick={async () => {
                             try {
@@ -185,11 +250,16 @@ const VideoRecorder = ({ profileId, videoUrl }: VideoRecorderComponentProps) => 
                                 videoUrl: newVideoUrl,
                               });
 
-                              // Set isVideoSaved to true
-                              setIsVideoSaved(true);
+                              // Update local state
+                              setCurrentVideoUrl(newVideoUrl);
+
+                              // Stop the preview
+                              handleStopPreview();
                             } catch (error) {
                               console.error("Error saving video:", error);
-                              alert("There was an error saving your video. Please try again.");
+                              alert(
+                                "There was an error saving your video. Please try again."
+                              );
                             }
                           }}
                           className="mt-4 px-4 py-2 bg-green-500 text-white rounded"
@@ -198,11 +268,11 @@ const VideoRecorder = ({ profileId, videoUrl }: VideoRecorderComponentProps) => 
                         </button>
                       </>
                     )}
-                  </>
-                )}
-              </div>
-            )}
-          />
+                  </div>
+                );
+              }}
+            />
+          )}
         </div>
       )}
     </div>
