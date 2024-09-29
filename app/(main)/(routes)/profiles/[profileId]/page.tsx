@@ -1,49 +1,57 @@
-"use client"
+"use client";
 
-import { useMutation, useQuery } from "convex/react"
-import { api } from "@/convex/_generated/api"
-import { Id } from "@/convex/_generated/dataModel"
-import dynamic from "next/dynamic"
-import { ProfToolbar } from "@/components/profile-toolbar"
-import { useEffect, useMemo, useState } from "react"
-import VideoRecorder from "@/components/videoRecorder"
-import { NavbarProfile } from "@/app/(main)/_components/navbarprof"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
+import { useMutation, useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { Id } from "@/convex/_generated/dataModel";
+import dynamic from "next/dynamic";
+import { ProfToolbar } from "@/components/profile-toolbar";
+import { useMemo, useState } from "react";
+import VideoRecorder from "@/components/videoRecorder";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Share2, Calendar, MessageSquare, Linkedin } from "lucide-react"
-import { toast } from "react-hot-toast"
-import  InlineWidget from "@calcom/embed-react"
+} from "@/components/ui/dialog";
+import { Share2, Calendar, MessageSquare, Linkedin } from "lucide-react";
+import { toast } from "react-hot-toast";
+import InlineWidget from "@calcom/embed-react";
+import { motion } from "framer-motion";
+import Link from "next/link";
+import { useUser } from "@clerk/clerk-react";
 
 interface ProfileIdPageProps {
   params: {
-    profileId: Id<"profiles">
-  }
+    profileId: Id<"profiles">;
+  };
 }
 
+const MotionLink = motion(Link);
+
 export default function ProfileIdPage({ params }: ProfileIdPageProps) {
+  const { user } = useUser();
+  const documents = useQuery(api.documents.getPublishedDocuments);
+  const latestDocuments = documents ? documents.slice(0, 3) : [];
+
   const Editor = useMemo(
     () => dynamic(() => import("@/components/editor"), { ssr: false }),
     []
-  )
+  );
 
   const profile = useQuery(api.profiles.getById, {
     profileId: params.profileId,
-  })
+  });
 
-  const update = useMutation(api.profiles.update)
+  const update = useMutation(api.profiles.update);
 
-  const [isShareDialogOpen, setIsShareDialogOpen] = useState(false)
-  const [videoKey, setVideoKey] = useState(0)
-  const [isReplyDialogOpen, setIsReplyDialogOpen] = useState(false)
-  const [isCalDialogOpen, setIsCalDialogOpen] = useState(false)
+  const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
+  const [videoKey, setVideoKey] = useState(0);
+  const [isReplyDialogOpen, setIsReplyDialogOpen] = useState(false);
+  const [isCalDialogOpen, setIsCalDialogOpen] = useState(false);
 
   const handleShare = async () => {
     if (navigator.share) {
@@ -52,31 +60,31 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
           title: `${profile?.displayName}'s Profile`,
           text: `Check out ${profile?.displayName}'s profile!`,
           url: window.location.href,
-        })
+        });
       } catch (error) {
-        console.error("Error sharing:", error)
+        console.error("Error sharing:", error);
       }
     } else {
-      setIsShareDialogOpen(true)
+      setIsShareDialogOpen(true);
     }
-  }
+  };
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(window.location.href)
-    toast.success("Profile link copied to clipboard!")
-    setIsShareDialogOpen(false)
-  }
+    navigator.clipboard.writeText(window.location.href);
+    toast.success("Profile link copied to clipboard!");
+    setIsShareDialogOpen(false);
+  };
 
   const handleVideoUpload = () => {
-    setVideoKey((prevKey) => prevKey + 1)
-  }
+    setVideoKey((prevKey) => prevKey + 1);
+  };
 
   if (!profile) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-primary"></div>
       </div>
-    )
+    );
   }
 
   return (
@@ -168,14 +176,18 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>
-                  Book a Meeting with {profile.displayName}
+                  Book a Meeting with {user?.firstName}
                 </DialogTitle>
               </DialogHeader>
               <div className="mt-4">
                 <InlineWidget
                   calLink="citrusreach"
-                  style={{ height: "650px", width: "100%", overflow:"scroll" }}
-                  config={{ theme: "light", "layout":"month_view" }}
+                  style={{
+                    height: "650px",
+                    width: "100%",
+                    overflow: "scroll",
+                  }}
+                  config={{ theme: "light", layout: "month_view" }}
                 />
               </div>
             </DialogContent>
@@ -215,6 +227,41 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* More from {user.firstName} Section */}
+      {user && latestDocuments.length > 0 && (
+        <div className="mt-12 w-full">
+          <h2 className="text-2xl font-bold mb-6">
+            More from {user.firstName}
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            {latestDocuments.map((post) => (
+              <MotionLink
+                key={post._id}
+                href={`/preview/${post._id}`}
+                className="flex flex-col"
+                whileHover={{ y: -5 }}
+                transition={{ type: "spring", stiffness: 300 }}
+              >
+                <img
+                  src={
+                    post.coverImage || "/placeholder.svg?height=300&width=400"
+                  }
+                  alt={post.title}
+                  className="rounded-lg object-cover w-full h-[200px] mb-4"
+                />
+                <p className="text-gray-500 text-sm mb-1">
+                  {new Date(post._creationTime).toLocaleDateString()}
+                </p>
+                <h3 className="text-xl font-semibold mb-1">{post.title}</h3>
+                <p className="text-gray-600">
+                  By {user?.fullName || "Unknown Author"}
+                </p>
+              </MotionLink>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
-  )
+  );
 }

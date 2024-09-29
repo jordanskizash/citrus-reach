@@ -368,14 +368,40 @@ export const removeCoverImage = mutation({
     }
 });
 
-export const getPublishedDocuments = query({
+// export const getPublishedDocuments = query({
+//     handler: async (ctx) => {
+//       const documents = await ctx.db
+//         .query("documents")
+//         .filter((q) => 
+//           q.eq(q.field("isPublished"), true)
+//         )
+//         .order("desc")
+//         .collect();
+  
+//       return documents;
+//     },
+//   });
+
+
+  export const getPublishedDocuments = query({
     handler: async (ctx) => {
+      const identity = await ctx.auth.getUserIdentity();
+  
+      if (!identity) {
+        throw new Error('Not authenticated');
+      }
+  
+      const userId = identity.subject;
+  
       const documents = await ctx.db
-        .query("documents")
-        .filter((q) => 
-          q.eq(q.field("isPublished"), true)
+        .query('documents')
+        .filter((q) =>
+          q.and(
+            q.eq(q.field('isPublished'), true),
+            q.eq(q.field('userId'), userId)
+          )
         )
-        .order("desc")
+        .order('desc') // Order by creation time or any other field
         .collect();
   
       return documents;
