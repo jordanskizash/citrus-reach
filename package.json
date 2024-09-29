@@ -12,6 +12,7 @@
     "@blocknote/core": "^0.14.5",
     "@blocknote/mantine": "^0.14.6",
     "@blocknote/react": "^0.14.6",
+    "@calcom/embed-react": "^1.5.1",
     "@clerk/clerk-react": "^5.2.5",
     "@clerk/nextjs": "^4.6.18",
     "@edgestore/react": "^0.2.0",

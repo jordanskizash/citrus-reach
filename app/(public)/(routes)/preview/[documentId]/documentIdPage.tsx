@@ -8,6 +8,7 @@ import { Cover } from "@/components/cover";
 import { Skeleton } from "@/components/ui/skeleton";
 import dynamic from "next/dynamic";
 import { useMemo } from "react";
+import ScrollIndicator from "@/app/(main)/_components/scroll";
 
 interface DocumentIdPageProps {
     params: {
@@ -52,17 +53,20 @@ const DocumentIdPage = ({ params }: DocumentIdPageProps) => {
     }
 
     return (
-        <div className="pb-40 py-20 max-w-7xl mx-auto px-4 sm:px-2 lg:px-8 h-[80vh] bg-white">
-            <Cover preview url={document.coverImage} />
-            <div className="mx-auto">
-                <Toolbar preview initialData={document} />
-                <Editor
-                    editable={false} 
-                    onChange={onChange}
-                    initialContent={document.content}
-                />
+        <>
+            <ScrollIndicator />
+            <div className="pb-40 py-20 max-w-7xl mx-auto px-4 sm:px-2 lg:px-8 h-[80vh] bg-white">
+                <Cover preview url={document.coverImage} />
+                <div className="mx-auto">
+                    <Toolbar preview initialData={document} />
+                    <Editor
+                        editable={false} 
+                        onChange={onChange}
+                        initialContent={document.content}
+                    />
+                </div>
             </div>
-        </div>
+        </>
     );
 }
 

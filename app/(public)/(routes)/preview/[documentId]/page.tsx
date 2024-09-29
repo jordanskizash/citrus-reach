@@ -2,7 +2,8 @@ import { Metadata } from 'next'
 import { Id } from "@/convex/_generated/dataModel";
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "@/convex/_generated/api";
-import DocumentIdPage from './documentIdPage'
+import DocumentIdPage from './documentIdPage';
+
 
 interface PageProps {
     params: {
@@ -31,6 +32,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         openGraph: {
             title: document.title || 'Document',
             description: document.content ? document.content.substring(0, 200) : "No content available",
+            images: document.coverImage ? [{ url: document.coverImage }]: "No Image available"
         },
         twitter: {
             card: 'summary_large_image',
@@ -52,5 +54,9 @@ export default async function Page({ params }: PageProps) {
         return <div>Document not found</div>;
     }
 
-    return <DocumentIdPage params={params} />;
+    return (
+        <>
+          <DocumentIdPage params={params} />
+        </>
+      );
 }

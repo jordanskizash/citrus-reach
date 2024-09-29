@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronsLeftRight } from "lucide-react";
+import { ChevronsLeftRight, HouseIcon } from "lucide-react";
 import { SignOutButton, useUser } from "@clerk/clerk-react";
 
 import {
@@ -15,6 +15,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
 
 export const UserItem = () => {
     const { user } = useUser();
@@ -62,6 +63,12 @@ export const UserItem = () => {
                     <SignOutButton>
                         Sign Out
                     </SignOutButton>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild className="w-full cursor-pointer text-muted-foreground">
+                <a href="/homepage" className="text-left w-full">
+                    Homepage
+                </a>
                 </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>

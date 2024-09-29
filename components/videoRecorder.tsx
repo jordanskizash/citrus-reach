@@ -7,8 +7,6 @@ import { Id } from "@/convex/_generated/dataModel"
 import dynamic from "next/dynamic"
 import { useEdgeStore } from "@/lib/edgestore"
 import { Button } from "@/components/ui/button"
-import { Camera, Upload } from "lucide-react"
-import { SingleImageDropzone } from "./single-image-dropzone"
 
 const MediaRecorder = dynamic(
   () => import("react-media-recorder").then((mod) => mod.ReactMediaRecorder),
@@ -18,15 +16,14 @@ const MediaRecorder = dynamic(
 interface VideoRecorderComponentProps {
   profileId: Id<"profiles">
   videoUrl?: string
+  onVideoUpload?: () => void
 }
 
-export default function VideoRecorder({ profileId, videoUrl }: VideoRecorderComponentProps) {
+export default function VideoRecorder({ profileId, videoUrl, onVideoUpload }: VideoRecorderComponentProps) {
   const [currentVideoUrl, setCurrentVideoUrl] = useState<string | undefined>(videoUrl)
   const [isClient, setIsClient] = useState(false)
   const [previewStream, setPreviewStream] = useState<MediaStream | null>(null)
   const [shouldStartRecording, setShouldStartRecording] = useState<boolean>(false)
-  const [mode, setMode] = useState<"camera" | "upload">("camera")
-  const [uploadedFile, setUploadedFile] = useState<File | undefined>(undefined)
 
   const startRecordingRef = useRef<(() => void) | null>(null)
 
@@ -45,7 +42,6 @@ export default function VideoRecorder({ profileId, videoUrl }: VideoRecorderComp
       await edgestore.publicFiles.delete({ url: currentVideoUrl })
       await updateProfileVideoUrl({ id: profileId, videoUrl: undefined })
       setCurrentVideoUrl(undefined)
-      setUploadedFile(undefined)
     } catch (error) {
       console.error("Error deleting video:", error)
       alert("There was an error deleting your video. Please try again.")
@@ -94,42 +90,10 @@ export default function VideoRecorder({ profileId, videoUrl }: VideoRecorderComp
     setShouldStartRecording(true)
   }
 
-  const handleFileUpload = async (file: File | undefined) => {
-    setUploadedFile(file)
-    if (file) {
-      try {
-        const newVideoUrl = await handleUpload(file)
-        await updateProfileVideoUrl({
-          id: profileId,
-          videoUrl: newVideoUrl,
-        })
-        setCurrentVideoUrl(newVideoUrl)
-      } catch (error) {
-        console.error("Error uploading video:", error)
-        alert("There was an error uploading your video. Please try again.")
-      }
-    }
-  }
-
   const isVideoSaved = !!currentVideoUrl
 
   return (
-    <div className="w-full max-w-2xl mx-auto">
-      <div className="flex justify-center space-x-4 mb-4">
-        <Button
-          variant={mode === "camera" ? "default" : "outline"}
-          onClick={() => setMode("camera")}
-        >
-          <Camera className="mr-2 h-4 w-4" /> Use Camera
-        </Button>
-        <Button
-          variant={mode === "upload" ? "default" : "outline"}
-          onClick={() => setMode("upload")}
-        >
-          <Upload className="mr-2 h-4 w-4" /> Upload Video
-        </Button>
-      </div>
-
+    <div className="w-full">
       {currentVideoUrl ? (
         <div className="relative">
           <video
@@ -147,11 +111,11 @@ export default function VideoRecorder({ profileId, videoUrl }: VideoRecorderComp
           </div>
         </div>
       ) : (
-        <div className="relative w-full h-[512px] bg-gray-200 rounded-lg flex items-center justify-center shadow-2xl">
-          {isClient && mode === "camera" && (
+        <div className="relative w-full h-[512px] bg-gray-200 rounded-lg flex items-center justify-center">
+          {isClient && (
             <>
               {!previewStream ? (
-                <Button onClick={handleStartPreview} variant="secondary" className="shadow-xl border-black">
+                <Button onClick={handleStartPreview} variant="secondary">
                   Activate Camera
                 </Button>
               ) : (
@@ -232,6 +196,7 @@ export default function VideoRecorder({ profileId, videoUrl }: VideoRecorderComp
                                     })
                                     setCurrentVideoUrl(newVideoUrl)
                                     handleStopPreview()
+                                    onVideoUpload?.()
                                   } catch (error) {
                                     console.error("Error saving video:", error)
                                     alert("There was an error saving your video. Please try again.")
@@ -250,17 +215,6 @@ export default function VideoRecorder({ profileId, videoUrl }: VideoRecorderComp
                 />
               )}
             </>
-          )}
-          {isClient && mode === "upload" && (
-            <SingleImageDropzone
-              width={350}
-              height={350}
-              value={uploadedFile}
-              onChange={handleFileUpload}
-              dropzoneOptions={{
-                accept: { 'video/*': [] },
-              }}
-            />
           )}
         </div>
       )}

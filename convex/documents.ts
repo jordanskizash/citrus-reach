@@ -366,4 +366,18 @@ export const removeCoverImage = mutation({
 
         return document;
     }
-})
+});
+
+export const getPublishedDocuments = query({
+    handler: async (ctx) => {
+      const documents = await ctx.db
+        .query("documents")
+        .filter((q) => 
+          q.eq(q.field("isPublished"), true)
+        )
+        .order("desc")
+        .collect();
+  
+      return documents;
+    },
+  });
