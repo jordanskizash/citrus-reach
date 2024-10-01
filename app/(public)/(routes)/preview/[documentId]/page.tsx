@@ -59,7 +59,9 @@ export default async function Page({ params }: PageProps) {
 
     return (
         <>
-          <DocumentIdPage params={params} />
+          <DocumentIdPage params={params} initialDocument={document} />
+          {/* return <DocumentIdPage initialDocument={document} />; */}
         </>
+
       );
 }
