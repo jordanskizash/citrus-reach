@@ -14,9 +14,10 @@ interface DocumentIdPageProps {
     params: {
         documentId: Id<"documents">;
     };
+    initialDocument: Doc<"documents">;
 }
 
-const DocumentIdPage = ({ params }: DocumentIdPageProps) => {
+const DocumentIdPage = ({ params, initialDocument }: DocumentIdPageProps) => {
     const Editor = useMemo(() => dynamic(() => import("@/components/editor"), { ssr: false }), []);
 
     const document = useQuery(api.documents.getById, {

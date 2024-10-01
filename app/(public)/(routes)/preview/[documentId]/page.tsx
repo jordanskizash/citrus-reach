@@ -32,10 +32,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         openGraph: {
             title: document.title || 'Document',
             description: document.content ? document.content.substring(0, 200) : "No content available",
-            images: document.coverImage ? [{ url: document.coverImage }]: "No Image available"
+            images: document.coverImage ? [{ url: document.coverImage }]:[],
         },
         twitter: {
             card: 'summary_large_image',
+            title: document.title || 'Document',
+            description: document.content ? document.content.substring(0, 200) : "No content available",
+            images: document.coverImage ? [document.coverImage] : [],
         },
     };
 

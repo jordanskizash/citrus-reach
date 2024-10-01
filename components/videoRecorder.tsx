@@ -7,6 +7,7 @@ import { Id } from "@/convex/_generated/dataModel"
 import dynamic from "next/dynamic"
 import { useEdgeStore } from "@/lib/edgestore"
 import { Button } from "@/components/ui/button"
+import { Camera, Upload } from "lucide-react"
 
 const MediaRecorder = dynamic(
   () => import("react-media-recorder").then((mod) => mod.ReactMediaRecorder),
@@ -26,6 +27,7 @@ export default function VideoRecorder({ profileId, videoUrl, onVideoUpload }: Vi
   const [shouldStartRecording, setShouldStartRecording] = useState<boolean>(false)
 
   const startRecordingRef = useRef<(() => void) | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const updateProfileVideoUrl = useMutation(api.profiles.updateVideoUrl)
   const { edgestore } = useEdgeStore()
@@ -65,6 +67,24 @@ export default function VideoRecorder({ profileId, videoUrl, onVideoUpload }: Vi
     if (previewStream) {
       previewStream.getTracks().forEach((track) => track.stop())
       setPreviewStream(null)
+    }
+  }
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (file) {
+      try {
+        const newVideoUrl = await handleUpload(file)
+        await updateProfileVideoUrl({
+          id: profileId,
+          videoUrl: newVideoUrl,
+        })
+        setCurrentVideoUrl(newVideoUrl)
+        onVideoUpload?.()
+      } catch (error) {
+        console.error("Error uploading video:", error)
+        alert("There was an error uploading your video. Please try again.")
+      }
     }
   }
 
@@ -115,9 +135,23 @@ export default function VideoRecorder({ profileId, videoUrl, onVideoUpload }: Vi
           {isClient && (
             <>
               {!previewStream ? (
-                <Button onClick={handleStartPreview} variant="secondary">
-                  Activate Camera
-                </Button>
+                <div className="flex space-x-2">
+                  <Button onClick={handleStartPreview} variant="secondary">
+                    <Camera className="mr-2 h-4 w-4" />
+                    Activate Camera
+                  </Button>
+                  <Button onClick={() => fileInputRef.current?.click()} variant="secondary">
+                    <Upload className="mr-2 h-4 w-4" />
+                    Upload Video
+                  </Button>
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleFileUpload}
+                    accept="video/*"
+                    className="hidden"
+                  />
+                </div>
               ) : (
                 <MediaRecorder
                   video
