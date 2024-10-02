@@ -11,6 +11,7 @@ import { useParams } from "next/navigation";
 import { Id } from "@/convex/_generated/dataModel";
 import { useEdgeStore } from "@/lib/edgestore";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Title } from "@/app/(main)/_components/title";
 
 interface CoverImageProps {
     url?: string;
