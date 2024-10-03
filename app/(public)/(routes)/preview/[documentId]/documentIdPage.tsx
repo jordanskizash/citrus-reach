@@ -13,6 +13,7 @@ import ScrollIndicator from "@/app/(main)/_components/scroll";
 import { motion } from "framer-motion";
 import { Linkedin, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import SubscribeWidget from "@/app/(marketing)/_components/subscribe";
 
 interface DocumentIdPageProps {
     params: {
@@ -138,6 +139,9 @@ const DocumentIdPage = ({ params, initialDocument }: DocumentIdPageProps) => {
                                 }}
                                 initialContent={document.content}
                             />
+                        </div>
+                        <div>
+                            <SubscribeWidget />
                         </div>
                         <div className="mt-8 flex justify-center space-x-4">
                             <Button variant="outline" size="sm" className="hover:bg-orange-300">

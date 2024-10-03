@@ -8,11 +8,12 @@ import { api } from '@/convex/_generated/api'
 import { Doc } from '@/convex/_generated/dataModel'
 import { useState, useEffect } from 'react'
 import Head from 'next/head'
+import { Spinner } from '@/components/spinner'
 
 const MotionLink = motion(Link)
 
 const BLOG_AUTHOR_ID = 'user_2mrbDezxzWCnqMT5dQrLod4s1AS'
-const AUTHOR_NAME = 'Citrus' // Replace with the actual author name
+const AUTHOR_NAME = 'Citrus Reach' // Replace with the actual author name
 
 export default function BlogPage() {
   const documents = useQuery(api.documents.getPublishedDocumentsByUserId, { 
@@ -30,7 +31,7 @@ export default function BlogPage() {
     }
   }, [documents])
 
-  if (!documents) return <div>Loading...</div>
+  if (!documents) return <Spinner />
 
   return (
     <>
