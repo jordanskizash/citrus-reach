@@ -1,86 +1,100 @@
-import Image from "next/image"
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+'use client'
 
-// Sample data for blog posts
-const blogPosts = [
-  {
-    title: "The Future of AI in Web Development",
-    description: "Explore how artificial intelligence is reshaping the landscape of web development and what it means for developers.",
-    author: {
-      name: "Alex Johnson",
-      image: "/placeholder.svg?height=40&width=40"
-    },
-    date: "May 15, 2023",
-    image: "/coolplaceholder.jpeg"
-  },
-  {
-    title: "Mastering React Hooks",
-    description: "Dive deep into React Hooks and learn how to build more efficient and cleaner React components.",
-    author: {
-      name: "Samantha Lee",
-      image: "/placeholder.svg?height=40&width=40"
-    },
-    date: "May 10, 2023",
-    image: "/coolplaceholder2.jpeg"
-  },
-  {
-    title: "The Rise of JAMstack",
-    description: "Discover why JAMstack is becoming increasingly popular and how it's changing web development practices.",
-    author: {
-      name: "Michael Chen",
-      image: "/placeholder.svg?height=40&width=40"
-    },
-    date: "May 5, 2023",
-    image: "/placeholder3.jpeg"
-  },
-  {
-    title: "Accessibility in Modern Web Design",
-    description: "Learn best practices for creating accessible websites and why it's crucial for inclusive user experiences.",
-    author: {
-      name: "Emma Rodriguez",
-      image: "/placeholder.svg?height=40&width=40"
-    },
-    date: "April 30, 2023",
-    image: "/placeholder4.jpeg"
-  }
-]
+import { motion } from 'framer-motion'
+import Image from 'next/image'
+import Link from 'next/link'
+import { useQuery } from 'convex/react'
+import { api } from '@/convex/_generated/api'
+import { Doc } from '@/convex/_generated/dataModel'
+import { useState, useEffect } from 'react'
+import Head from 'next/head'
 
-export default function RecentBlogPosts() {
+const MotionLink = motion(Link)
+
+const BLOG_AUTHOR_ID = 'user_2mrbDezxzWCnqMT5dQrLod4s1AS'
+const AUTHOR_NAME = 'Citrus' // Replace with the actual author name
+
+export default function BlogPage() {
+  const documents = useQuery(api.documents.getPublishedDocumentsByUserId, { 
+    userId: BLOG_AUTHOR_ID 
+  })
+  const [pinnedPost, setPinnedPost] = useState<Doc<'documents'> | null>(null)
+  const [otherPosts, setOtherPosts] = useState<Doc<'documents'>[]>([])
+
+  useEffect(() => {
+    if (documents) {
+      if (documents.length > 0) {
+        setPinnedPost(documents[0])
+        setOtherPosts(documents.slice(1))
+      }
+    }
+  }, [documents])
+
+  if (!documents) return <div>Loading...</div>
+
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-5xl font-bold mb-20 text-center text-orange-500">The latest news from Citrus</h1>
-      <h2 className="text-2xl mb-20 text-center text-muted-foreground">Learn about all the ways we&apos;re increasing response rates</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {blogPosts.map((post, index) => (
-          <Card key={index} className="overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1">
-            <CardHeader className="p-0">
-              <Image
-                src={post.image}
+    <>
+      <Head>
+        <title>Blog - Latest Posts</title>
+        <meta name="description" content={`Read the latest blog posts from ${AUTHOR_NAME}`} />
+        <meta property="og:title" content="Blog - Latest Posts" />
+        <meta property="og:description" content={`Read the latest blog posts from ${AUTHOR_NAME}`} />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="citrusreach.com/blog" />
+        {pinnedPost && <meta property="og:image" content={pinnedPost.coverImage || "/placeholder.svg"} />}
+      </Head>
+      <div className="max-w-7xl mx-auto px-8 sm:px-16 py-8">
+        <h1 className="text-4xl font-bold mb-8">Latest from {AUTHOR_NAME}</h1>
+        
+        <div className="space-y-12">
+        {pinnedPost && (
+          <MotionLink 
+            href={`/blog/${pinnedPost._id}`}
+            className="flex flex-col md:flex-row gap-6 mb-12 p-6 rounded-lg"
+            whileHover={{ scale: 1.02 }}
+            transition={{ type: "spring", stiffness: 300 }}
+          >
+            <div className="md:w-1/2">
+              <Image 
+                src={pinnedPost.coverImage || "/placeholder.svg?height=400&width=600"}
+                alt={pinnedPost.title}
+                width={600}
+                height={400}
+                className="rounded-lg object-cover w-full h-[250px] md:h-[300px]"
+              />
+            </div>
+            <div className="md:w-1/2 flex flex-col justify-center p-6">
+              <h2 className="text-2xl font-bold mb-2">{pinnedPost.title}</h2>
+              <p className="text-gray-600 mb-2">By {AUTHOR_NAME}</p>
+              <p className="text-gray-500">{new Date(pinnedPost._creationTime).toLocaleDateString()}</p>
+            </div>
+          </MotionLink>
+        )}
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {otherPosts.map((post) => (
+            <MotionLink 
+              key={post._id}
+              href={`/blog/${post._id}`}
+              className="flex flex-col"
+              whileHover={{ y: -5 }}
+              transition={{ type: "spring", stiffness: 300 }}
+            >
+              <Image 
+                src={post.coverImage || "/placeholder.svg?height=300&width=400"}
                 alt={post.title}
                 width={400}
-                height={800}
-                className="w-full h-80 object-cover"
+                height={300}
+                className="rounded-lg object-cover w-full h-[200px] mb-4"
               />
-            </CardHeader>
-            <CardContent className="p-4">
-              <h2 className="text-xl font-semibold mb-2">{post.title}</h2>
-              <p className="text-muted-foreground text-sm mb-4">{post.description}</p>
-            </CardContent>
-            <CardFooter className="flex items-center justify-between p-4 bg-muted/50">
-              <div className="flex items-center space-x-2">
-                <Avatar className="w-6 h-6">
-                  <AvatarImage src={post.author.image} alt={post.author.name} />
-                  <AvatarFallback>{post.author.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                </Avatar>
-                <span className="text-xs font-medium">{post.author.name}</span>
-              </div>
-              <span className="text-xs text-muted-foreground">{post.date}</span>
-            </CardFooter>
-          </Card>
-
-        ))}
+              <p className="text-gray-500 text-sm mb-1">{new Date(post._creationTime).toLocaleDateString()}</p>
+              <h3 className="text-xl font-semibold mb-1">{post.title}</h3>
+              <p className="text-gray-600">By {AUTHOR_NAME}</p>
+            </MotionLink>
+          ))}
+        </div>
       </div>
-    </div>
+      </div>
+    </>
   )
 }
