@@ -119,7 +119,7 @@ const DocumentIdPage = ({ params, initialDocument }: DocumentIdPageProps) => {
         >
             
             <ScrollIndicator />
-            <div className="pb-40 pt-10 w-full max-w-full sm:max-w-3xl md:max-w-4xl lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 bg-white">
+            <div className="pb-40 pt-10 w-full max-w-full xs:max-w-3xl sm:max-w-3xl md:max-w-4xl lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl mx-auto px-2 sm:px-2 lg:px-6 bg-white">
                 <div className="flex flex-col lg:flex-row lg:space-x-8">
                     <article className="flex-grow">
                         <div className="mb-4 text-sm text-gray-500">
@@ -144,11 +144,11 @@ const DocumentIdPage = ({ params, initialDocument }: DocumentIdPageProps) => {
                             <SubscribeWidget />
                         </div>
                         <div className="mt-8 flex justify-center space-x-4">
-                            <Button variant="outline" size="sm" className="hover:bg-orange-300">
+                            <Button variant="outline" size="sm" className="hover:bg-orange-500">
                                 <Mail className="w-4 h-4 mr-2" />
                                 Share
                             </Button>
-                            <Button variant="outline" size="sm" className="hover:bg-orange-300">
+                            <Button variant="outline" size="sm" className="hover:bg-orange-500">
                                 <Linkedin className="w-4 h-4 mr-2" />
                                 Post
                             </Button>
