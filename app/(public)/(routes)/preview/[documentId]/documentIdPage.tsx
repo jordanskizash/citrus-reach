@@ -119,7 +119,7 @@ const DocumentIdPage = ({ params, initialDocument }: DocumentIdPageProps) => {
         >
             
             <ScrollIndicator />
-            <div className="pb-40 pt-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 bg-white">
+            <div className="pb-40 pt-10 max-w-7xl mx-auto px-4 sm:px-2 lg:px-8 bg-white">
                 <div className="flex flex-col lg:flex-row lg:space-x-8">
                     <article className="flex-grow">
                         <div className="mb-4 text-sm text-gray-500">
