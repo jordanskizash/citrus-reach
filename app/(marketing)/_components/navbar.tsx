@@ -10,7 +10,6 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Logo } from "./logo";
-import { ModeToggle } from "@/components/mode-toggle"
 import { Spinner } from "@/components/spinner"
 import { useScrollTop } from "@/hooks/use-scroll-top"
 
@@ -82,7 +81,6 @@ export const Navbar: React.FC = () => {
                                 <Button variant="ghost" asChild onClick={toggleMenu}>
                                     <Link href="/blog">Blog</Link>
                                 </Button>
-                                <ModeToggle />
                             </nav>
                         </SheetContent>
                     </Sheet>
@@ -99,7 +97,6 @@ export const Navbar: React.FC = () => {
                 <div className="flex items-center justify-end space-x-2">
                     <div className="hidden md:flex items-center gap-x-2">
                         <NavItems isAuthenticated={isAuthenticated} isLoading={isLoading} />
-                        <ModeToggle />
                     </div>
                     <div className="md:hidden flex items-center space-x-2">
                         {isAuthenticated && !isLoading && (

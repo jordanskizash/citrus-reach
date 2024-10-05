@@ -4,7 +4,6 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import { Toolbar } from "@/components/toolbar";
-import { useUser } from "@clerk/clerk-react";
 import { Cover } from "@/components/cover";
 import { Skeleton } from "@/components/ui/skeleton";
 import dynamic from "next/dynamic";
@@ -17,6 +16,9 @@ import { Button } from "@/components/ui/button";
 import SubscribeWidget from "@/app/(marketing)/_components/subscribe";
 import ShareButtons from "@/app/(marketing)/_components/sharebuttons";
 import Link from "next/link";
+
+const AUTHOR_NAME = 'Citrus Team';
+const AUTHOR_IMAGE = '/logo.svg'; // Replace with the actual author image path
 
 interface DocumentIdPageProps {
     params: {
@@ -56,8 +58,6 @@ const DocumentIdPage = ({ params, initialDocument }: DocumentIdPageProps) => {
             day: 'numeric'
         });
     };
-
-    const { user } = useUser();
 
     const extractHeadings = (content: string): Heading[] => {
         try {
@@ -137,19 +137,19 @@ const DocumentIdPage = ({ params, initialDocument }: DocumentIdPageProps) => {
                             <div className="mb-6">
                                 <Link href="/blog" passHref>
                                     <Button variant="ghost" className="pl-0 text-primary hover:text-primary/80">
-                                        <ArrowLeft className="mr-2 ml-2 h-4 w-4" />
+                                        <ArrowLeft className="mr-2 h-4 w-4" />
                                         Back to Blog
                                     </Button>
                                 </Link>
                             </div>
                             <Cover preview url={document.coverImage} />
-                            <div className="mt-8 mb-8 ml-14 flex items-center space-x-4">
+                            <div className="mt-6 mb-8 flex items-center space-x-4">
                                 <Avatar className="h-12 w-12">
-                                    <AvatarImage src={user?.imageUrl} alt={user?.fullName || "Author"} />
-                                    <AvatarFallback>{user?.fullName?.[0] || "A"}</AvatarFallback>
+                                    <AvatarImage src={AUTHOR_IMAGE} alt={AUTHOR_NAME} />
+                                    <AvatarFallback>{AUTHOR_NAME[0]}</AvatarFallback>
                                 </Avatar>
                                 <div>
-                                    <h2 className="text-xl font-semibold">{user?.fullName}</h2>
+                                    <h2 className="text-xl font-semibold">{AUTHOR_NAME}</h2>
                                     <div className="flex items-center space-x-2 text-sm text-gray-500">
                                         <Clock className="h-4 w-4" />
                                         <span>{formatDate(document._creationTime)}</span>
