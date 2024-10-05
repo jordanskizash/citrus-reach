@@ -10,38 +10,58 @@ import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 
 interface BannerProps {
-    documentId: Id<"documents">;
+    documentId?: Id<"documents">;
+    profileId?: Id<"profiles">;
 };
 
 export const Banner = ({
-    documentId
+    documentId,
+    profileId
 }: BannerProps) => {
     const router = useRouter();
 
-    const remove = useMutation(api.documents.remove);
-    const restore = useMutation(api.documents.restore);
+    const removeDocument = useMutation(api.documents.remove);
+    const removeProfile = useMutation(api.profiles.remove);
+    const restoreDocument = useMutation(api.documents.restore);
+    const restoreProfile = useMutation(api.profiles.restore);
 
     const onRemove = () => {
-        const promise = remove({ id: documentId })
-
-        toast.promise(promise, {
-            loading: "Deleting blog...",
-            success: "blog deleted!",
-            error: "Failed to delete blog."
-        });
-
-        router.push("/documents");
-    }
+        if (documentId) {
+            const promise = removeDocument({ id: documentId });
+            toast.promise(promise, {
+                loading: "Deleting document...",
+                success: "Document deleted!",
+                error: "Failed to delete document."
+            });
+            router.push("/documents");
+        } else if (profileId) {
+            const promise = removeProfile({ id: profileId });
+            toast.promise(promise, {
+                loading: "Deleting profile...",
+                success: "Profile deleted!",
+                error: "Failed to delete profile."
+            });
+            router.push("/profiles");
+        }
+    };
 
     const onRestore = () => {
-        const promise = restore({ id: documentId });
-
-        toast.promise(promise, {
-            loading: "Restoring note...",
-            success: "Note restored!",
-            error: "Failed to restore note."
-        });
-    }
+        if (documentId) {
+            const promise = restoreDocument({ id: documentId });
+            toast.promise(promise, {
+                loading: "Restoring document...",
+                success: "Document restored!",
+                error: "Failed to restore document."
+            });
+        } else if (profileId) {
+            const promise = restoreProfile({ id: profileId });
+            toast.promise(promise, {
+                loading: "Restoring profile...",
+                success: "Profile restored!",
+                error: "Failed to restore profile."
+            });
+        }
+    };
 
     return (
         <div className="w-full bg-rose-500 text-center text-sm p-2 text-white flex items-center gap-x-2 justify-center">
@@ -66,5 +86,5 @@ export const Banner = ({
                 </Button>
             </ConfirmModal>
         </div>
-    )
-}
+    );
+};

@@ -6,9 +6,9 @@ import { useQuery } from "convex/react";
 import { MenuIcon } from "lucide-react";
 import { useParams } from "next/navigation";
 import { ProfTitle } from "./prof-title";
+import { PublishProfile } from "./publishprof"; // Import the new PublishProfile component
 import { Banner } from "./banner"; // Adjust or remove if not applicable
 import { Menu } from "./menu"; // Adjust if necessary
-// import { Publish } from "./publish"; // Omitted as per your request
 
 interface NavbarProps {
   isCollapsed: boolean;
@@ -57,13 +57,12 @@ export const NavbarProfile = ({
         <div className="flex items-center justify-between w-full flex-wrap">
           <ProfTitle initialData={profile} />
           <div className="items-center gap-x-2 flex-shrink-0 ">
-            {/* Omitted the Publish component */}
-            
+            <PublishProfile initialData={profile} /> {/* Adding the PublishProfile component */}
+            <Menu profileId={profile._id} />
           </div>
         </div>
       </nav>
-      {/* Adjust or remove the Banner component if necessary
-      {profile.isArchived && <Banner profileId={profile._id} />} */}
+      {profile.isArchived && <Banner profileId={profile._id} />}
     </>
   );
 };

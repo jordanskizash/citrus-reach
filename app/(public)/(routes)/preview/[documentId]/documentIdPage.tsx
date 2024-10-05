@@ -137,13 +137,13 @@ const DocumentIdPage = ({ params, initialDocument }: DocumentIdPageProps) => {
                             <div className="mb-6">
                                 <Link href="/blog" passHref>
                                     <Button variant="ghost" className="pl-0 text-primary hover:text-primary/80">
-                                        <ArrowLeft className="mr-2 h-4 w-4" />
+                                        <ArrowLeft className="mr-2 ml-2 h-4 w-4" />
                                         Back to Blog
                                     </Button>
                                 </Link>
                             </div>
                             <Cover preview url={document.coverImage} />
-                            <div className="mt-6 mb-8 flex items-center space-x-4">
+                            <div className="mt-8 mb-8 ml-14 flex items-center space-x-4">
                                 <Avatar className="h-12 w-12">
                                     <AvatarImage src={AUTHOR_IMAGE} alt={AUTHOR_NAME} />
                                     <AvatarFallback>{AUTHOR_NAME[0]}</AvatarFallback>

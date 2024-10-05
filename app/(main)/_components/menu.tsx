@@ -19,28 +19,39 @@ import { MoreHorizontal, Trash } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface MenuProps {
-    documentId: Id<"documents">;
+    documentId?: Id<"documents">;
+    profileId?: Id<"profiles">;
 };
 
 export const Menu = ({
-    documentId
+    documentId,
+    profileId
 }: MenuProps) => {
     const router = useRouter();
     const { user } = useUser();
 
-    const archive = useMutation(api.documents.archive);
+    const archiveDocument = useMutation(api.documents.archive);
+    const archiveProfile = useMutation(api.profiles.archive);
 
     const onArchive = () => {
-        const promise = archive({ id: documentId})
-    
-        toast.promise(promise, {
-            loading: "Moving to trash...",
-            success: "Note moved to trash!",
-            error: "Failed to archive note."
+        if (documentId) {
+            const promise = archiveDocument({ id: documentId });
+            toast.promise(promise, {
+                loading: "Moving document to trash...",
+                success: "Document moved to trash!",
+                error: "Failed to archive document."
             });
-
             router.push("/documents");
-        };
+        } else if (profileId) {
+            const promise = archiveProfile({ id: profileId });
+            toast.promise(promise, {
+                loading: "Moving profile to trash...",
+                success: "Profile moved to trash!",
+                error: "Failed to archive profile."
+            });
+            router.push("/profiles");
+        }
+    };
 
     return(
         <DropdownMenu>
@@ -71,5 +82,6 @@ export const Menu = ({
 Menu.Skeleton = function MenuSkeleton() {
     return (
         <Skeleton className="h-10 w-10" />
-    )
-}
+    );
+};
+

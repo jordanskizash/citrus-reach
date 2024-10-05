@@ -11,7 +11,6 @@ import { useParams } from "next/navigation";
 import { Id } from "@/convex/_generated/dataModel";
 import { useEdgeStore } from "@/lib/edgestore";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Title } from "@/app/(main)/_components/title";
 
 interface CoverImageProps {
     url?: string;
@@ -24,15 +23,15 @@ export const Cover = ({
 }: CoverImageProps) => {
     const { edgestore } = useEdgeStore();
     const params = useParams();
-    const CoverImage = useCoverImage();
+    const coverImage = useCoverImage();
     const removeCoverImage = useMutation(api.documents.removeCoverImage);
 
     const onRemove = async () => {
         if (url) {
-        await edgestore.publicFiles.delete({
-            url: url
-        })
-    }
+            await edgestore.publicFiles.delete({
+                url: url
+            })
+        }
         removeCoverImage({
             id: params.documentId as Id<"documents">
         });
@@ -40,23 +39,34 @@ export const Cover = ({
 
     return (
         <div className={cn(
-            "relative w-full h-[50vh] group", 
-            !url && "h-[12vh]",
-            url && "bg-muted"
+            "relative w-full h-[50vh] group",
+            url && "h-[50vh]"
         )}>
-            {!! url && (
+            {url ? (
                 <Image 
                     src={url}
                     fill
                     alt="Cover"
-                    className="object-cover rounded-lg"
+                    className="object-cover"
                 />
+            ) : (
+                <div className="w-full h-full bg-muted flex items-center justify-center">
+                    <Button
+                        onClick={coverImage.onOpen}
+                        className="text-muted-foreground text-xs"
+                        variant="outline"
+                        size="sm"
+                    >
+                        <ImageIcon className="h-4 w-4 mr-2" />
+                        Add cover
+                    </Button>
+                </div>
             )}
             {url && !preview && (
-                <div className="opacity-0 group-hover:opacity-100 absolute bottom-5 right-5 items-center gap-x-2">
+                <div className="opacity-0 group-hover:opacity-100 absolute bottom-5 right-5 flex items-center gap-x-2">
                     <Button
-                        onClick={() => CoverImage.onReplace(url)}
-                        className="text-muted-foreground text-xs mr-3"
+                        onClick={() => coverImage.onReplace(url)}
+                        className="text-muted-foreground text-xs"
                         variant="outline"
                         size="sm"
                     >

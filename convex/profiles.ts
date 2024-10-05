@@ -151,6 +151,92 @@ export const update = mutation({
     },
 });
 
+export const remove = mutation({
+    args: { id: v.id("profiles") },
+    handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+
+        if (!identity) {
+            throw new Error("Not authenticated");
+        }
+
+        const userId = identity.subject;
+
+        const existingProfile = await ctx.db.get(args.id);
+
+        if (!existingProfile) {
+            throw new Error("Not found");
+        }
+
+        if (existingProfile.userId !== userId) {
+            throw new Error("Unauthorized");
+        }
+
+        const profile = await ctx.db.delete(args.id);
+
+        return profile;
+    }
+});
+
+export const restore = mutation({
+    args: { id: v.id("profiles") },
+    handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+
+        if (!identity) {
+            throw new Error("Not authenticated");
+        }
+
+        const userId = identity.subject;
+
+        const existingProfile = await ctx.db.get(args.id);
+
+        if (!existingProfile) {
+            throw new Error("Not found");
+        }
+
+        if (existingProfile.userId !== userId) {
+            throw new Error("Unauthorized");
+        }
+
+        const recursiveRestore = async (profileId: Id<"profiles">) => {
+            const children = await ctx.db
+                .query("profiles")
+                .withIndex("by_user_parent", (q) => (
+                    q
+                        .eq("userId", userId)
+                        .eq("parentProfile", profileId)
+                ))
+                .collect();
+
+            for (const child of children) {
+                await ctx.db.patch(child._id, {
+                    isArchived: false,
+                });
+
+                await recursiveRestore(child._id);
+            }
+        }
+
+        const options: Partial<Doc<"profiles">> = {
+            isArchived: false,
+        };
+
+        if (existingProfile.parentProfile) {
+            const parent = await ctx.db.get(existingProfile.parentProfile);
+            if (parent?.isArchived) {
+                options.parentProfile = undefined;
+            }
+        }
+
+        const profile = await ctx.db.patch(args.id, options);
+
+        recursiveRestore(args.id);
+
+        return profile;
+    }
+});
+
 export const getSidebar = query({
     args: {
         parentProfile: v.optional(v.id("profiles"))

@@ -403,25 +403,51 @@ export const getPublishedDocumentsByUserId = query({
 
   export const getPublishedDocuments = query({
     handler: async (ctx) => {
-      const identity = await ctx.auth.getUserIdentity();
-  
-      if (!identity) {
-        throw new Error('Not authenticated');
-      }
-  
-      const userId = identity.subject;
-  
-      const documents = await ctx.db
-        .query('documents')
-        .filter((q) =>
-          q.and(
-            q.eq(q.field('isPublished'), true),
-            q.eq(q.field('userId'), userId)
-          )
-        )
-        .order('desc') // Order by creation time or any other field
-        .collect();
-  
-      return documents;
+        // Allow this query without authentication
+        const identity = await ctx.auth.getUserIdentity();
+        
+        let userId = null;
+        if (identity) {
+            userId = identity.subject;
+        }
+
+        const documents = await ctx.db
+            .query('documents')
+            .filter((q) =>
+                q.and(
+                    q.eq(q.field('isPublished'), true),
+                    userId ? q.eq(q.field('userId'), userId) : true // Include user-specific filtering if user is authenticated
+                )
+            )
+            .order('desc') // Order by creation time or any other field
+            .collect();
+
+        return documents;
     },
-  });
+});
+
+
+//   export const getPublishedDocuments = query({
+//     handler: async (ctx) => {
+//       const identity = await ctx.auth.getUserIdentity();
+  
+//       if (!identity) {
+//         throw new Error('Not authenticated');
+//       }
+  
+//       const userId = identity.subject;
+  
+//       const documents = await ctx.db
+//         .query('documents')
+//         .filter((q) =>
+//           q.and(
+//             q.eq(q.field('isPublished'), true),
+//             q.eq(q.field('userId'), userId)
+//           )
+//         )
+//         .order('desc') // Order by creation time or any other field
+//         .collect();
+  
+//       return documents;
+//     },
+//   });
