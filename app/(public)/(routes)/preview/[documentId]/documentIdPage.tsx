@@ -11,9 +11,12 @@ import dynamic from "next/dynamic";
 import { useMemo, useState, useEffect } from "react";
 import ScrollIndicator from "@/app/(main)/_components/scroll";
 import { motion } from "framer-motion";
-import { Linkedin, Mail } from "lucide-react";
+import { ArrowLeft, BookOpen, Clock } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import SubscribeWidget from "@/app/(marketing)/_components/subscribe";
+import ShareButtons from "@/app/(marketing)/_components/sharebuttons";
+import Link from "next/link";
 
 interface DocumentIdPageProps {
     params: {
@@ -31,6 +34,7 @@ interface Heading {
 const DocumentIdPage = ({ params, initialDocument }: DocumentIdPageProps) => {
     const Editor = useMemo(() => dynamic(() => import("@/components/editor"), { ssr: false }), []);
     const [headings, setHeadings] = useState<Heading[]>([]);
+    const [readingTime, setReadingTime] = useState<number>(0);
 
     const document = useQuery(api.documents.getById, {
         documentId: params.documentId
@@ -53,9 +57,9 @@ const DocumentIdPage = ({ params, initialDocument }: DocumentIdPageProps) => {
         });
     };
 
-    const {user}= useUser();
+    const { user } = useUser();
 
-    const extractHeadings = (content: string) => {
+    const extractHeadings = (content: string): Heading[] => {
         try {
             const parsedContent = JSON.parse(content);
             const extractedHeadings: Heading[] = [];
@@ -84,10 +88,17 @@ const DocumentIdPage = ({ params, initialDocument }: DocumentIdPageProps) => {
         }
     };
 
+    const calculateReadingTime = (content: string): number => {
+        const wordsPerMinute = 200;
+        const wordCount = content.split(/\s+/).length;
+        return Math.ceil(wordCount / wordsPerMinute);
+    };
+
     useEffect(() => {
         if (document?.content) {
             const extractedHeadings = extractHeadings(document.content);
             setHeadings(extractedHeadings);
+            setReadingTime(calculateReadingTime(document.content));
         }
     }, [document?.content]);
 
@@ -112,52 +123,63 @@ const DocumentIdPage = ({ params, initialDocument }: DocumentIdPageProps) => {
     }
 
     return (
-        <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-        >
-            
+        <>
+            <ShareButtons />
             <ScrollIndicator />
-            <div className="pb-40 pt-10 w-full max-w-full xs:max-w-3xl sm:max-w-3xl md:max-w-4xl lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl mx-auto px-2 sm:px-2 lg:px-6 bg-white">
-                <div className="flex flex-col lg:flex-row lg:space-x-8">
-                    <article className="flex-grow">
-                        <div className="mb-4 text-sm text-gray-500">
-                            <div>{user?.fullName}</div>
-
-                            {formatDate(document._creationTime)}
-                        </div>
-                        <Cover preview url={document.coverImage} />
-                        <div className="mx-auto">
-                            <Toolbar preview initialData={document} />
-                            <Editor
-                                editable={false} 
-                                onChange={(content) => {
-                                    onChange(content);
-                                    const extractedHeadings = extractHeadings(content);
-                                    setHeadings(extractedHeadings);
-                                }}
-                                initialContent={document.content}
-                            />
-                        </div>
-                        <div>
-                            <SubscribeWidget />
-                        </div>
-                        <div className="mt-8 flex justify-center space-x-4">
-                            <Button variant="outline" size="sm" className="hover:bg-orange-500">
-                                <Mail className="w-4 h-4 mr-2" />
-                                Share
-                            </Button>
-                            <Button variant="outline" size="sm" className="hover:bg-orange-500">
-                                <Linkedin className="w-4 h-4 mr-2" />
-                                Post
-                            </Button>
-                            
-                        </div>
-                    </article>
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+            >
+                <div className="pb-40 pt-10 w-full max-w-full xs:max-w-3xl sm:max-w-3xl md:max-w-4xl lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl mx-auto bg-white">
+                    <div className="flex flex-col lg:flex-row lg:space-x-8">
+                        <article className="flex-grow px-2 sm:px-2 lg:px-6">
+                            <div className="mb-6">
+                                <Link href="/blog" passHref>
+                                    <Button variant="ghost" className="pl-0 text-primary hover:text-primary/80">
+                                        <ArrowLeft className="mr-2 ml-2 h-4 w-4" />
+                                        Back to Blog
+                                    </Button>
+                                </Link>
+                            </div>
+                            <Cover preview url={document.coverImage} />
+                            <div className="mt-8 mb-8 ml-14 flex items-center space-x-4">
+                                <Avatar className="h-12 w-12">
+                                    <AvatarImage src={user?.imageUrl} alt={user?.fullName || "Author"} />
+                                    <AvatarFallback>{user?.fullName?.[0] || "A"}</AvatarFallback>
+                                </Avatar>
+                                <div>
+                                    <h2 className="text-xl font-semibold">{user?.fullName}</h2>
+                                    <div className="flex items-center space-x-2 text-sm text-gray-500">
+                                        <Clock className="h-4 w-4" />
+                                        <span>{formatDate(document._creationTime)}</span>
+                                        <span>•</span>
+                                        <BookOpen className="h-4 w-4" />
+                                        <span>{readingTime} min read</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="mx-auto">
+                                <Toolbar preview initialData={document} />
+                                <Editor
+                                    editable={false} 
+                                    onChange={(content) => {
+                                        onChange(content);
+                                        const extractedHeadings = extractHeadings(content);
+                                        setHeadings(extractedHeadings);
+                                        setReadingTime(calculateReadingTime(content));
+                                    }}
+                                    initialContent={document.content}
+                                />
+                            </div>
+                            <div>
+                                <SubscribeWidget />
+                            </div>
+                        </article>
+                    </div>
                 </div>
-            </div>
-        </motion.div>
+            </motion.div>
+        </>
     );
 }
 

@@ -116,7 +116,7 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Reply to {profile.displayName}</DialogTitle>
+                <DialogTitle>Reply to {user?.firstName}</DialogTitle>
               </DialogHeader>
               <form
                 onSubmit={(e) => e.preventDefault()}

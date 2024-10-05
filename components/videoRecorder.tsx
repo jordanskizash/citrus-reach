@@ -199,7 +199,7 @@ export default function VideoRecorder({ profileId, videoUrl, onVideoUpload }: Vi
                             <Button
                               onClick={stopRecording}
                               variant="destructive"
-                              className="animate-pulse"
+                              className="stop-button"
                             >
                               Stop Recording
                             </Button>

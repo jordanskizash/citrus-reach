@@ -1,4 +1,3 @@
-// components/ScrollIndicator.tsx
 "use client"
 
 import { motion } from 'framer-motion';
@@ -14,8 +13,8 @@ const ScrollIndicator: React.FC = () => {
         top: 0,
         left: 0,
         width: '100%',
-        height: '4px',
-        backgroundColor: 'orange',
+        height: '8px',
+        backgroundColor: '#f97316',
         scaleX: scrollYProgress, // this uses scaleX transform to resize the bar
         originX: 0,
         transformOrigin: 'left',

@@ -81,7 +81,7 @@
     }
   }
 
-  @keyframes pulse {
+  @keyframes stop-button-pulse {
     0% {
       box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7);
     }
@@ -90,5 +90,19 @@
     }
     100% {
       box-shadow: 0 0 0 0 rgba(220, 38, 38, 0);
+    }
+  }
+  
+  .stop-button {
+    animation: stop-button-pulse 2s infinite;
+  }
+
+  .share-button {
+    @apply w-10 h-10 flex items-center justify-center bg-white border border-gray-200 rounded-full cursor-pointer transition-all duration-300 ease-in-out hover:bg-orange-500 hover:scale-110;
+  }
+  
+  @media (max-width: 768px) {
+    .share-button {
+      display: none;
     }
   }
