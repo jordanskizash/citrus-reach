@@ -2,6 +2,7 @@ import { v } from "convex/values";
 
 import { mutation, query } from "./_generated/server";
 import { Doc, Id } from "./_generated/dataModel";
+import { clerkClient } from '@clerk/clerk-sdk-node';
 
 export const archive = mutation({
     args: { id: v.id("documents") },
@@ -242,34 +243,79 @@ export const getSearch = query({
     }
 });
 
-export const getById = query ({
+export const getById = query({
     args: { documentId: v.id("documents") },
-    handler: async(ctx, args) => {
-        const identity = await ctx.auth.getUserIdentity();
+    handler: async (ctx, args) => {
+      const identity = await ctx.auth.getUserIdentity();
+  
+      const document = await ctx.db.get(args.documentId);
+  
+      if (!document) {
+        throw new Error("Not found");
+      }
+  
+      // Fetch the author's data from Clerk
+      let authorData = { fullName: "Unknown", imageUrl: "" };
+      try {
+        const user = await clerkClient.users.getUser(document.userId);
+        authorData = {
+          fullName: user.fullName || "Unknown",
+          imageUrl: user.imageUrl || "",
+        };
+      } catch (error) {
+        console.error("Error fetching user from Clerk:", error);
+      }
+  
+      // If the document is published and not archived, allow public access
+      if (document.isPublished && !document.isArchived) {
+        return { ...document, author: authorData };
+      }
+  
+      // If the document is not published or is archived, require authentication
+      if (!identity) {
+        throw new Error("Not authenticated");
+      }
+  
+      const userId = identity.subject;
+  
+      // Ensure the requesting user is the owner of the document
+      if (document.userId !== userId) {
+        throw new Error("Unauthorized");
+      }
+  
+      // Return the document along with the author's data
+      return { ...document, author: authorData };
+    },
+  });
 
-        const document = await ctx.db.get(args.documentId);
+// export const getById = query ({
+//     args: { documentId: v.id("documents") },
+//     handler: async(ctx, args) => {
+//         const identity = await ctx.auth.getUserIdentity();
 
-        if(!document) {
-            throw new Error("Not found");
-        }
+//         const document = await ctx.db.get(args.documentId);
 
-        if (document.isPublished && !document.isArchived) {
-            return document;
-        }
+//         if(!document) {
+//             throw new Error("Not found");
+//         }
 
-        if (!identity) {
-            throw new Error("Not authenticated");
-        }
+//         if (document.isPublished && !document.isArchived) {
+//             return document;
+//         }
 
-        const userId = identity.subject;
+//         if (!identity) {
+//             throw new Error("Not authenticated");
+//         }
 
-        if (document.userId !== userId) {
-            throw new Error("Unauthorized");
-        }
+//         const userId = identity.subject;
 
-        return document;
-    }
-});
+//         if (document.userId !== userId) {
+//             throw new Error("Unauthorized");
+//         }
+
+//         return document;
+//     }
+// });
 
 export const update = mutation({
     args: {
