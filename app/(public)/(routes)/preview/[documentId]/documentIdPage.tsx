@@ -145,11 +145,11 @@ const DocumentIdPage = ({ params, initialDocument }: DocumentIdPageProps) => {
                             <Cover preview url={document.coverImage} />
                             <div className="mt-8 mb-8 ml-14 flex items-center space-x-4">
                                 <Avatar className="h-12 w-12">
-                                    <AvatarImage src={document.author?.imageUrl} alt={document.author?.fullName || 'Author'} />
-                                    <AvatarFallback>{document.author.fullName?.[0] || "Author"}</AvatarFallback>
+                                    <AvatarImage src={document.authorImageUrl} alt={document.authorFullName || "Author"}/>
+                                    <AvatarFallback>{document.authorFullName?.[0] || "Author"}</AvatarFallback>
                                 </Avatar>
                                 <div>
-                                    <h2 className="text-xl font-semibold">{document.author.fullName}</h2>
+                                    <h2 className="text-xl font-semibold">{document.authorFullName}</h2>
                                     <div className="flex items-center space-x-2 text-sm text-gray-500">
                                         <Clock className="h-4 w-4" />
                                         <span>{formatDate(document._creationTime)}</span>

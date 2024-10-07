@@ -2,7 +2,8 @@ import { v } from "convex/values";
 
 import { mutation, query } from "./_generated/server";
 import { Doc, Id } from "./_generated/dataModel";
-import { clerkClient } from '@clerk/clerk-sdk-node';
+import { clerkClient } from "@clerk/clerk-sdk-node";
+
 
 export const archive = mutation({
     args: { id: v.id("documents") },
@@ -97,17 +98,39 @@ export const create = mutation({
 
         const userId = identity.subject;
 
+        // // Fetch user's full name and image URL
+        // let authorFullName = "Unknown User";
+        // let authorImageUrl = "/placeholder.png"; // Update this to your default image path
+
+        // try {
+        //     const user = await clerkClient.users.getUser(userId);
+            
+        //     // Ensure we have a full name
+        //     authorFullName = user.fullName || 
+        //                     `${user.firstName || ''} ${user.lastName || ''}`.trim() || 
+        //                     "Unknown User";
+            
+        //     // Ensure we have an image URL
+        //     authorImageUrl = user.imageUrl || authorImageUrl;
+
+        //     console.log(`Creating document for user: ${authorFullName} with image: ${authorImageUrl}`);
+        // } catch (error) {
+        //     console.error(`Error fetching user ${userId} from Clerk:`, error);
+        // }
+
         const document = await ctx.db.insert("documents", {
             title: args.title,
             parentDocument: args.parentDocument,
             userId,
+            authorFullName: identity.name || "Anonymous",
+            authorImageUrl: identity.pictureUrl || "",
             isArchived: false,
             isPublished: false,
         });
 
         return document;
     }
-})
+});
 
 export const getTrash = query({
     handler: async (ctx) => {
@@ -243,79 +266,34 @@ export const getSearch = query({
     }
 });
 
-export const getById = query({
+export const getById = query ({
     args: { documentId: v.id("documents") },
-    handler: async (ctx, args) => {
-      const identity = await ctx.auth.getUserIdentity();
-  
-      const document = await ctx.db.get(args.documentId);
-  
-      if (!document) {
-        throw new Error("Not found");
-      }
-  
-      // Fetch the author's data from Clerk
-      let authorData = { fullName: "Unknown", imageUrl: "" };
-      try {
-        const user = await clerkClient.users.getUser(document.userId);
-        authorData = {
-          fullName: user.fullName || "Unknown",
-          imageUrl: user.imageUrl || "",
-        };
-      } catch (error) {
-        console.error("Error fetching user from Clerk:", error);
-      }
-  
-      // If the document is published and not archived, allow public access
-      if (document.isPublished && !document.isArchived) {
-        return { ...document, author: authorData };
-      }
-  
-      // If the document is not published or is archived, require authentication
-      if (!identity) {
-        throw new Error("Not authenticated");
-      }
-  
-      const userId = identity.subject;
-  
-      // Ensure the requesting user is the owner of the document
-      if (document.userId !== userId) {
-        throw new Error("Unauthorized");
-      }
-  
-      // Return the document along with the author's data
-      return { ...document, author: authorData };
-    },
-  });
+    handler: async(ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
 
-// export const getById = query ({
-//     args: { documentId: v.id("documents") },
-//     handler: async(ctx, args) => {
-//         const identity = await ctx.auth.getUserIdentity();
+        const document = await ctx.db.get(args.documentId);
 
-//         const document = await ctx.db.get(args.documentId);
+        if(!document) {
+            throw new Error("Not found");
+        }
 
-//         if(!document) {
-//             throw new Error("Not found");
-//         }
+        if (document.isPublished && !document.isArchived) {
+            return document;
+        }
 
-//         if (document.isPublished && !document.isArchived) {
-//             return document;
-//         }
+        if (!identity) {
+            throw new Error("Not authenticated");
+        }
 
-//         if (!identity) {
-//             throw new Error("Not authenticated");
-//         }
+        const userId = identity.subject;
 
-//         const userId = identity.subject;
+        if (document.userId !== userId) {
+            throw new Error("Unauthorized");
+        }
 
-//         if (document.userId !== userId) {
-//             throw new Error("Unauthorized");
-//         }
-
-//         return document;
-//     }
-// });
+        return document;
+    }
+});
 
 export const update = mutation({
     args: {
@@ -497,3 +475,99 @@ export const getPublishedDocumentsByUserId = query({
 //       return documents;
 //     },
 //   });
+
+export const addAuthorInfoToExistingDocuments = mutation(async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+
+    if (!identity) {
+        throw new Error("Not authenticated");
+    }
+
+    // Fetch all documents
+    const documents = await ctx.db.query("documents").collect();
+    
+    console.log(`Found ${documents.length} documents to update`);
+
+    for (const document of documents) {
+        try {
+            const user = await clerkClient.users.getUser(document.userId);
+            
+            // Ensure we have a full name
+            const authorFullName = user.fullName || 
+                                  `${user.firstName || ''} ${user.lastName || ''}`.trim() || 
+                                  "Unknown User";
+            
+            // Ensure we have an image URL
+            const authorImageUrl = user.imageUrl || "/placeholder.png"; // Update this to your default image path
+
+            console.log(`Updating document ${document._id} with author: ${authorFullName}`);
+
+            // Update the document with the new fields
+            await ctx.db.patch(document._id, {
+                authorFullName,
+                authorImageUrl,
+            });
+        } catch (error) {
+            console.error(`Error updating document ${document._id} for user ${document.userId}:`, error);
+        }
+    }
+
+    return { message: "Migration completed" };
+});
+
+
+// Test query - doesn't modify any data
+export const testClerkConnection = query({
+    handler: async (ctx) => {
+        const results = {
+            identityCheck: false,
+            clerkClientCheck: false,
+            userData: null as any,
+            errors: [] as string[]
+        };
+
+        // Step 1: Check if we can get the user identity
+        try {
+            const identity = await ctx.auth.getUserIdentity();
+            if (identity) {
+                results.identityCheck = true;
+                console.log("Identity check passed, user ID:", identity.subject);
+            } else {
+                results.errors.push("No user identity found");
+                console.log("No user identity found");
+            }
+        } catch (error) {
+            results.errors.push(`Identity check failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+            console.error("Identity check failed:", error);
+        }
+
+        // Step 2: Test Clerk client directly
+        try {
+            // First, get the user ID from the identity
+            const identity = await ctx.auth.getUserIdentity();
+            if (!identity) {
+                results.errors.push("No user identity for Clerk client test");
+                return results;
+            }
+
+            const userId = identity.subject;
+            const user = await clerkClient.users.getUser(userId);
+            
+            results.clerkClientCheck = true;
+            results.userData = {
+                id: user.id,
+                fullName: user.fullName,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                imageUrl: user.imageUrl,
+            };
+            console.log("Clerk client check passed, user data:", results.userData);
+        } catch (error) {
+            results.errors.push(`Clerk client check failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+            console.error("Clerk client check failed:", error);
+        }
+
+        return results;
+    }
+});
+
