@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 
-import { mutation, query } from "./_generated/server";
+import { mutation, query, action } from "./_generated/server";
+import { api } from "./_generated/api";
 import { Doc, Id } from "./_generated/dataModel";
 import { clerkClient } from "@clerk/clerk-sdk-node";
 
@@ -476,44 +477,59 @@ export const getPublishedDocumentsByUserId = query({
 //     },
 //   });
 
-export const addAuthorInfoToExistingDocuments = mutation(async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-
-    if (!identity) {
-        throw new Error("Not authenticated");
-    }
-
-   // Fetch all documents
-    const documents = await ctx.db.query("documents").collect();
-    
-    console.log(`Found ${documents.length} documents to update`);
-
-    for (const document of documents) {
+export const addAuthorInfoToExistingDocuments = action({
+    handler: async (ctx) => {
+      const { runMutation, runQuery } = ctx;
+  
+      // Fetch all documents
+      const documents = await runQuery(api.documents.getAllDocuments);
+      
+      console.log(`Found ${documents.length} documents to update`);
+  
+      for (const document of documents) {
         try {
-            const user = await clerkClient.users.getUser(document.userId);
-            
-            // Ensure we have a full name
-            const authorFullName = user.fullName || 
-                                  `${user.firstName || ''} ${user.lastName || ''}`.trim() || 
-                                  "Unknown User";
-            
-            // Ensure we have an image URL
-            const authorImageUrl = user.imageUrl || "/placeholder.png"; // Update this to your default image path
-
-            console.log(`Updating document ${document._id} with author: ${authorFullName}`);
-
-            // Update the document with the new fields
-            await ctx.db.patch(document._id, {
-                authorFullName,
-                authorImageUrl,
-            });
+          const user = await clerkClient.users.getUser(document.userId);
+          
+          // Ensure we have a full name
+          const authorFullName = user.fullName || 
+                                `${user.firstName || ''} ${user.lastName || ''}`.trim() || 
+                                "Unknown User";
+          
+          // Ensure we have an image URL
+          const authorImageUrl = user.imageUrl || "/placeholder.png"; // Update this to your default image path
+  
+          console.log(`Updating document ${document._id} with author: ${authorFullName}`);
+  
+          // Update the document with the new fields
+          await runMutation(api.documents.updateAuthorInfo, {
+            id: document._id,
+            authorFullName,
+            authorImageUrl,
+          });
         } catch (error) {
-            console.error(`Error updating document ${document._id} for user ${document.userId}:`, error);
+          console.error(`Error updating document ${document._id} for user ${document.userId}:`, error);
         }
-    }
-
-    return { message: "Migration completed" };
-});
+      }
+  
+      return { message: "Migration completed" };
+    },
+  });
+  
+  // Add this query to fetch all documents
+  export const getAllDocuments = query({
+    handler: async (ctx) => {
+      return await ctx.db.query("documents").collect();
+    },
+  });
+  
+  // Add this mutation to update author info
+  export const updateAuthorInfo = mutation({
+    args: { id: v.id("documents"), authorFullName: v.string(), authorImageUrl: v.string() },
+    handler: async (ctx, args) => {
+      const { id, authorFullName, authorImageUrl } = args;
+      await ctx.db.patch(id, { authorFullName, authorImageUrl });
+    },
+  });
 
 
 // Test query - doesn't modify any data
