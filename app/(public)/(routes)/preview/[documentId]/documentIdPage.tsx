@@ -146,7 +146,7 @@ const DocumentIdPage = ({ params, initialDocument }: DocumentIdPageProps) => {
                             <div className="mt-8 mb-8 ml-14 flex items-center space-x-4">
                                 <Avatar className="h-12 w-12">
                                     <AvatarImage src={document.authorImageUrl} alt={document.authorFullName || "Author"}/>
-                                    <AvatarFallback>{document.authorFullName?.[0] || "Author"}</AvatarFallback>
+                                    <AvatarFallback>{document.authorFullName?.[0] || "A"}</AvatarFallback>
                                 </Avatar>
                                 <div>
                                     <h2 className="text-xl font-semibold">{document.authorFullName}</h2>

@@ -98,32 +98,32 @@ export const create = mutation({
 
         const userId = identity.subject;
 
-        // // Fetch user's full name and image URL
-        // let authorFullName = "Unknown User";
-        // let authorImageUrl = "/placeholder.png"; // Update this to your default image path
+        // Fetch user's full name and image URL from Clerk
+        let authorFullName = "Unknown User";
+        let authorImageUrl = "/placeholder.png"; // Update this to your default image path
 
-        // try {
-        //     const user = await clerkClient.users.getUser(userId);
+        try {
+            const user = await clerkClient.users.getUser(userId);
             
-        //     // Ensure we have a full name
-        //     authorFullName = user.fullName || 
-        //                     `${user.firstName || ''} ${user.lastName || ''}`.trim() || 
-        //                     "Unknown User";
+            // Ensure we have a full name
+            authorFullName = user.fullName || 
+                            `${user.firstName || ''} ${user.lastName || ''}`.trim() || 
+                            "Unknown User";
             
-        //     // Ensure we have an image URL
-        //     authorImageUrl = user.imageUrl || authorImageUrl;
+            // Ensure we have an image URL
+            authorImageUrl = user.imageUrl || authorImageUrl;
 
-        //     console.log(`Creating document for user: ${authorFullName} with image: ${authorImageUrl}`);
-        // } catch (error) {
-        //     console.error(`Error fetching user ${userId} from Clerk:`, error);
-        // }
+            console.log(`Creating document for user: ${authorFullName} with image: ${authorImageUrl}`);
+        } catch (error) {
+            console.error(`Error fetching user ${userId} from Clerk:`, error);
+        }
 
         const document = await ctx.db.insert("documents", {
             title: args.title,
             parentDocument: args.parentDocument,
             userId,
-            authorFullName: identity.name || "Anonymous",
-            authorImageUrl: identity.pictureUrl || "",
+            authorFullName,
+            authorImageUrl,
             isArchived: false,
             isPublished: false,
         });
@@ -483,7 +483,7 @@ export const addAuthorInfoToExistingDocuments = mutation(async (ctx) => {
         throw new Error("Not authenticated");
     }
 
-    // Fetch all documents
+   // Fetch all documents
     const documents = await ctx.db.query("documents").collect();
     
     console.log(`Found ${documents.length} documents to update`);
