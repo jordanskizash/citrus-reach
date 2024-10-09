@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import { useParams, useRouter } from "next/navigation";
-import { useMutation, useQuery } from "convex/react";
+import { useAction, useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Item } from "./item";
 import { cn } from "@/lib/utils";
@@ -24,7 +24,7 @@ export const DocumentList = ({
     const router = useRouter();
     const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
-    const createDocument = useMutation(api.documents.create);
+    const createDocument = useAction(api.documents.create);
 
     const onExpand = (documentId: string) => {
         setExpanded(prevExpanded => ({
