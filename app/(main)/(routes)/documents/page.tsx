@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-import { useMutation} from "convex/react";
+import { useAction, useMutation} from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { toast } from "react-hot-toast";
 import { useState } from "react";
@@ -18,7 +18,7 @@ import { useState } from "react";
 const DocumentsPage = () => {
     const { user } = useUser();
     const router = useRouter();
-    const create = useMutation(api.documents.create);
+    const create = useAction(api.documents.create);
     const createProf = useMutation(api.profiles.create);
 
     const [selectedImage, setSelectedImage] = useState<number | null>(null)
