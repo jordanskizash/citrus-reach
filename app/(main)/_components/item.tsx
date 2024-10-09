@@ -10,7 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { cn } from "@/lib/utils";
-import { useMutation } from "convex/react";
+import { useAction, useMutation } from "convex/react";
 import { ChevronDown, ChevronRight, LucideIcon, MoreHorizontal, Plus, Trash } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/clerk-react";
@@ -43,7 +43,7 @@ export const Item = ({
 }: ItemProps) => {
     const { user } = useUser();
     const router = useRouter();
-    const create = useMutation(api.documents.create);
+    const create = useAction(api.documents.create);
     const archive = useMutation(api.documents.archive);
 
     const onArchive = (
