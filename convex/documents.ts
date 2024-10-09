@@ -4,6 +4,8 @@ import { mutation, query, action } from "./_generated/server";
 import { api } from "./_generated/api";
 import { Doc, Id } from "./_generated/dataModel";
 import { clerkClient } from "@clerk/clerk-sdk-node";
+import { ActionCtx, MutationCtx } from "./_generated/server";
+
 
 
 export const archive = mutation({
@@ -53,7 +55,7 @@ export const archive = mutation({
 
         return document;
     }
-})
+});
 
 export const getSidebar = query({
     args: {
@@ -85,53 +87,254 @@ export const getSidebar = query({
     },
 });
 
-export const create = mutation({
+// export const create = action({
+//     args: {
+//       title: v.string(),
+//       parentDocument: v.optional(v.id("documents")),
+//     },
+//     handler: async (ctx, args) => {
+//       const identity = await ctx.auth.getUserIdentity();
+  
+//       if (!identity) {
+//         throw new Error("Not authenticated");
+//       }
+  
+//       const userId = identity.subject;
+  
+//       // Fetch user's full name and image URL from Clerk
+//       let authorFullName = "Unknown User";
+//       let authorImageUrl = "/placeholder.png"; // Update this to your default image path
+  
+//       try {
+//         const user = await clerkClient.users.getUser(userId);
+  
+//         // Ensure we have a full name
+//         authorFullName =
+//           user.fullName ||
+//           `${user.firstName || ""} ${user.lastName || ""}`.trim() ||
+//           "Unknown User";
+  
+//         // Ensure we have an image URL
+//         authorImageUrl = user.imageUrl || authorImageUrl;
+  
+//         console.log(
+//           `Creating document for user: ${authorFullName} with image: ${authorImageUrl}`
+//         );
+//       } catch (error) {
+//         console.error(`Error fetching user ${userId} from Clerk:`, error);
+//       }
+  
+//       // Insert the document into the database
+//       const document = await ctx.db.insert("documents", {
+//         title: args.title,
+//         parentDocument: args.parentDocument,
+//         userId,
+//         authorFullName,
+//         authorImageUrl,
+//         isArchived: false,
+//         isPublished: false,
+//       });
+  
+//       return document;
+//     },
+//   });
+
+// export const getUserInfo = query({
+//     args: { userId: v.string() },
+//     handler: async (ctx, args): Promise<{ authorFullName: string; authorImageUrl: string }> => {
+//       const { userId } = args;
+      
+//       // Fetch the user from your existing users table in Convex
+//       const user = await ctx.db.query("users").filter(q => q.eq(q.field("userId"), userId)).first();
+  
+//       if (user) {
+//         return {
+//           authorFullName: user.fullName || "Unknown User",
+//           authorImageUrl: user.imageUrl || "/placeholder.png"
+//         };
+//       }
+  
+//       // If user not found, return default values
+//       return {
+//         authorFullName: "Unknown User",
+//         authorImageUrl: "/placeholder.png"
+//       };
+//     }
+//   });
+
+//   export const create = mutation({
+//     args: {
+//       title: v.string(),
+//       parentDocument: v.optional(v.id("documents"))
+//     },
+//     handler: async (ctx, args): Promise<Doc<"documents">> => {
+//       const identity = await ctx.auth.getUserIdentity();
+  
+//       if (!identity) {
+//         throw new Error("Not authenticated");
+//       }
+  
+//       const userId = identity.subject;
+  
+//       // Fetch user info using the query
+//       const userInfo = await ctx.runQuery("getUserInfo", { userId });
+  
+//       const document = await ctx.db.insert("documents", {
+//         title: args.title,
+//         parentDocument: args.parentDocument,
+//         userId,
+//         authorFullName: userInfo.authorFullName,
+//         authorImageUrl: userInfo.authorImageUrl,
+//         isArchived: false,
+//         isPublished: false,
+//         content: "",  // Add a default value for content
+//       });
+  
+//       return document;
+//     }
+//   });
+
+// Then, update the action to use runMutation
+
+// Define the Document type
+type Document = Doc<"documents">;
+
+// The mutation to handle database insertion
+export const insertDocument = mutation({
+  args: {
+    title: v.string(),
+    parentDocument: v.optional(v.id("documents")),
+    userId: v.string(),
+    authorFullName: v.string(),
+    authorImageUrl: v.string(),
+  },
+  handler: async (
+    ctx: MutationCtx,
     args: {
-        title: v.string(),
-        parentDocument: v.optional(v.id("documents"))
-    },
-    handler: async (ctx, args) => {
-        const identity = await ctx.auth.getUserIdentity();
-
-        if (!identity) {
-            throw new Error("Not authenticated");
-        }
-
-        const userId = identity.subject;
-
-        // Fetch user's full name and image URL from Clerk
-        let authorFullName = "Unknown User";
-        let authorImageUrl = "/placeholder.png"; // Update this to your default image path
-
-        try {
-            const user = await clerkClient.users.getUser(userId);
-            
-            // Ensure we have a full name
-            authorFullName = user.fullName || 
-                            `${user.firstName || ''} ${user.lastName || ''}`.trim() || 
-                            "Unknown User";
-            
-            // Ensure we have an image URL
-            authorImageUrl = user.imageUrl || authorImageUrl;
-
-            console.log(`Creating document for user: ${authorFullName} with image: ${authorImageUrl}`);
-        } catch (error) {
-            console.error(`Error fetching user ${userId} from Clerk:`, error);
-        }
-
-        const document = await ctx.db.insert("documents", {
-            title: args.title,
-            parentDocument: args.parentDocument,
-            userId,
-            authorFullName,
-            authorImageUrl,
-            isArchived: false,
-            isPublished: false,
-        });
-
-        return document;
+      title: string;
+      parentDocument?: Id<"documents">;
+      userId: string;
+      authorFullName: string;
+      authorImageUrl: string;
     }
+  ): Promise<Id<"documents">> => {
+    const document = await ctx.db.insert("documents", {
+      title: args.title,
+      parentDocument: args.parentDocument,
+      userId: args.userId,
+      authorFullName: args.authorFullName,
+      authorImageUrl: args.authorImageUrl,
+      isArchived: false,
+      isPublished: false,
+    });
+
+    return document;
+  },
 });
+
+// The action that handles Clerk API call and runs the mutation
+export const create = action({
+  args: {
+    title: v.string(),
+    parentDocument: v.optional(v.id("documents")),
+  },
+  handler: async (
+    ctx: ActionCtx,
+    args: {
+      title: string;
+      parentDocument?: Id<"documents">;
+    }
+  ): Promise<Id<"documents">> => {
+    const identity = await ctx.auth.getUserIdentity();
+
+    if (!identity) {
+      throw new Error("Not authenticated");
+    }
+
+    const userId = identity.subject;
+
+    // Default values
+    let authorFullName = "Unknown User";
+    let authorImageUrl = "/placeholder.png";
+
+    try {
+      const user = await clerkClient.users.getUser(userId);
+
+      authorFullName =
+        user.fullName ||
+        `${user.firstName || ""} ${user.lastName || ""}`.trim() ||
+        authorFullName;
+
+      authorImageUrl = user.imageUrl || authorImageUrl;
+
+      console.log(
+        `Creating document for user: ${authorFullName} with image: ${authorImageUrl}`
+      );
+    } catch (error) {
+      console.error(`Error fetching user ${userId} from Clerk:`, error);
+    }
+
+    // Use the api object to reference the mutation
+    const documentId = await ctx.runMutation(api.documents.insertDocument, {
+      title: args.title,
+      parentDocument: args.parentDocument,
+      userId,
+      authorFullName,
+      authorImageUrl,
+    });
+
+    return documentId;
+  },
+});
+
+
+// export const create = mutation({ 
+//     args: { 
+//         title: v.string(), 
+//         parentDocument: v.optional(v.id("documents")) 
+//     }, 
+//         handler: async (ctx, args) => { 
+//             const identity = await ctx.auth.getUserIdentity();
+
+//     if (!identity) {
+//         throw new Error("Not authenticated");
+//     }
+
+//     const userId = identity.subject;
+
+//     // Fetch user's full name and image URL from Clerk
+//     let authorFullName = "Unknown User";
+//     let authorImageUrl = "/placeholder.png"; // Update this to your default image path
+
+//     try {
+//         const user = await clerkClient.users.getUser(userId);
+        
+//         // Ensure we have a full name
+//         authorFullName = user.fullName || 
+//                         `${user.firstName || ''} ${user.lastName || ''}`.trim() || 
+//                         "Unknown User";
+        
+//         // Ensure we have an image URL
+//         authorImageUrl = user.imageUrl || authorImageUrl;
+
+//         console.log(`Creating document for user: ${authorFullName} with image: ${authorImageUrl}`);
+//     } catch (error) {
+//         console.error(`Error fetching user ${userId} from Clerk:`, error);
+//     }
+
+//     const document = await ctx.db.insert("documents", {
+//         title: args.title,
+//         parentDocument: args.parentDocument,
+//         userId,
+//         authorFullName,
+//         authorImageUrl,
+//         isArchived: false,
+//         isPublished: false,
+//     });
+
+//     return document;
+//     }
+// });
 
 export const getTrash = query({
     handler: async (ctx) => {

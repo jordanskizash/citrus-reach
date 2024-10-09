@@ -7,7 +7,7 @@ import { useParams, usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { api } from "@/convex/_generated/api";
 import { UserItem } from "./user-item";
-import { useMutation } from "convex/react";
+import { useAction, useMutation } from "convex/react";
 import { Item } from "./item";
 import toast from "react-hot-toast";
 import { DocumentList } from "./document-list";
@@ -32,7 +32,7 @@ export const Navigation = () => {
     const params = useParams();
     const pathname = usePathname();
     const isMobile = useMediaQuery("(max-width: 768px)");
-    const create = useMutation(api.documents.create);
+    const create = useAction(api.documents.create);
     const createProf = useMutation(api.profiles.create);
 
     const isResizingRef = useRef(false);
@@ -122,6 +122,7 @@ export const Navigation = () => {
 
     const handlecreateProfile = async () => {
         const promise = createProf({ displayName: "Untitled" });
+
         toast
           .promise(promise, {
             loading: "Creating a new profile...",
