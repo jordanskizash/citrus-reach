@@ -1,7 +1,6 @@
 "use client";
 
 import { Doc } from "@/convex/_generated/dataModel";
-import { Pencil } from "lucide-react";
 import { ElementRef, useRef, useState } from "react";
 import { api } from "@/convex/_generated/api";
 import { useMutation } from "convex/react";
@@ -10,9 +9,10 @@ import TextareaAutosize from "react-textarea-autosize";
 interface ToolbarProps {
   initialData: Doc<"profiles">;
   preview?: boolean;
+  editable?: boolean; // New prop
 }
 
-export const ProfToolbar = ({ initialData, preview }: ToolbarProps) => {
+export const ProfToolbar = ({ initialData, preview, editable = true }: ToolbarProps) => {
   const inputRef = useRef<ElementRef<"textarea">>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [value, setValue] = useState(initialData.displayName);
@@ -20,7 +20,7 @@ export const ProfToolbar = ({ initialData, preview }: ToolbarProps) => {
   const update = useMutation(api.profiles.update);
 
   const enableInput = () => {
-    if (preview) return;
+    if (preview || !editable) return; // Prevent editing if not editable
 
     setIsEditing(true);
     setTimeout(() => {
@@ -48,7 +48,7 @@ export const ProfToolbar = ({ initialData, preview }: ToolbarProps) => {
 
   return (
     <div className="pl-[54px] group relative">
-      {isEditing && !preview ? (
+      {isEditing && !preview && editable ? (
         <TextareaAutosize
           ref={inputRef}
           onBlur={disableInput}
@@ -59,8 +59,10 @@ export const ProfToolbar = ({ initialData, preview }: ToolbarProps) => {
         />
       ) : (
         <div
-          onClick={enableInput}
-          className="pb-[11.5px] text-5xl font-bold break-words outline-none text-[#3F3F3F] dark:text-[#CFCFCF] cursor-text relative group"
+          onClick={editable ? enableInput : undefined}
+          className={`pb-[11.5px] text-5xl font-bold break-words outline-none text-[#3F3F3F] dark:text-[#CFCFCF] relative group ${
+            editable ? "cursor-text" : ""
+          }`}
         >
           Hey, {initialData.displayName} - Check out this recording!
         </div>

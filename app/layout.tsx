@@ -18,12 +18,12 @@ export const metadata: Metadata = {
       {
         media: "(prefers-color-scheme: light)",
         url: "/logo.svg",
-        href: "/logo.svg",
+        type: "image/svg+xml",
       },
       {
         media: "(prefers-color-scheme: dark)",
         url: "/logo.svg",
-        href: "/logo.svg",
+        type: "image/svg+xml",
       }
     ]
   }

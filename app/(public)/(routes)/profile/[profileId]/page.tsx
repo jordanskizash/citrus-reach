@@ -5,7 +5,7 @@ import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import dynamic from "next/dynamic";
 import { ProfToolbar } from "@/components/profile-toolbar";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import VideoRecorder from "@/components/videoRecorder";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,7 +22,7 @@ import { toast } from "react-hot-toast";
 import InlineWidget from "@calcom/embed-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { useUser } from "@clerk/clerk-react";
+import ReadOnlyVideo from "@/components/readOnlyVideo";
 
 interface ProfileIdPageProps {
   params: {
@@ -33,32 +33,55 @@ interface ProfileIdPageProps {
 const MotionLink = motion(Link);
 
 export default function ProfileIdPage({ params }: ProfileIdPageProps) {
-  const { user } = useUser();
-  const documents = useQuery(api.documents.getPublishedDocuments);
-  const latestDocuments = documents ? documents.slice(0, 3) : [];
-
-  const Editor = useMemo(
-    () => dynamic(() => import("@/components/editor"), { ssr: false }),
-    []
-  );
-
-  const profile = useQuery(api.profiles.getById, {
-    profileId: params.profileId,
-  });
-
-  const update = useMutation(api.profiles.update);
-
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
   const [videoKey, setVideoKey] = useState(0);
   const [isReplyDialogOpen, setIsReplyDialogOpen] = useState(false);
   const [isCalDialogOpen, setIsCalDialogOpen] = useState(false);
 
+  // Fetch the profile
+  const profile = useQuery(api.profiles.getById, {
+    profileId: params.profileId,
+  });
+
+  // Fetch documents by profile author
+  const documents = useQuery(
+    api.documents.getPublishedDocumentsByUserId,
+    profile ? { userId: profile.userId } : "skip"
+  );
+
+  // Handle loading state
+  if (!profile || documents === undefined) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  // Extract the author's full name from the documents
+  const authorFullName =
+    documents.length > 0 && documents[0].authorFullName
+      ? documents[0].authorFullName
+      : profile.displayName || "Unknown Author";
+
+  // Extract the author's first name
+  const authorFirstName = authorFullName.split(" ")[0];
+
+  // Get the latest documents (e.g., first 3)
+  const latestDocuments = documents ? documents.slice(0, 3) : [];
+
+  // Handle video upload
+  const handleVideoUpload = () => {
+    setVideoKey((prevKey) => prevKey + 1);
+  };
+
+  // Handle share functionality
   const handleShare = async () => {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: `${profile?.displayName}'s Profile`,
-          text: `Check out ${profile?.displayName}'s profile!`,
+          title: `${authorFullName}'s Profile`,
+          text: `Check out ${authorFullName}'s profile!`,
           url: window.location.href,
         });
       } catch (error) {
@@ -75,33 +98,16 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
     setIsShareDialogOpen(false);
   };
 
-  const handleVideoUpload = () => {
-    setVideoKey((prevKey) => prevKey + 1);
-  };
-
-  if (!profile) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
-
   return (
     <div className="flex flex-col items-center pb-20 pt-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="w-full mb-6 mt-8">
-        <ProfToolbar initialData={profile} />
+        <ProfToolbar initialData={profile} editable={false} />
         <p className="text-xl mt-2 mb-6 text-center">{profile.bio}</p>
       </div>
 
       <div className="w-full flex flex-col md:flex-row gap-6">
         <div className="w-full md:w-3/4">
-          <VideoRecorder
-            key={videoKey}
-            profileId={params.profileId}
-            videoUrl={profile.videoUrl}
-            onVideoUpload={handleVideoUpload}
-          />
+          <ReadOnlyVideo videoUrl={profile.videoUrl} />
         </div>
         <div className="w-full md:w-1/4 flex flex-col gap-3">
           {/* Reply Dialog */}
@@ -116,7 +122,7 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Reply to {user?.firstName}</DialogTitle>
+                <DialogTitle>Reply to {authorFirstName}</DialogTitle>
               </DialogHeader>
               <form
                 onSubmit={(e) => e.preventDefault()}
@@ -176,7 +182,7 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>
-                  Book a Meeting with {user?.firstName}
+                  Book a Meeting with {authorFirstName}
                 </DialogTitle>
               </DialogHeader>
               <div className="mt-4">
@@ -193,7 +199,7 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
             </DialogContent>
           </Dialog>
 
-          {/* Share Dialog */}
+          {/* Share Button */}
           <Button
             className="h-10 rounded-full text-sm"
             onClick={handleShare}
@@ -201,6 +207,7 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
             <Share2 className="mr-2 h-4 w-4" /> Share
           </Button>
 
+          {/* Get in Touch Button */}
           <Button className="h-10 rounded-full text-sm" asChild>
             <a
               href="https://www.linkedin.com/in/jordan-steinberg/"
@@ -228,11 +235,11 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
         </DialogContent>
       </Dialog>
 
-      {/* More from {user.firstName} Section */}
-      {user && latestDocuments.length > 0 && (
+      {/* More from {authorFirstName} Section */}
+      {latestDocuments.length > 0 && (
         <div className="mt-12 w-full">
           <h2 className="text-2xl font-bold mb-6">
-            More from {user.firstName}
+            More from {authorFirstName}
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {latestDocuments.map((post) => (
@@ -255,7 +262,7 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
                 </p>
                 <h3 className="text-xl font-semibold mb-1">{post.title}</h3>
                 <p className="text-gray-600">
-                  By {user?.fullName || "Unknown Author"}
+                  By {post.authorFullName || "Unknown Author"}
                 </p>
               </MotionLink>
             ))}
