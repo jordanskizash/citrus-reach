@@ -29,12 +29,12 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "Citrus Reach - Microsites That Convert",
-    description: "Publish one-page websites to market your brand",
-    url: "citrusreach.com", // Replace with your actual domain
+    description: "Video and content powered outreach",
+    url: "citrusreach.com",
     siteName: "Citrus Reach",
     images: [
       {
-        url: "https://citrusreach.com.com/og-image.png", // Replace with the actual image URL
+        url: "https://citrusreach.com/og-image.png", // Replace with the actual image URL
         width: 1200,
         height: 630,
         alt: "Citrus Reach Logo",
@@ -46,8 +46,8 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Citrus Reach - Microsites That Convert",
-    description: "Publish one-page websites to market your brand",
-    images: ["https://citrusreach.com.com/og-image.png"], // Replace with the actual image URL
+    description: "Video and content powered outreach",
+    images: ["https://citrusreach.com/og-image.png"],
   },
 };
 
