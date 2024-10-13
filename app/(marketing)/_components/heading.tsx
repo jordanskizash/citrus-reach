@@ -24,9 +24,9 @@ export const Heading = () => {
     <div>
       <div className="max-w-4xl space-y-4  justify-center items-center ">
         <main className={roboto.className}>
-          <h1 className="text-4xl sm:text-4xl md:text-7xl font-extrabold mb-8">
+          <h1 className="text-5xl sm:text-4xl md:text-6xl font-extrabold mb-8">
             Professional Microsites that help you reach {" "}
-            <main className="text-5xl sm:text-3xl md:text-6xl font-semibold text-orange-500 mt-8 mb-8">
+            <main className="text-5xl sm:text-3xl md:text-5xl font-semibold text-orange-500 mt-8 mb-8">
               <Typewriter
                 options={{
                   strings: [
@@ -42,8 +42,8 @@ export const Heading = () => {
               />
             </main>
           </h1>
-          <h3 className="text-base sm:text-xl md:text-2xl font-small ">
-            Citrus Reach helps you create professional microsites utilizing video, files, and field input to more effectively communicate professionally.
+          <h3 className="text-base sm:text-md md:text-xl font-small mb-10 ">
+            Citrus Reach helps you craft interactive microsites featuring video, marketing content, forms and calendars to elevate your professional outreach and secure more meetings. 
           </h3>
         </main>
         {isLoading && (
@@ -60,7 +60,7 @@ export const Heading = () => {
           </Button>
         )}
         {!isAuthenticated && !isLoading && (
-          <div className="flex justify-center space-x-2">
+          <div className="flex justify-center space-x-2 mb-10">
             <SignInButton mode="modal">
               <Button style={{
                 padding: '20px 20px',
@@ -75,6 +75,9 @@ export const Heading = () => {
           </div>
         ) }
       </div>
+        <h2 className="mt-16 text-2xl sm:text-4xl md:text-4xl font-extrabold">
+            Check out how <span className="font-bold text-orange-500 drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]">200+</span> users are increasing engagement rates
+        </h2>
     </div>
   );
 };

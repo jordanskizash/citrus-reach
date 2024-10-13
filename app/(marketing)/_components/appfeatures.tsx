@@ -24,9 +24,9 @@ export const CardFeatures = () => {
     <div className="min-h-screen w-full bg-cover bg-center py-16" style={{ backgroundImage: "url('./bgfeated.svg')" }}>
       <div className="container mx-auto px-4">
         <div className="mb-20 text-left">
-          <h2 className="text-4xl font-bold mb-4 text-black">Application Features</h2>
+          <h2 className="text-4xl font-bold mb-4 text-black">How Citrus Works</h2>
           <p className="text-xl text-black/80">
-            Discover the powerful features that make our application stand out.
+            Improve your outreach efforts in 4 simple steps 
           </p>
         </div>
         <div className="grid md:grid-cols-2 gap-12 max-w-6xl mx-auto">

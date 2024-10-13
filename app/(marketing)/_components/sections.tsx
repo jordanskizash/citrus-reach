@@ -46,7 +46,7 @@ export const Sections = () => {
     <div className="bg-orange-50 w-full py-6">
       <div className="max-w-2xl mx-auto px-6 text-center">
         <h1 className={`text-${isMobile ? '3xl' : '4xl'}  font-bold mb-10`}>Build custom sites that move key metrics for your team & clients</h1>
-        <p className={`text-${isMobile ? 'lg' : 'xl'} text-gray-600 mb-8`}>This is the main description for your component...</p>
+        <p className={`text-${isMobile ? 'lg' : 'xl'} text-gray-600 mb-8`}>How to secure more meetings with Citrus</p>
         <div className="mb-6">
           <div className={`flex ${isMobile ? 'flex-col items-stretch space-y-4' : 'justify-center space-x-6'} border-b`}>
             {sections.map((section, index) => (
