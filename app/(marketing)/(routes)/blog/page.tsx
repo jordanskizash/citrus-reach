@@ -31,7 +31,7 @@ export default function BlogPage() {
     }
   }, [documents])
 
-  if (!documents) return <Spinner />
+  if (!documents) return <Spinner/>
 
   return (
     <>

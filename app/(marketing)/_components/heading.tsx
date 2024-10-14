@@ -25,16 +25,16 @@ export const Heading = () => {
       <div className="max-w-4xl space-y-4  justify-center items-center ">
         <main className={roboto.className}>
           <h1 className="text-5xl sm:text-4xl md:text-6xl font-extrabold mb-8">
-            Professional Microsites that help you reach {" "}
+            Video powered microsites to help you reach {" "}
             <main className="text-5xl sm:text-3xl md:text-5xl font-semibold text-orange-500 mt-8 mb-8">
               <Typewriter
                 options={{
                   strings: [
                     'Prospects',
                     'Clients',
-                    'Employers',
                     'Investors',
-                    'Your Team'
+                    'Your Team',
+                    'Quota'
                   ],
                   autoStart: true,
                   loop: true,

@@ -278,3 +278,51 @@ export const updateVideoUrl = mutation({
       await db.patch(id, { videoUrl });
     },
   });
+
+
+  // Function to get published profiles by a specific user ID
+export const getPublishedProfilesByUserId = query({
+    args: { userId: v.string() },
+    handler: async (ctx, args) => {
+      const profiles = await ctx.db
+        .query('profiles')
+        .filter((q) =>
+          q.and(
+            q.eq(q.field('isPublished'), true),
+            q.eq(q.field('isArchived'), false),
+            q.eq(q.field('userId'), args.userId)
+          )
+        )
+        .order('desc')
+        .collect();
+  
+      return profiles;
+    },
+  });
+  
+  // Function to get all published profiles, optionally filtered by the authenticated user's ID
+  export const getPublishedProfiles = query({
+    handler: async (ctx) => {
+      // Allow this query without authentication
+      const identity = await ctx.auth.getUserIdentity();
+  
+      let userId = null;
+      if (identity) {
+        userId = identity.subject;
+      }
+  
+      const profiles = await ctx.db
+        .query('profiles')
+        .filter((q) =>
+          q.and(
+            q.eq(q.field('isPublished'), true),
+            q.eq(q.field('isArchived'), false),
+            userId ? q.eq(q.field('userId'), userId) : true
+          )
+        )
+        .order('desc') // Adjust the field by which you want to order the profiles
+        .collect();
+  
+      return profiles;
+    },
+  });
