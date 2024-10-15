@@ -30,7 +30,22 @@ export default defineSchema ({
         icon: v.optional(v.string()),
         isPublished: v.boolean(),
     })
-
+    
     .index("by_user", ["userId"])
-    .index("by_user_parent", ["userId", "parentProfile"])
-})
+    .index("by_user_parent", ["userId", "parentProfile"]),
+
+    users: defineTable({
+        clerkId: v.string(),
+        name: v.string(),
+        email: v.string(),
+        image: v.optional(v.string()),
+        linkedin: v.optional(v.string()),
+        website: v.optional(v.string()),
+        calComUsername: v.optional(v.string()), // Added field
+        domainName: v.optional(v.string()),     // Added field
+        createdAt: v.number(),
+        updatedAt: v.number(),
+      })
+        .index("by_clerk_id", ["clerkId"])
+        .index("by_email", ["email"])
+    })

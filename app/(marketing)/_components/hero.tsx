@@ -5,7 +5,7 @@ import { FC } from "react";
 
 export const Hero: FC = () => {
   return (
-    <div className="mt-10 mb-10 relative max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 ">
+    <div className="mt-10 mb-10 relative max-w-8xl md:max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 ">
       <div className="relative w-full h-auto">
         <Image
           src="/herotemp.png" // Replace with your actual image path
