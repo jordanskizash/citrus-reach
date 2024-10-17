@@ -159,7 +159,7 @@ const DocumentIdPage = ({ params, initialDocument }: DocumentIdPageProps) => {
                                     </div>
                                 </div>
                             </div>
-                            <div className="mx-[-8px] sm:mx-0">
+                            <div className="mx-[-16px] sm:mx-0">
                                 <Toolbar preview initialData={document} />
                                 <Editor
                                     editable={false} 
