@@ -115,41 +115,24 @@ export const getById = query ({
 
 export const update = mutation({
     args: {
-        id: v.id("profiles"),
-        displayName: v.optional(v.string()),
-        description: v.optional(v.string()),
-        bio: v.optional(v.string()),
-        isPublished: v.optional(v.boolean()),
-        isArchived: v.optional(v.boolean())
+      id: v.id("profiles"),
+      displayName: v.optional(v.string()),
+      bio: v.optional(v.string()),
+      description: v.optional(v.string()),
+      videoUrl: v.optional(v.string()),
+      isArchived: v.optional(v.boolean()),
+      parentProfile: v.optional(v.id('profiles')),
+      content: v.optional(v.string()),
+      coverImage: v.optional(v.string()),
+      icon: v.optional(v.string()),
+      isPublished: v.optional(v.boolean()),
+      colorPreference: v.optional(v.string()),
     },
-    handler: async(ctx, args) => {
-        const identity = await ctx.auth.getUserIdentity();
-
-        if (!identity) {
-            throw new Error("Unauthenticated");
-        }
-
-        const userId = identity.subject;
-
-        const { id, ...rest } = args;
-        
-        const existingDocument = await ctx.db.get(args.id);
-
-        if (!existingDocument) {
-            throw new Error("Not found");
-        }
-
-        if (existingDocument.userId != userId) {
-            throw new Error("Unauthorized");
-        }
-
-        const document = await ctx.db.patch(args.id, {
-            ...rest,
-        });
-
-        return document;
+    handler: async (ctx, args) => {
+      const { id, ...rest } = args;
+      await ctx.db.patch(id, rest);
     },
-});
+  });
 
 export const remove = mutation({
     args: { id: v.id("profiles") },

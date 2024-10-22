@@ -6,9 +6,9 @@ import { useQuery } from "convex/react";
 import { MenuIcon } from "lucide-react";
 import { useParams } from "next/navigation";
 import { ProfTitle } from "./prof-title";
-import { PublishProfile } from "./publishprof"; // Import the new PublishProfile component
-import { Banner } from "./banner"; // Adjust or remove if not applicable
-import { Menu } from "./menu"; // Adjust if necessary
+import { PublishProfile } from "./publishprof";
+import { Banner } from "./banner";
+import { Menu } from "./menu";
 
 interface NavbarProps {
   isCollapsed: boolean;
@@ -22,47 +22,50 @@ export const NavbarProfile = ({
 }: NavbarProps) => {
   const params = useParams();
 
-  // Fetch the profile data using the profileId from the URL parameters
   const profile = useQuery(api.profiles.getById, {
     profileId: params.profileId as Id<"profiles">,
   });
 
-  // Handle loading state
   if (profile === undefined) {
     return (
-      <nav className="bg-background dark:bg-[#1F1F1F] px-3 py-2 w-full flex items-center justify-between">
-        <ProfTitle.Skeleton />
-        <div className="flex items-center gap-x-2">
-          <Menu.Skeleton />
-        </div>
-      </nav>
+      <div className="w-screen max-w-[100vw]">
+        <nav className="bg-background dark:bg-[#1F1F1F] px-3 py-2 w-full flex items-center">
+          <ProfTitle.Skeleton />
+          <div className="flex items-center gap-x-2">
+            <Menu.Skeleton />
+          </div>
+        </nav>
+      </div>
     );
   }
 
-  // Handle the case where the profile doesn't exist
   if (profile === null) {
     return null;
   }
 
   return (
-    <>
-      <nav className="bg-background dark:bg-[#1F1F1F] px-3 py-2 lg:max-w-screen-2xl md:max-w-screen-xl sm:max-w-screen-md flex items-center justify-between flex-wrap">
-        {isCollapsed && (
-          <MenuIcon
-            role="button"
-            onClick={onResetWidth}
-            className="h-6 w-6 text-muted-foreground"
-          />
-        )}
-        <div className="flex items-center justify-between w-full flex-wrap">
-          <ProfTitle initialData={profile} />
-          <div className="items-center gap-x-2 flex-shrink-0 ">
-            <PublishProfile initialData={profile} /> {/* Adding the PublishProfile component */}
+    <div className="w-screen max-w-[87vw]">
+      <nav className="bg-background dark:bg-[#1F1F1F] px-3 py-2 max-w-full flex items-center overflow-x-hidden">
+        <div className="flex items-center justify-between w-full gap-x-4">
+          <div className="flex items-center gap-x-4 min-w-0 overflow-hidden">
+            {isCollapsed && (
+              <MenuIcon
+                role="button"
+                onClick={onResetWidth}
+                className="h-6 w-6 text-muted-foreground flex-shrink-0"
+              />
+            )}
+            <div className="truncate">
+              <ProfTitle initialData={profile} />
+            </div>
+          </div>
+          <div className="flex items-center gap-x-2 flex-shrink-0 pr-6">
+            <PublishProfile initialData={profile} />
             <Menu profileId={profile._id} />
           </div>
         </div>
       </nav>
       {profile.isArchived && <Banner profileId={profile._id} />}
-    </>
+    </div>
   );
 };

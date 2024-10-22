@@ -98,177 +98,186 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
     setIsShareDialogOpen(false);
   };
 
+  // Apply the background color
+  const gradientStyle = {
+    background: profile.colorPreference
+      ? `linear-gradient(to bottom, ${profile.colorPreference}, #ffffff)`
+      : 'white',
+  };
+
   return (
-    <div className="flex flex-col items-center pb-20 pt-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="w-full mb-6 mt-8">
-        <ProfToolbar initialData={profile} editable={false} />
-        <p className="text-xl mt-2 mb-6 text-center">{profile.bio}</p>
-      </div>
-
-      <div className="w-full flex flex-col md:flex-row gap-6">
-        <div className="w-full md:w-3/4">
-          <ReadOnlyVideo videoUrl={profile.videoUrl} />
+    <div className="min-h-screen" style={gradientStyle}>
+      <div className="flex flex-col items-center pb-20 pt-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="w-full mb-6 mt-8">
+          <ProfToolbar initialData={profile} editable={false} />
+          <p className="text-xl mt-2 mb-6 text-center">{profile.bio}</p>
         </div>
-        <div className="w-full md:w-1/4 flex flex-col gap-3">
-          {/* Reply Dialog */}
-          <Dialog
-            open={isReplyDialogOpen}
-            onOpenChange={setIsReplyDialogOpen}
-          >
-            <DialogTrigger asChild>
-              <Button className="h-10 rounded-full text-sm">
-                <MessageSquare className="mr-2 h-4 w-4" /> Reply
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Reply to {authorFirstName}</DialogTitle>
-              </DialogHeader>
-              <form
-                onSubmit={(e) => e.preventDefault()}
-                className="space-y-4 mt-4"
-              >
-                <div>
-                  <label
-                    className="block text-sm font-medium mb-2"
-                    htmlFor="name"
-                  >
-                    Your Name
-                  </label>
-                  <Input id="name" placeholder="Full Name" required />
-                </div>
-                <div>
-                  <label
-                    className="block text-sm font-medium mb-2"
-                    htmlFor="email"
-                  >
-                    Email Address
-                  </label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="Email Address"
-                    required
-                  />
-                </div>
-                <div>
-                  <label
-                    className="block text-sm font-medium mb-2"
-                    htmlFor="message"
-                  >
-                    Your Message
-                  </label>
-                  <Textarea
-                    id="message"
-                    placeholder="Type your message here..."
-                    rows={6}
-                    required
-                  />
-                </div>
-                <Button type="submit" className="w-full">
-                  Send
-                </Button>
-              </form>
-            </DialogContent>
-          </Dialog>
 
-          {/* Book a Meeting Dialog */}
-          <Dialog open={isCalDialogOpen} onOpenChange={setIsCalDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="h-10 rounded-full text-sm">
-                <Calendar className="mr-2 h-4 w-4" /> Book a meeting
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>
-                  Book a Meeting with {authorFirstName}
-                </DialogTitle>
-              </DialogHeader>
-              <div className="mt-4">
-                <InlineWidget
-                  calLink="citrusreach"
-                  style={{
-                    height: "650px",
-                    width: "100%",
-                    overflow: "scroll",
-                  }}
-                  config={{ theme: "light", layout: "month_view" }}
-                />
-              </div>
-            </DialogContent>
-          </Dialog>
-
-          {/* Share Button */}
-          <Button
-            className="h-10 rounded-full text-sm"
-            onClick={handleShare}
-          >
-            <Share2 className="mr-2 h-4 w-4" /> Share
-          </Button>
-
-          {/* Get in Touch Button */}
-          <Button className="h-10 rounded-full text-sm" asChild>
-            <a
-              href="https://www.linkedin.com/in/jordan-steinberg/"
-              target="_blank"
-              rel="noopener noreferrer"
+        <div className="w-full flex flex-col md:flex-row gap-6">
+          <div className="w-full md:w-3/4">
+            <ReadOnlyVideo videoUrl={profile.videoUrl} />
+          </div>
+          <div className="w-full md:w-1/4 flex flex-col gap-3">
+            {/* Reply Dialog */}
+            <Dialog
+              open={isReplyDialogOpen}
+              onOpenChange={setIsReplyDialogOpen}
             >
-              <Linkedin className="mr-2 h-4 w-4" /> Get in Touch
-            </a>
-          </Button>
-        </div>
-      </div>
+              <DialogTrigger asChild>
+                <Button className="h-10 rounded-full text-sm">
+                  <MessageSquare className="mr-2 h-4 w-4" /> Reply
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Reply to {authorFirstName}</DialogTitle>
+                </DialogHeader>
+                <form
+                  onSubmit={(e) => e.preventDefault()}
+                  className="space-y-4 mt-4"
+                >
+                  <div>
+                    <label
+                      className="block text-sm font-medium mb-2"
+                      htmlFor="name"
+                    >
+                      Your Name
+                    </label>
+                    <Input id="name" placeholder="Full Name" required />
+                  </div>
+                  <div>
+                    <label
+                      className="block text-sm font-medium mb-2"
+                      htmlFor="email"
+                    >
+                      Email Address
+                    </label>
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="Email Address"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label
+                      className="block text-sm font-medium mb-2"
+                      htmlFor="message"
+                    >
+                      Your Message
+                    </label>
+                    <Textarea
+                      id="message"
+                      placeholder="Type your message here..."
+                      rows={6}
+                      required
+                    />
+                  </div>
+                  <Button type="submit" className="w-full">
+                    Send
+                  </Button>
+                </form>
+              </DialogContent>
+            </Dialog>
 
-      {/* Share Dialog Content */}
-      <Dialog open={isShareDialogOpen} onOpenChange={setIsShareDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Share Profile</DialogTitle>
-          </DialogHeader>
-          <div className="mt-4">
-            <Input value={window.location.href} readOnly className="mb-4" />
-            <Button onClick={copyToClipboard} className="w-full">
-              Copy Link
+            {/* Book a Meeting Dialog */}
+            <Dialog open={isCalDialogOpen} onOpenChange={setIsCalDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="h-10 rounded-full text-sm">
+                  <Calendar className="mr-2 h-4 w-4" /> Book a meeting
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>
+                    Book a Meeting with {authorFirstName}
+                  </DialogTitle>
+                </DialogHeader>
+                <div className="mt-4">
+                  <InlineWidget
+                    calLink="citrusreach"
+                    style={{
+                      height: "650px",
+                      width: "100%",
+                      overflow: "scroll",
+                    }}
+                    config={{ theme: "light", layout: "month_view" }}
+                  />
+                </div>
+              </DialogContent>
+            </Dialog>
+
+            {/* Share Button */}
+            <Button
+              className="h-10 rounded-full text-sm"
+              onClick={handleShare}
+            >
+              <Share2 className="mr-2 h-4 w-4" /> Share
+            </Button>
+
+            {/* Get in Touch Button */}
+            <Button className="h-10 rounded-full text-sm" asChild>
+              <a
+                href="https://www.linkedin.com/in/jordan-steinberg/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Linkedin className="mr-2 h-4 w-4" /> Get in Touch
+              </a>
             </Button>
           </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* More from {authorFirstName} Section */}
-      {latestDocuments.length > 0 && (
-        <div className="mt-12 w-full">
-          <h2 className="text-2xl font-bold mb-6">
-            More from {authorFirstName}
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {latestDocuments.map((post) => (
-              <MotionLink
-                key={post._id}
-                href={`/preview/${post._id}`}
-                className="flex flex-col"
-                whileHover={{ y: -5 }}
-                transition={{ type: "spring", stiffness: 300 }}
-              >
-                <img
-                  src={
-                    post.coverImage || "/placeholder.svg?height=300&width=400"
-                  }
-                  alt={post.title}
-                  className="rounded-lg object-cover w-full h-[200px] mb-4"
-                />
-                <p className="text-gray-500 text-sm mb-1">
-                  {new Date(post._creationTime).toLocaleDateString()}
-                </p>
-                <h3 className="text-xl font-semibold mb-1">{post.title}</h3>
-                <p className="text-gray-600">
-                  By {post.authorFullName || "Unknown Author"}
-                </p>
-              </MotionLink>
-            ))}
-          </div>
         </div>
-      )}
+
+        {/* Share Dialog Content */}
+        <Dialog open={isShareDialogOpen} onOpenChange={setIsShareDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Share Profile</DialogTitle>
+            </DialogHeader>
+            <div className="mt-4">
+              <Input value={window.location.href} readOnly className="mb-4" />
+              <Button onClick={copyToClipboard} className="w-full">
+                Copy Link
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* More from {authorFirstName} Section */}
+        {latestDocuments.length > 0 && (
+          <div className="mt-12 w-full">
+            <h2 className="text-2xl font-bold mb-6">
+              More from {authorFirstName}
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+              {latestDocuments.map((post) => (
+                <MotionLink
+                  key={post._id}
+                  href={`/preview/${post._id}`}
+                  className="flex flex-col"
+                  whileHover={{ y: -5 }}
+                  transition={{ type: "spring", stiffness: 300 }}
+                >
+                  <img
+                    src={
+                      post.coverImage || "/placeholder.svg?height=300&width=400"
+                    }
+                    alt={post.title}
+                    className="rounded-lg object-cover w-full h-[200px] mb-4"
+                  />
+                  <p className="text-gray-500 text-sm mb-1">
+                    {new Date(post._creationTime).toLocaleDateString()}
+                  </p>
+                  <h3 className="text-xl font-semibold mb-1">{post.title}</h3>
+                  <p className="text-gray-600">
+                    By {post.authorFullName || "Unknown Author"}
+                  </p>
+                </MotionLink>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

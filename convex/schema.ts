@@ -29,6 +29,7 @@ export default defineSchema ({
         coverImage: v.optional(v.string()),
         icon: v.optional(v.string()),
         isPublished: v.boolean(),
+        colorPreference: v.optional(v.string()),
     })
     
     .index("by_user", ["userId"])
