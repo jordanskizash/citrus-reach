@@ -8,9 +8,43 @@ export default function ReadOnlyVideo({ videoUrl }: ReadOnlyVideoProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    // Attempt to load metadata when component mounts or video URL changes
-    if (videoRef.current) {
-      videoRef.current.load();
+    if (videoUrl && videoRef.current) {
+      const videoElement = videoRef.current;
+
+      const handleLoadedMetadata = () => {
+        // Seek to a specific time to avoid black frames (e.g., 0.1 seconds)
+        videoElement.currentTime = 0.1;
+      };
+
+      const handleSeeked = () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = videoElement.videoWidth;
+        canvas.height = videoElement.videoHeight;
+
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+          try {
+            const dataURL = canvas.toDataURL("image/png");
+            videoElement.setAttribute("poster", dataURL);
+          } catch (error) {
+            console.error("Failed to generate poster image:", error);
+          }
+        }
+
+        videoElement.removeEventListener("seeked", handleSeeked);
+      };
+
+      // Set the crossOrigin attribute to handle CORS
+      videoElement.crossOrigin = "anonymous";
+
+      videoElement.addEventListener("loadedmetadata", handleLoadedMetadata);
+      videoElement.addEventListener("seeked", handleSeeked);
+
+      return () => {
+        videoElement.removeEventListener("loadedmetadata", handleLoadedMetadata);
+        videoElement.removeEventListener("seeked", handleSeeked);
+      };
     }
   }, [videoUrl]);
 
@@ -30,11 +64,11 @@ export default function ReadOnlyVideo({ videoUrl }: ReadOnlyVideoProps) {
         controls
         playsInline
         preload="metadata"
-        poster={videoUrl + '#t=0.1'} // Generate poster from first frame
-        controlsList="nodownload" // Prevent download button on supported browsers
+        controlsList="nodownload"
+        crossOrigin="anonymous"
+        muted
       >
         <source src={videoUrl} type="video/mp4" />
-        {/* Fallback message for unsupported browsers */}
         Your browser does not support the video tag.
       </video>
     </div>
