@@ -11,8 +11,13 @@ export const Footer = () => {
         {/* Hero Section */}
         <div className="flex flex-col items-center text-center py-32">
           <h1 className="text-6xl font-serif mb-8">Try Citrus Free</h1>
-            <Button variant="enroll" size="lg" className="text-lg px-12 py-6 mt-8 rounded-[30px]">Get Started</Button>
+          <a href="https://accounts.citrusreach.com/sign-up">
+            <Button variant="enroll" size="lg" className="text-lg px-12 py-6 mt-8 rounded-[30px]">
+              Get Started
+            </Button>
+          </a>
         </div>
+
 
         <div className="border-b border-gray-800"></div>
 
