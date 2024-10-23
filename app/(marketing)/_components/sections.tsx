@@ -25,30 +25,34 @@ export const Sections = () => {
 
   const sections = [
     {
-      title: "New Leads",
-      content: "Explore your latest prospects in this section designed to streamline your lead management process..."
+      title: "Blog Content",
+      content: "Create compelling blog posts to engage your prospects and establish thought leadership, driving interest and credibility in your outreach efforts."
     },
     {
-      title: "Product-Lead Growth",
-      content: "Delve into product-led growth tactics that can transform your product into a primary growth driver..."
+      title: "Personalized Video",
+      content: "Record and share personalized video messages that speak directly to your prospects, enhancing your connection and boosting engagement in your sales process."
     },
     {
-      title: "Search Optimized",
-      content: "Maximize your content's reach with our search optimization tools featured in this section..."
+      title: "Event Registration",
+      content: "Host webinars, virtual events, or product demos to showcase your offerings and attract qualified leads, driving targeted interactions with potential clients."
     },
     {
-      title: "CRM Sync",
-      content: "Efficiently synchronize and manage your customer relationships with our CRM Sync feature..."
+      title: "Promotional",
+      content: "Highlight your latest promotions or special offers with tailored landing pages that captivate your prospects and encourage conversions."
     }
   ];
 
   return (
     <div className="bg-orange-50 w-full py-6">
       <div className="max-w-2xl mx-auto px-6 text-center">
-        <h1 className={`text-${isMobile ? '3xl' : '4xl'}  font-bold mb-10`}>Build custom sites that move key metrics for your team & clients</h1>
-        <p className={`text-${isMobile ? 'lg' : 'xl'} text-gray-600 mb-8`}>How to secure more meetings with Citrus</p>
+        <h1 className={`text-${isMobile ? '3xl' : '4xl'} font-bold mb-10`}>
+          Build custom sites that move key metrics for your team & clients
+        </h1>
+        <p className={`text-${isMobile ? 'lg' : 'xl'} text-gray-600 mb-8`}>
+          Sites for any revenue generating purpose
+        </p>
         <div className="mb-6">
-          <div className={`flex ${isMobile ? 'flex-col items-stretch space-y-4' : 'justify-center space-x-6'} border-b`}>
+          <div className={`flex ${isMobile ? 'flex-col space-y-4' : 'space-x-6 justify-center'} border-b`}>
             {sections.map((section, index) => (
               <button
                 key={index}
@@ -71,5 +75,5 @@ export const Sections = () => {
         <p className="text-base">{sections[selectedIndex].content}</p>
       </div>
     </div>
-  )
+  );
 }

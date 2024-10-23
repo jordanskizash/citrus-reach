@@ -23,21 +23,21 @@ export const CardFeatures = () => {
     {
       title: "Blog Studio",
       description:
-        "Use our platform to create content-rich blogs to instantly publish to your site. Our powerful rich text editor will support any style of communication including code, images and video.",
+        "Get started by using our platform to content-rich blogs and instantly publish to your site. Our powerful rich text editor will support any style of communication including code, images and video.",
       icon: "/docs.png",
       tag: "Inbound",
     },
     {
       title: "Video-Powered Outreach",
       description:
-        "Record high-quality video or screen recordings right on our site. Instantly embed in emails to prospects.",
+        "Record high-quality video or screen recordings right on our site. Create personalized videos to your prospect, ane embed them on a site that makes it easy for prospects to reply, book meetings, and share.",
       icon: "/recordicon.png",
       tag: "Outbound",
     },
     {
       title: "Share with Your Network",
       description:
-        "Showcase your sites or blog posts on any media with automatic metadata and sharing functionality.",
+        "Showcase your sites or blog posts in emails to prospects, or on any social network with automatic metadata and sharing functionality",
       icon: "/share.png",
       tag: "Outbound",
     },
@@ -52,7 +52,7 @@ export const CardFeatures = () => {
     {
       title: "Book Meetings",
       description:
-        "Streamline your scheduling by connecting your calendar and allowing clients to book meetings directly on your microsite.",
+        "Connect your calendar to allow prospects to easily book meetings on your microsite. Gather intent signals to inform your targeted outreach.",
       icon: "/calendar.png",
       tag: "Success",
     },
@@ -114,8 +114,8 @@ export const CardFeatures = () => {
 
               {/* Black Circle with Number */}
               <div className="absolute bottom-4 left-4">
-                <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
-                  <span className="text-white text-sm font-semibold">
+                <div className="w-10 h-10 bg-black rounded-full flex items-center justify-center">
+                  <span className="text-white text-md font-semibold">
                     {index + 1}
                   </span>
                 </div>

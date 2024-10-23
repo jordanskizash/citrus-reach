@@ -60,17 +60,25 @@ const NavItems: React.FC<NavItemsProps> = ({ isAuthenticated, isLoading }) => (
   </>
 )
 
+
+
 const ExamplesDropdown = () => (
   <NavigationMenu>
     <NavigationMenuList>
       <NavigationMenuItem>
-        <NavigationMenuTrigger className="bg-orange-50 hover:bg-orange-50">Examples</NavigationMenuTrigger>
-        <NavigationMenuContent >
+        <NavigationMenuTrigger 
+          className="bg-transparent hover:bg-transparent focus:bg-transparent data-[state=open]:bg-transparent data-[active]:bg-transparent"
+        >
+          <Button variant="link" size="lg" className="p-0">
+            Examples
+          </Button>
+        </NavigationMenuTrigger>
+        <NavigationMenuContent className="bg-white">
           <ul className="grid gap-3 p-6 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
             <li className="row-span-3">
               <NavigationMenuLink asChild>
                 <a
-                  className="bg-gray-100 flex h-full w-full select-none flex-col justify-end rounded-md p-6 no-underline outline-none focus:shadow-md"
+                  className="flex h-full w-full select-none flex-col justify-end rounded-md p-6 no-underline outline-none focus:shadow-md bg-white"
                   href="/"
                 >
                   <Logo />
@@ -80,13 +88,13 @@ const ExamplesDropdown = () => (
                 </a>
               </NavigationMenuLink>
             </li>
-            <ListItem className="hover:bg-gray-100" href="/examples/notes" title="Notes">
+            <ListItem href="/examples/notes" title="Notes">
               Create and manage your notes with ease.
             </ListItem>
-            <ListItem className="hover:bg-gray-100" href="/examples/tasks" title="Tasks">
+            <ListItem href="/examples/tasks" title="Tasks">
               Organize your tasks and boost productivity.
             </ListItem>
-            <ListItem className="hover:bg-gray-100" href="/examples/calendar" title="Calendar">
+            <ListItem href="/examples/calendar" title="Calendar">
               Schedule and manage your events effortlessly.
             </ListItem>
           </ul>
@@ -102,7 +110,7 @@ const ListItem = ({ className, title, children, ...props }: React.ComponentProps
       <NavigationMenuLink asChild>
         <a
           className={cn(
-            "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
+            "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground bg-white",
             className
           )}
           {...props}
