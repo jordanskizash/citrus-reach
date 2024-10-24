@@ -18,19 +18,19 @@ export const Footer = () => {
           </a>
         </div>
 
-
         <div className="border-b border-gray-800"></div>
 
         {/* Main Footer Content */}
         <div className="py-20">
-          {/* Add mb-24 for more space below logo */}
-          <div className="mb-24">
+          {/* Logo - Left aligned by default, centered on mobile */}
+          <div className="flex md:justify-start justify-center mb-16">
             <Logo mode="dark" />
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-x-8 gap-y-12">
-            {/* Product Section - Add mb-8 for mobile spacing */}
-            <div className="mb-8 md:mb-0">
+          {/* Grid Container */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 md:gap-x-8 gap-y-12">
+            {/* Product Section */}
+            <div>
               <h3 className="text-xl font-semibold mb-6">Product</h3>
               <ul className="space-y-4 text-gray-400">
                 <li><Link href="#" className="hover:text-white transition-colors">Features</Link></li>
@@ -39,8 +39,8 @@ export const Footer = () => {
               </ul>
             </div>
 
-            {/* Company Section - Add mb-8 for mobile spacing */}
-            <div className="mb-8 md:mb-0">
+            {/* Company Section */}
+            <div>
               <h3 className="text-xl font-semibold mb-6">Company</h3>
               <ul className="space-y-4 text-gray-400">
                 <li><Link href="/about" className="hover:text-white transition-colors">About Us</Link></li>
@@ -48,28 +48,14 @@ export const Footer = () => {
               </ul>
             </div>
 
-            {/* Contact Section - Add mb-8 for mobile spacing */}
-            <div className="mb-8 md:mb-0">
+            {/* Contact Section */}
+            <div>
               <h3 className="text-xl font-semibold mb-6">Contact</h3>
               <ul className="space-y-4 text-gray-400">
                 <li>840 Randolph</li>
                 <li>Chicago, IL 60610</li>
                 <li>info@citrusreach.com</li>
               </ul>
-              <div className="flex space-x-4 mt-6">
-                <Link href="#" className="text-gray-400 hover:text-white transition-colors">
-                  <FacebookIcon className="w-6 h-6" />
-                  <span className="sr-only">Facebook</span>
-                </Link>
-                <Link href="#" className="text-gray-400 hover:text-white transition-colors">
-                  <TwitterIcon className="w-6 h-6" />
-                  <span className="sr-only">Twitter</span>
-                </Link>
-                <Link href="#" className="text-gray-400 hover:text-white transition-colors">
-                  <InstagramIcon className="w-6 h-6" />
-                  <span className="sr-only">Instagram</span>
-                </Link>
-              </div>
             </div>
 
             {/* T&Cs Section */}
@@ -82,9 +68,28 @@ export const Footer = () => {
             </div>
           </div>
 
-          {/* Copyright */}
-          <div className="mt-16 text-gray-400 text-sm">
-            © {new Date().getFullYear()} Citrus Reach. All rights reserved.
+          {/* Copyright and Social Icons Container */}
+          <div className="mt-16 flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+            {/* Copyright */}
+            <div className="text-gray-400 text-sm">
+              © {new Date().getFullYear()} Citrus Reach. All rights reserved.
+            </div>
+            
+            {/* Social Icons */}
+            <div className="flex space-x-4">
+              <Link href="#" className="text-gray-400 hover:text-white transition-colors">
+                <FacebookIcon className="w-6 h-6" />
+                <span className="sr-only">Facebook</span>
+              </Link>
+              <Link href="#" className="text-gray-400 hover:text-white transition-colors">
+                <TwitterIcon className="w-6 h-6" />
+                <span className="sr-only">Twitter</span>
+              </Link>
+              <Link href="#" className="text-gray-400 hover:text-white transition-colors">
+                <InstagramIcon className="w-6 h-6" />
+                <span className="sr-only">Instagram</span>
+              </Link>
+            </div>
           </div>
         </div>
       </div>
