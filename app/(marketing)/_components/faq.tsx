@@ -26,7 +26,7 @@ import {
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="item-2">
-              <AccordionTrigger>I&apos;m at my limit, how can I create more microsites?</AccordionTrigger>
+              <AccordionTrigger className="align-left">I&apos;m at my limit, how can I create more microsites?</AccordionTrigger>
               <AccordionContent>
                 In order to get more microsites, you&apos;ll need to upgrade to our pro plan. See <b>pricing</b> for more details.
               </AccordionContent>
