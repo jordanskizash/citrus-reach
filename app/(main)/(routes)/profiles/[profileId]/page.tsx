@@ -24,6 +24,8 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { useUser } from "@clerk/clerk-react";
 import { Spinner } from "@/components/spinner";
+import FormattingSidebar from '@/components/formatting-sidebar';
+import { useTheme } from 'next-themes';
 
 interface ProfileIdPageProps {
   params: {
@@ -145,6 +147,8 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
     }
   };
 
+  const { theme, setTheme } = useTheme();
+
   const copyToClipboard = () => {
     navigator.clipboard.writeText(window.location.href);
     toast.success("Profile link copied to clipboard!");
@@ -168,7 +172,12 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
   };
 
   return (
-    <div className="min-h-screen overflow-x-auto" style={gradientStyle}>
+    <div 
+      className={`min-h-screen overflow-x-auto ${
+        profile.isDarkMode ? 'dark' : ''
+      }`} 
+      style={gradientStyle}
+    >
       <div className="flex flex-col items-center pb-20 pt-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="w-full mb-6 mt-8 flex justify-between items-center">
           <ProfToolbar initialData={profile} />
@@ -348,6 +357,14 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
             </div>
           </div>
         )}
+         <FormattingSidebar
+        profile={profile}
+        profileId={params.profileId}
+        onColorChange={handleColorChange}
+        initialColor={colorPreference}
+        initialDarkMode={profile.isDarkMode}
+      />
+      
       </div>
     </div>
   );

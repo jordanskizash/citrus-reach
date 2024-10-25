@@ -30,6 +30,14 @@ export default defineSchema ({
         icon: v.optional(v.string()),
         isPublished: v.boolean(),
         colorPreference: v.optional(v.string()),
+        organizationLogo: v.optional(v.string()),
+        isDarkMode: v.optional(v.boolean()),
+        customTitle: v.optional(v.string()),
+        themeSettings: v.optional(v.object({
+            backgroundColor: v.string(),
+            textColor: v.string(),
+            accentColor: v.string()
+        }))
     })
     
     .index("by_user", ["userId"])
