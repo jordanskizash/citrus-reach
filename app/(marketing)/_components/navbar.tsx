@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useConvexAuth } from "convex/react"
 import { SignInButton, UserButton } from "@clerk/clerk-react"
-import { Menu, ChevronDown } from "lucide-react"
+import { Menu, ChevronDown, Star } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -88,14 +88,14 @@ const ExamplesDropdown = () => (
                 </a>
               </NavigationMenuLink>
             </li>
-            <ListItem href="/examples/notes" title="Notes">
-              Create and manage your notes with ease.
+            <ListItem href="/blog" title="Blog Post">
+              Create professional blog posts quickly with our editor
             </ListItem>
-            <ListItem href="/examples/tasks" title="Tasks">
-              Organize your tasks and boost productivity.
+            <ListItem href="/examples/tasks" title="Video Profile">
+              Create video profiles that reach prospects and book meetings
             </ListItem>
-            <ListItem href="/examples/calendar" title="Calendar">
-              Schedule and manage your events effortlessly.
+            <ListItem href="/examples/calendar" title="Event">
+              Coming Soon
             </ListItem>
           </ul>
         </NavigationMenuContent>

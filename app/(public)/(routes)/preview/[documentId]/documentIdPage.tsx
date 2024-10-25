@@ -10,12 +10,13 @@ import dynamic from "next/dynamic";
 import { useMemo, useState, useEffect } from "react";
 import ScrollIndicator from "@/app/(main)/_components/scroll";
 import { motion } from "framer-motion";
-import { ArrowLeft, BookOpen, Clock } from "lucide-react";
+import { ArrowLeft, BookOpen, Clock, Heart } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import SubscribeWidget from "@/app/(marketing)/_components/subscribe";
 import ShareButtons from "@/app/(marketing)/_components/sharebuttons";
 import Link from "next/link";
+import { LogoOnly } from "@/app/(marketing)/_components/logojust";
 
 const AUTHOR_NAME = 'Citrus Team';
 const AUTHOR_IMAGE = '/logo.svg'; // Replace with the actual author image path
@@ -143,7 +144,7 @@ const DocumentIdPage = ({ params, initialDocument }: DocumentIdPageProps) => {
                                 </Link>
                             </div>
                             <Cover preview url={document.coverImage} />
-                            <div className="mt-4 mb-4 ml-14 flex items-center space-x-2 sm:space-x-4">
+                            <div className="mt-6 mb-6 ml-14 flex items-center space-x-2 sm:space-x-4">
                                 <Avatar className="h-8 w-8 sm:h-12 sm:w-12">
                                     <AvatarImage src={document.authorImageUrl} alt={document.authorFullName || "Author"}/>
                                     <AvatarFallback>{document.authorFullName?.[0] || "A"}</AvatarFallback>
@@ -151,14 +152,15 @@ const DocumentIdPage = ({ params, initialDocument }: DocumentIdPageProps) => {
                                 <div>
                                     <h2 className="text-sm sm:text-xl font-semibold">{document.authorFullName}</h2>
                                     <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-2 text-xs sm:text-sm text-gray-500">
-                                        <Clock className="h-3 w-3 sm:h-4 sm:w-4" />
-                                        <span>{formatDate(document._creationTime)}</span>
-                                        <span className="hidden sm:inline">•</span>
-                                        <BookOpen className="h-3 w-3 sm:h-4 sm:w-4" />
-                                        <span>{readingTime} min read</span>
+                                    <Clock className="hidden sm:inline h-3 w-3 sm:h-4 sm:w-4" />
+                                    <span>{formatDate(document._creationTime)}</span>
+                                    <span className="hidden sm:inline">•</span>
+                                    <BookOpen className="hidden sm:inline h-3 w-3 sm:h-4 sm:w-4" />
+                                    <span className="hidden sm:inline">{readingTime} min read</span>
                                     </div>
                                 </div>
                             </div>
+
                             <div className="mx-[-16px] sm:mx-0">
                                 <Toolbar preview initialData={document} />
                                 <Editor
@@ -174,6 +176,12 @@ const DocumentIdPage = ({ params, initialDocument }: DocumentIdPageProps) => {
                             </div>
                             <div>
                                 <SubscribeWidget />
+                                <h2 className="flex items-center justify-center text-md">
+                                Made with 
+                                <span className="ml-2 w-6 h-6 sm:w-8 sm:h-8">
+                                    <LogoOnly />
+                                </span>
+                                </h2>
                             </div>
                         </article>
                     </div>

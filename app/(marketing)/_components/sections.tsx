@@ -4,11 +4,9 @@ import { useState, useEffect } from 'react';
 
 export const Sections = () => {
   const [selectedIndex, setSelectedIndex] = useState(0);
-  // Initialize isMobile with a default value that makes sense for your initial render
   const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < 640 : true);
 
   useEffect(() => {
-    // Ensure window is defined before using it
     const handleResize = () => {
       if (typeof window !== 'undefined') {
         setIsMobile(window.innerWidth < 640);
@@ -16,8 +14,6 @@ export const Sections = () => {
     };
 
     window.addEventListener('resize', handleResize);
-
-    // Call handleResize initially to set the correct state from the start
     handleResize();
 
     return () => window.removeEventListener('resize', handleResize);
@@ -26,19 +22,23 @@ export const Sections = () => {
   const sections = [
     {
       title: "Blog Content",
-      content: "Create compelling blog posts to engage your prospects and establish thought leadership, driving interest and credibility in your outreach efforts."
+      content: "Create compelling blog posts to engage your prospects and establish thought leadership, driving interest and credibility in your outreach efforts.",
+      imageUrl: "/blogsec.png"
     },
     {
       title: "Personalized Video",
-      content: "Record and share personalized video messages that speak directly to your prospects, enhancing your connection and boosting engagement in your sales process."
+      content: "Record and share personalized video messages that speak directly to your prospects, enhancing your connection and boosting engagement in your sales process.",
+      imageUrl: "/recordpic.png"
     },
     {
       title: "Event Registration",
-      content: "Host webinars, virtual events, or product demos to showcase your offerings and attract qualified leads, driving targeted interactions with potential clients."
+      content: "Host webinars, virtual events, or product demos to showcase your offerings and attract qualified leads, driving targeted interactions with potential clients.",
+      imageUrl: "/images/event-registration.png"
     },
     {
       title: "Promotional",
-      content: "Highlight your latest promotions or special offers with tailored landing pages that captivate your prospects and encourage conversions."
+      content: "Highlight your latest promotions or special offers with tailored landing pages that captivate your prospects and encourage conversions.",
+      imageUrl: "/images/promotional.png"
     }
   ];
 
@@ -70,9 +70,13 @@ export const Sections = () => {
         </div>
       </div>
 
-      <div className="bg-orange-50 p-4 rounded-lg min-h-[250px] flex flex-col justify-center">
-        <h2 className="text-2xl font-semibold mb-4">{sections[selectedIndex].title}</h2>
-        <p className="text-base">{sections[selectedIndex].content}</p>
+      <div className="bg-orange-50 p-4 rounded-lg min-h-[250px] flex flex-col justify-center items-center">
+        <p className="text-base mb-8 text-center max-w-2xl">{sections[selectedIndex].content}</p>
+        <img
+          src={sections[selectedIndex].imageUrl}
+          alt={sections[selectedIndex].title}
+          className="rounded-lg shadow-lg max-w-4xl border-black border-l-8 border-b-8 border-t-2 border-r-2"
+        />
       </div>
     </div>
   );

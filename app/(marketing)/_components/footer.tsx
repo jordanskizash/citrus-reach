@@ -10,7 +10,7 @@ export const Footer = () => {
       <div className="max-w-7xl mx-auto px-4">
         {/* Hero Section */}
         <div className="flex flex-col items-center text-center py-32">
-          <h1 className="text-6xl font-serif mb-8">Try Citrus Free</h1>
+          <h1 className="text-6xl font-serif mb-8">Try Citrus for Free</h1>
           <a href="https://accounts.citrusreach.com/sign-up">
             <Button variant="enroll" size="lg" className="text-lg px-12 py-6 mt-8 rounded-[30px]">
               Get Started

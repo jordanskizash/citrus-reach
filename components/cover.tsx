@@ -47,7 +47,7 @@ export const Cover = ({
                     src={url}
                     fill
                     alt="Cover"
-                    className="object-cover"
+                    className="object-cover rounded-lg"
                 />
             ) : (
                 <div className="w-full h-full bg-muted flex items-center justify-center">
