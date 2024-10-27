@@ -1,169 +1,175 @@
-import React, { useState } from 'react';
-import { useMutation } from 'convex/react';
-import { api } from '@/convex/_generated/api';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { Switch } from '@/components/ui/switch';
-import { Paintbrush, Upload, Moon, Sun } from 'lucide-react';
-import { Id } from '@/convex/_generated/dataModel';
+'use client'
 
-// Define the Profile type based on your schema
+import * as React from 'react'
+import { useMutation } from 'convex/react'
+import { api } from '@/convex/_generated/api'
+import { Id } from '@/convex/_generated/dataModel'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+import { Upload, ChevronDown } from 'lucide-react'
+
 interface Profile {
-  _id: Id<"profiles">;
-  _creationTime: number;
-  displayName: string;
-  bio?: string;
-  description?: string;
-  videoUrl?: string;
-  userId: string;
-  isArchived: boolean;
-  parentProfile?: Id<"profiles">;
-  content?: string;
-  coverImage?: string;
-  icon?: string;
-  isPublished: boolean;
-  colorPreference?: string;
+  _id: Id<"profiles">
+  displayName: string
+  coverImage?: string
+  colorPreference?: string
 }
 
-interface FormattingSidebarProps {
-  profile: Profile;
-  profileId: Id<"profiles">;
-  onColorChange: (color: string) => void;
-  initialColor?: string;
-  initialDarkMode?: boolean;
+interface FormattingModuleProps {
+  profile: Profile
+  profileId: Id<"profiles">
+  onColorChange: (type: 'background' | 'accent', color: string) => void
 }
 
-const FormattingSidebar: React.FC<FormattingSidebarProps> = ({ 
+const colorOptions = [
+  { name: 'Light Red', value: '#FFCCCB' },
+  { name: 'Light Orange', value: '#FFE5B4' },
+  { name: 'Light Yellow', value: '#FFFACD' },
+  { name: 'Light Green', value: '#E0FFE0' },
+  { name: 'Light Blue', value: '#E6F3FF' },
+  { name: 'Light Purple', value: '#E6E6FA' },
+  { name: 'White', value: '#FFFFFF' },
+]
+
+export default function FormattingModule({
   profile,
   profileId,
   onColorChange,
-  initialColor = '#FFFFFF',
-  initialDarkMode = false,
-}) => {
-  const updateProfile = useMutation(api.profiles.update);
-  const [isOpen, setIsOpen] = useState(true);
-  const [isDarkMode, setIsDarkMode] = useState(initialDarkMode);
-  const [customTitle, setCustomTitle] = useState(profile?.displayName || 'Hey, check out this recording!');
-  
+}: FormattingModuleProps) {
+  const updateProfile = useMutation(api.profiles.update)
+  const [backgroundColor, setBackgroundColor] = React.useState(profile.colorPreference || '#FFFFFF')
+  const [accentColor, setAccentColor] = React.useState('#000000') // Default accent color
+
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+    const file = e.target.files?.[0]
     if (file) {
       // Implement your file upload logic here
       // After successful upload, update the profile with the logo URL
-      const logoUrl = 'YOUR_UPLOADED_LOGO_URL';
+      const logoUrl = 'YOUR_UPLOADED_LOGO_URL'
       await updateProfile({
         id: profileId,
-        coverImage: logoUrl, // Using coverImage instead of organizationLogo
-      });
+        coverImage: logoUrl,
+      })
     }
-  };
+  }
 
-  const handleDarkModeToggle = async (checked: boolean) => {
-    setIsDarkMode(checked);
-    // Store dark mode preference in localStorage or another state management solution
-    localStorage.setItem('darkMode', checked.toString());
-    // Note: We're not storing this in the database since it's not in our schema
-  };
+  const handleColorChange = (type: 'background' | 'accent', newColor: string) => {
+    if (type === 'background') {
+      setBackgroundColor(newColor)
+      updateProfile({
+        id: profileId,
+        colorPreference: newColor,
+      })
+    } else {
+      setAccentColor(newColor)
+      // Note: We're not updating the profile here as there's no field for accent color
+    }
+    onColorChange(type, newColor)
+  }
 
-  const handleTitleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newTitle = e.target.value;
-    setCustomTitle(newTitle);
-    await updateProfile({
-      id: profileId,
-      displayName: newTitle, // Using displayName instead of customTitle
-    });
-  };
+  const ColorPicker = ({ type, color, onChange }: { type: 'background' | 'accent', color: string, onChange: (color: string) => void }) => (
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          role="combobox"
+          className="w-full justify-between"
+        >
+          <div className="flex items-center">
+            <div
+              className="w-4 h-4 rounded mr-2"
+              style={{ backgroundColor: color }}
+            />
+            {color}
+          </div>
+          <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-full p-0">
+        <div className="grid grid-cols-3 gap-2 p-2">
+          {colorOptions.map((colorOption) => (
+            <Button
+              key={colorOption.value}
+              className="w-full h-8 p-0"
+              style={{ backgroundColor: colorOption.value }}
+              onClick={() => onChange(colorOption.value)}
+            />
+          ))}
+        </div>
+        <div className="p-2 border-t">
+          <Label htmlFor={`custom-${type}-color`} className="text-xs">Custom Color</Label>
+          <div className="flex items-center mt-1">
+            <Input
+              id={`custom-${type}-color`}
+              type="text"
+              value={color}
+              onChange={(e) => onChange(e.target.value)}
+              placeholder="#RRGGBB"
+              className="flex-grow"
+            />
+            <div
+              className="w-6 h-6 rounded ml-2 border"
+              style={{ backgroundColor: color }}
+            />
+          </div>
+        </div>
+      </PopoverContent>
+    </Popover>
+  )
 
   return (
-    <div className={`fixed right-0 top-0 h-full w-64 bg-white dark:bg-gray-800 shadow-lg transform transition-transform ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
-      <div className="p-4">
-        <h2 className="text-lg font-semibold mb-4">Format Page</h2>
-        
-        {/* Background Color */}
-        <div className="mb-6">
-          <Label className="block mb-2">Background Color</Label>
-          <div className="flex items-center gap-2">
-            <div 
-              className="w-8 h-8 rounded border"
-              style={{ backgroundColor: initialColor }}
-            />
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => document.getElementById('colorPicker')?.click()}
-            >
-              <Paintbrush className="h-4 w-4 mr-2" />
-              Change Color
-            </Button>
-            <input
-              type="color"
-              id="colorPicker"
-              className="hidden"
-              value={initialColor}
-              onChange={(e) => onColorChange(e.target.value)}
-            />
-          </div>
+    <div className="bg-background border rounded-lg shadow-sm p-4 space-y-6">
+      <h3 className="text-lg font-semibold mb-4">Customize Your Page</h3>
+      
+      <div className="space-y-4">
+        <div>
+          <Label htmlFor="background-color">Background Color</Label>
+          <ColorPicker
+            type="background"
+            color={backgroundColor}
+            onChange={(color) => handleColorChange('background', color)}
+          />
         </div>
 
-        {/* Dark Mode Toggle */}
-        <div className="mb-6">
-          <Label className="block mb-2">Dark Mode</Label>
-          <div className="flex items-center gap-2">
-            <Switch
-              checked={isDarkMode}
-              onCheckedChange={handleDarkModeToggle}
-            />
-            {isDarkMode ? (
-              <Moon className="h-4 w-4" />
-            ) : (
-              <Sun className="h-4 w-4" />
-            )}
-          </div>
+        <div>
+          <Label htmlFor="accent-color">Accent Color</Label>
+          <ColorPicker
+            type="accent"
+            color={accentColor}
+            onChange={(color) => handleColorChange('accent', color)}
+          />
         </div>
 
-        {/* Organization Logo */}
-        <div className="mb-6">
-          <Label className="block mb-2">Organization Logo</Label>
-          <div className="flex flex-col gap-2">
+        <div>
+          <Label htmlFor="logo-upload">Logo</Label>
+          <div className="flex items-center space-x-2 mt-1">
             {profile.coverImage && (
-              <img 
-                src={profile.coverImage} 
-                alt="Organization Logo" 
-                className="w-20 h-20 object-contain"
+              <img
+                src={profile.coverImage}
+                alt="Logo"
+                className="w-8 h-8 object-contain rounded"
               />
             )}
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => document.getElementById('logoUpload')?.click()}
-            >
-              <Upload className="h-4 w-4 mr-2" />
+            <Button variant="outline" size="sm" onClick={() => document.getElementById('logo-upload')?.click()}>
+              <Upload className="w-4 h-4 mr-2" />
               Upload Logo
             </Button>
             <input
               type="file"
-              id="logoUpload"
+              id="logo-upload"
               className="hidden"
               accept="image/*"
               onChange={handleLogoUpload}
             />
           </div>
         </div>
-
-        {/* Custom Title */}
-        <div className="mb-6">
-          <Label className="block mb-2">Custom Title</Label>
-          <Input
-            value={customTitle}
-            onChange={handleTitleChange}
-            placeholder="Enter custom title"
-            className="w-full"
-          />
-        </div>
       </div>
     </div>
-  );
-};
-
-export default FormattingSidebar;
+  )
+}

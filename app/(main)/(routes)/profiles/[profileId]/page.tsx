@@ -178,7 +178,7 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
       }`} 
       style={gradientStyle}
     >
-      <div className="flex flex-col items-center pb-20 pt-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="fflex flex-col items-center pb-20 pt-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 ml-12">
         <div className="w-full mb-6 mt-8 flex justify-between items-center">
           <ProfToolbar initialData={profile} />
           <ColorPicker color={colorPreference} onChange={handleColorChange} />
@@ -305,6 +305,19 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
                 <Linkedin className="mr-2 h-4 w-4" /> Get in Touch
               </a>
             </Button>
+            <FormattingSidebar
+              profile={profile}
+              profileId={params.profileId}
+              onColorChange={(type, color) => {
+                // Update your state or perform any necessary actions
+                if (type === 'background') {
+                  // Update background color in your UI
+                } else {
+                  // Update accent color in your UI
+                  // Note: This is not saved to the profile
+                }
+              }}
+            />
           </div>
         </div>
 
@@ -322,6 +335,7 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
             </div>
           </DialogContent>
         </Dialog>
+
 
         {/* More from {user.firstName} Section */}
         {user && latestDocuments.length > 0 && (
@@ -357,14 +371,6 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
             </div>
           </div>
         )}
-         <FormattingSidebar
-        profile={profile}
-        profileId={params.profileId}
-        onColorChange={handleColorChange}
-        initialColor={colorPreference}
-        initialDarkMode={profile.isDarkMode}
-      />
-      
       </div>
     </div>
   );
