@@ -1,3 +1,4 @@
+import { Footer } from './_components/footer';
 import { Navbar} from './_components/navbar';
 import { Merriweather, Raleway, Zilla_Slab } from 'next/font/google';
 
@@ -18,6 +19,7 @@ const MarketingLayout = ({
                 <main className="h-full pt-40">
                     {children}
                 </main>
+                <Footer />
             </main>
         </div>
      );

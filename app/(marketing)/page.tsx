@@ -24,7 +24,6 @@ const MarketingPage = () => {
         <Sections />
         <FAQ />
       </div>
-      <Footer />
     </div>
   );
 };
