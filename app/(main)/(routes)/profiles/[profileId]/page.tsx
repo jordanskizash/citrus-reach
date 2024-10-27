@@ -35,61 +35,6 @@ interface ProfileIdPageProps {
 
 const MotionLink = motion(Link);
 
-const colorOptions = [
-  { name: 'Light Red', value: '#FFCCCB' },
-  { name: 'Light Orange', value: '#FFE5B4' },
-  { name: 'Light Yellow', value: '#FFFACD' },
-  { name: 'Light Green', value: '#E0FFE0' },
-  { name: 'Light Blue', value: '#E6F3FF' },
-  { name: 'Light Purple', value: '#E6E6FA' },
-  { name: 'White', value: '#FFFFFF' },
-];
-
-interface ColorPickerProps {
-  color: string;
-  onChange: (color: string) => void;
-}
-
-const ColorPicker = ({ color, onChange }: ColorPickerProps) => {
-  const [isOpen, setIsOpen] = useState(false);
-
-  return (
-    <>
-      <Button
-        variant="outline"
-        size="icon"
-        onClick={() => setIsOpen(true)}
-        aria-label="Open color picker"
-      >
-        <Paintbrush className="h-4 w-4" />
-      </Button>
-      <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Choose a background color</DialogTitle>
-          </DialogHeader>
-          <div className="grid grid-cols-3 gap-4 py-4">
-            {colorOptions.map((option) => (
-              <button
-                key={option.name}
-                className={`w-full h-12 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-                  color === option.value ? 'ring-2 ring-offset-2 ring-gray-400' : ''
-                } ${option.value === '#FFFFFF' ? 'border border-black' : ''}`}
-                style={{ backgroundColor: option.value }}
-                onClick={() => {
-                  onChange(option.value);
-                  setIsOpen(false);
-                }}
-                aria-label={`Select ${option.name}`}
-              />
-            ))}
-          </div>
-        </DialogContent>
-      </Dialog>
-    </>
-  );
-};
-
 export default function ProfileIdPage({ params }: ProfileIdPageProps) {
   const { user } = useUser();
   const documents = useQuery(api.documents.getPublishedDocuments);
@@ -181,9 +126,11 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
       <div className="fflex flex-col items-center pb-20 pt-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 ml-12">
         <div className="w-full mb-6 mt-8 flex justify-between items-center">
           <ProfToolbar initialData={profile} />
-          <ColorPicker color={colorPreference} onChange={handleColorChange} />
         </div>
         <p className="text-xl mt-2 mb-6 text-center">{profile.bio}</p>
+
+        {/* Separation Line */}
+        <hr className="my-8 border-black border-t-2 w-full" />
 
         <div className="w-full flex flex-col md:flex-row gap-6">
           <div className="w-full md:w-3/4">
@@ -305,19 +252,6 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
                 <Linkedin className="mr-2 h-4 w-4" /> Get in Touch
               </a>
             </Button>
-            <FormattingSidebar
-              profile={profile}
-              profileId={params.profileId}
-              onColorChange={(type, color) => {
-                // Update your state or perform any necessary actions
-                if (type === 'background') {
-                  // Update background color in your UI
-                } else {
-                  // Update accent color in your UI
-                  // Note: This is not saved to the profile
-                }
-              }}
-            />
           </div>
         </div>
 
@@ -336,7 +270,9 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
           </DialogContent>
         </Dialog>
 
+        <hr className="my-8 border-black border-t-2 w-full" />
 
+        
         {/* More from {user.firstName} Section */}
         {user && latestDocuments.length > 0 && (
           <div className="mt-12 w-full">

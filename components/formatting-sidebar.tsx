@@ -3,7 +3,7 @@
 import * as React from 'react'
 import { useMutation } from 'convex/react'
 import { api } from '@/convex/_generated/api'
-import { Id } from '@/convex/_generated/dataModel'
+import { Doc, Id } from '@/convex/_generated/dataModel'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -13,16 +13,22 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { Upload, ChevronDown } from 'lucide-react'
+import { PublishProfile } from '@/app/(main)/_components/publishprof'
+import { Menu } from '@/app/(main)/_components/menu'
+import { ProfTitle } from '@/app/(main)/_components/prof-title'
+
 
 interface Profile {
   _id: Id<"profiles">
   displayName: string
   coverImage?: string
   colorPreference?: string
+  isPublished?: boolean
+  icon?: string
 }
 
 interface FormattingModuleProps {
-  profile: Profile
+  profile: Profile & Doc<"profiles">
   profileId: Id<"profiles">
   onColorChange: (type: 'background' | 'accent', color: string) => void
 }
@@ -44,13 +50,12 @@ export default function FormattingModule({
 }: FormattingModuleProps) {
   const updateProfile = useMutation(api.profiles.update)
   const [backgroundColor, setBackgroundColor] = React.useState(profile.colorPreference || '#FFFFFF')
-  const [accentColor, setAccentColor] = React.useState('#000000') // Default accent color
+  const [accentColor, setAccentColor] = React.useState('#000000')
 
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
       // Implement your file upload logic here
-      // After successful upload, update the profile with the logo URL
       const logoUrl = 'YOUR_UPLOADED_LOGO_URL'
       await updateProfile({
         id: profileId,
@@ -68,7 +73,6 @@ export default function FormattingModule({
       })
     } else {
       setAccentColor(newColor)
-      // Note: We're not updating the profile here as there's no field for accent color
     }
     onColorChange(type, newColor)
   }
@@ -124,49 +128,63 @@ export default function FormattingModule({
   )
 
   return (
-    <div className="bg-background border rounded-lg shadow-sm p-4 space-y-6">
-      <h3 className="text-lg font-semibold mb-4">Customize Your Page</h3>
+    <div className="group/sidebar h-full bg-secondary overflow-y-auto relative flex w-60 flex-col z-[99999]">
+      <div className="flex items-center justify-between p-4 border-b">
+        <PublishProfile initialData={profile} />
+        <Menu profileId={profileId} coverImageUrl={profile.coverImage} />
+      </div>
       
-      <div className="space-y-4">
-        <div>
-          <Label htmlFor="background-color">Background Color</Label>
-          <ColorPicker
-            type="background"
-            color={backgroundColor}
-            onChange={(color) => handleColorChange('background', color)}
-          />
-        </div>
+      <div className="p-4">
+        <h3 className="text-lg font-semibold mb-4">Customize Your Page</h3>
+        
+        <div className="space-y-4">
+          <div>
+            <Label htmlFor="display-name">Display Name</Label>
+            <div className="mt-1">
+              <ProfTitle initialData={profile} />
+            </div>
+          </div>
 
-        <div>
-          <Label htmlFor="accent-color">Accent Color</Label>
-          <ColorPicker
-            type="accent"
-            color={accentColor}
-            onChange={(color) => handleColorChange('accent', color)}
-          />
-        </div>
-
-        <div>
-          <Label htmlFor="logo-upload">Logo</Label>
-          <div className="flex items-center space-x-2 mt-1">
-            {profile.coverImage && (
-              <img
-                src={profile.coverImage}
-                alt="Logo"
-                className="w-8 h-8 object-contain rounded"
-              />
-            )}
-            <Button variant="outline" size="sm" onClick={() => document.getElementById('logo-upload')?.click()}>
-              <Upload className="w-4 h-4 mr-2" />
-              Upload Logo
-            </Button>
-            <input
-              type="file"
-              id="logo-upload"
-              className="hidden"
-              accept="image/*"
-              onChange={handleLogoUpload}
+          <div>
+            <Label htmlFor="background-color">Background Color</Label>
+            <ColorPicker
+              type="background"
+              color={backgroundColor}
+              onChange={(color) => handleColorChange('background', color)}
             />
+          </div>
+
+          <div>
+            <Label htmlFor="accent-color">Accent Color</Label>
+            <ColorPicker
+              type="accent"
+              color={accentColor}
+              onChange={(color) => handleColorChange('accent', color)}
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="logo-upload">Logo</Label>
+            <div className="flex items-center space-x-2 mt-1">
+              {profile.coverImage && (
+                <img
+                  src={profile.coverImage}
+                  alt="Logo"
+                  className="w-8 h-8 object-contain rounded"
+                />
+              )}
+              <Button variant="outline" size="sm" onClick={() => document.getElementById('logo-upload')?.click()}>
+                <Upload className="w-4 h-4 mr-2" />
+                Upload Logo
+              </Button>
+              <input
+                type="file"
+                id="logo-upload"
+                className="hidden"
+                accept="image/*"
+                onChange={handleLogoUpload}
+              />
+            </div>
           </div>
         </div>
       </div>

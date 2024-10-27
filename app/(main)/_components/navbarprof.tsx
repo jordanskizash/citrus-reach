@@ -28,7 +28,7 @@ export const NavbarProfile = ({
 
   if (profile === undefined) {
     return (
-      <div className="w-screen max-w-[100vw]">
+      <div className="w-screen max-w-[60vw]">
         <nav className="bg-background dark:bg-[#1F1F1F] px-3 py-2 w-full flex items-center">
           <ProfTitle.Skeleton />
           <div className="flex items-center gap-x-2">
@@ -44,7 +44,7 @@ export const NavbarProfile = ({
   }
 
   return (
-    <div className="w-screen max-w-[87vw]">
+    <div className="w-screen max-w-[88vw]">
       <nav className="bg-background dark:bg-[#1F1F1F] px-3 py-2 max-w-full flex items-center overflow-x-hidden">
         <div className="flex items-center justify-between w-full gap-x-4">
           <div className="flex items-center gap-x-4 min-w-0 overflow-hidden">
