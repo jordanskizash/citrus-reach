@@ -138,7 +138,7 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
             <span className="text-2xl font-bold">x</span>
             {/* Client Logo */}
             <Image
-              src={clientLogo || "/placeholder.svg?height=50&width=150"}
+              src={clientLogo || "/acme.png"}
               alt="Client Company Logo"
               width={150}
               height={50}

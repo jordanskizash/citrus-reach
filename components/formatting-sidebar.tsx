@@ -17,6 +17,8 @@ import { PublishProfile } from '@/app/(main)/_components/publishprof'
 import { Menu } from '@/app/(main)/_components/menu'
 import { ProfTitle } from '@/app/(main)/_components/prof-title'
 import { useState, useEffect } from 'react';
+import { useEdgeStore } from '@/lib/edgestore';
+
 
 interface Profile {
   _id: Id<"profiles">
@@ -56,6 +58,8 @@ export default function FormattingModule({
   const [greetingText, setGreetingText] = useState(profile.greetingText || `Hey, ${profile.displayName} - Check out this recording!`); // New greeting text state
 
 
+  const { edgestore } = useEdgeStore();
+
   // Update greeting text in Convex
  const handleGreetingTextChange = (text: string) => {
   setGreetingText(text);
@@ -69,18 +73,25 @@ export default function FormattingModule({
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'cover' | 'client' = 'cover') => {
     const file = e.target.files?.[0]
     if (file) {
-      const logoUrl = 'YOUR_UPLOADED_LOGO_URL' // Replace with actual upload logic
-      if (type === 'cover') {
-        await updateProfile({
-          id: profileId,
-          coverImage: logoUrl,
-        })
-      } else {
-        setClientLogoUrl(logoUrl) // Set client logo URL in state
-        await updateProfile({
-          id: profileId,
-          icon: logoUrl,
-        })
+      try {
+        const response = await edgestore.publicFiles.upload({
+          file,
+        });
+        const logoUrl = response.url; // URL of the uploaded image
+        if (type === 'cover') {
+          await updateProfile({
+            id: profileId,
+            coverImage: logoUrl,
+          })
+        } else {
+          setClientLogoUrl(logoUrl) // Set client logo URL in state
+          await updateProfile({
+            id: profileId,
+            icon: logoUrl,
+          })
+        }
+      } catch (error) {
+        console.error("Error uploading file:", error);
       }
     }
   }
