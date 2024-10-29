@@ -46,6 +46,9 @@ export const ProfToolbar = ({ initialData, preview, editable = true }: ToolbarPr
     }
   };
 
+  // Use greetingText from initialData if available
+  const greetingText = initialData.greetingText || `Hey, ${initialData.displayName} - Check out this recording!`;
+
   return (
     <div className="pl-[54px] group relative">
       {isEditing && !preview && editable ? (
@@ -55,7 +58,7 @@ export const ProfToolbar = ({ initialData, preview, editable = true }: ToolbarPr
           onKeyDown={onKeyDown}
           value={value}
           onChange={(e) => onInput(e.target.value)}
-          className="text-5xl bg-transparent font-bold break-words outline-none text-[#3F3F3F] dark:text-[#CFCFCF] max-w-3xl resize-none"
+          className="text-5xl bg-transparent font-bold break-words outline-none text-[#3F3F3F] dark:text-[#CFCFCF] max-w-4xl resize-none"
         />
       ) : (
         <div
@@ -64,7 +67,7 @@ export const ProfToolbar = ({ initialData, preview, editable = true }: ToolbarPr
             editable ? "cursor-text" : ""
           }`}
         >
-          Hey, {initialData.displayName} - Check out this recording!
+          {greetingText}
         </div>
       )}
     </div>

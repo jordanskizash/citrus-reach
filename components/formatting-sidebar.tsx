@@ -16,7 +16,7 @@ import { Upload, ChevronDown } from 'lucide-react'
 import { PublishProfile } from '@/app/(main)/_components/publishprof'
 import { Menu } from '@/app/(main)/_components/menu'
 import { ProfTitle } from '@/app/(main)/_components/prof-title'
-
+import { useState, useEffect } from 'react';
 
 interface Profile {
   _id: Id<"profiles">
@@ -25,6 +25,7 @@ interface Profile {
   colorPreference?: string
   isPublished?: boolean
   icon?: string
+  greetingText?: string
 }
 
 interface FormattingModuleProps {
@@ -51,16 +52,36 @@ export default function FormattingModule({
   const updateProfile = useMutation(api.profiles.update)
   const [backgroundColor, setBackgroundColor] = React.useState(profile.colorPreference || '#FFFFFF')
   const [accentColor, setAccentColor] = React.useState('#000000')
+  const [clientLogoUrl, setClientLogoUrl] = React.useState(profile.icon || '') // State for client logo URL
+  const [greetingText, setGreetingText] = useState(profile.greetingText || `Hey, ${profile.displayName} - Check out this recording!`); // New greeting text state
 
-  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+
+  // Update greeting text in Convex
+ const handleGreetingTextChange = (text: string) => {
+  setGreetingText(text);
+  updateProfile({
+    id: profileId,
+    greetingText: text,
+  });
+};
+
+  // Update `handleLogoUpload` to accept `type`
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'cover' | 'client' = 'cover') => {
     const file = e.target.files?.[0]
     if (file) {
-      // Implement your file upload logic here
-      const logoUrl = 'YOUR_UPLOADED_LOGO_URL'
-      await updateProfile({
-        id: profileId,
-        coverImage: logoUrl,
-      })
+      const logoUrl = 'YOUR_UPLOADED_LOGO_URL' // Replace with actual upload logic
+      if (type === 'cover') {
+        await updateProfile({
+          id: profileId,
+          coverImage: logoUrl,
+        })
+      } else {
+        setClientLogoUrl(logoUrl) // Set client logo URL in state
+        await updateProfile({
+          id: profileId,
+          icon: logoUrl,
+        })
+      }
     }
   }
 
@@ -146,6 +167,17 @@ export default function FormattingModule({
           </div>
 
           <div>
+            <Label htmlFor="greeting-text">Greeting Text</Label>
+            <Input
+              id="greeting-text"
+              value={greetingText}
+              onChange={(e) => handleGreetingTextChange(e.target.value)}
+              placeholder="Enter your custom greeting"
+              className="mt-1"
+            />
+          </div>
+
+          <div>
             <Label htmlFor="background-color">Background Color</Label>
             <ColorPicker
               type="background"
@@ -163,7 +195,8 @@ export default function FormattingModule({
             />
           </div>
 
-          <div>
+          {/* Cover Logo Section */}
+          <div className="mb-4">
             <Label htmlFor="logo-upload">Logo</Label>
             <div className="flex items-center space-x-2 mt-1">
               {profile.coverImage && (
@@ -173,16 +206,41 @@ export default function FormattingModule({
                   className="w-8 h-8 object-contain rounded"
                 />
               )}
-              <Button variant="outline" size="sm" onClick={() => document.getElementById('logo-upload')?.click()}>
+              <Button variant="outline" size="sm" onClick={() => document.getElementById('cover-logo-upload')?.click()}>
                 <Upload className="w-4 h-4 mr-2" />
                 Upload Logo
               </Button>
               <input
                 type="file"
-                id="logo-upload"
+                id="cover-logo-upload"
                 className="hidden"
                 accept="image/*"
-                onChange={handleLogoUpload}
+                onChange={(e) => handleLogoUpload(e, 'cover')}
+              />
+            </div>
+          </div>
+
+          {/* Client Logo Section */}
+          <div className="mb-4">
+            <Label htmlFor="client-logo-upload">Client Logo</Label>
+            <div className="flex items-center space-x-2 mt-1">
+              {clientLogoUrl && (
+                <img
+                  src={clientLogoUrl}
+                  alt="Client Logo"
+                  className="w-8 h-8 object-contain rounded"
+                />
+              )}
+              <Button variant="outline" size="sm" onClick={() => document.getElementById('client-logo-upload')?.click()}>
+                <Upload className="w-4 h-4 mr-2" />
+                Upload Client Logo
+              </Button>
+              <input
+                type="file"
+                id="client-logo-upload"
+                className="hidden"
+                accept="image/*"
+                onChange={(e) => handleLogoUpload(e, 'client')}
               />
             </div>
           </div>

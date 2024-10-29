@@ -23,6 +23,9 @@ import InlineWidget from "@calcom/embed-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import ReadOnlyVideo from "@/components/readOnlyVideo";
+import Image from "next/image";
+import { ProfileDescription } from "@/app/(main)/_components/prof-description";
+import { useUser } from "@clerk/clerk-react";
 
 interface ProfileIdPageProps {
   params: {
@@ -33,10 +36,13 @@ interface ProfileIdPageProps {
 const MotionLink = motion(Link);
 
 export default function ProfileIdPage({ params }: ProfileIdPageProps) {
+  // Hooks must be called at the top level
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
   const [videoKey, setVideoKey] = useState(0);
   const [isReplyDialogOpen, setIsReplyDialogOpen] = useState(false);
   const [isCalDialogOpen, setIsCalDialogOpen] = useState(false);
+
+  const { user } = useUser();
 
   // Fetch the profile
   const profile = useQuery(api.profiles.getById, {
@@ -47,6 +53,12 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
   const documents = useQuery(
     api.documents.getPublishedDocumentsByUserId,
     profile ? { userId: profile.userId } : "skip"
+  );
+
+  // Fetch user details
+  const userDetails = useQuery(
+    api.users.getUserByClerkId,
+    user?.id ? { clerkId: user.id } : "skip"
   );
 
   // Handle loading state
@@ -67,8 +79,12 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
   // Extract the author's first name
   const authorFirstName = authorFullName.split(" ")[0];
 
-  // Get the latest documents (e.g., first 3)
-  const latestDocuments = documents ? documents.slice(0, 3) : [];
+  // Get the latest documents (e.g., first 6)
+  const latestDocuments = documents ? documents.slice(0, 6) : [];
+
+  // User and Client Logos
+  const userLogo = userDetails?.logoUrl;
+  const clientLogo = profile?.icon || "/acme.png";
 
   // Handle video upload
   const handleVideoUpload = () => {
@@ -102,12 +118,35 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
   const gradientStyle = {
     background: profile.colorPreference
       ? `linear-gradient(to bottom, ${profile.colorPreference}, #ffffff)`
-      : 'white',
+      : "white",
   };
 
   return (
     <div className="min-h-screen" style={gradientStyle}>
       <div className="flex flex-col items-center pb-20 pt-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Logo Section */}
+        <div className="w-full flex justify-center items-center mb-8">
+          <div className="flex items-center space-x-4">
+            {/* User Logo */}
+            <Image
+              src={userLogo || "/placeholder.svg?height=50&width=150"}
+              alt="User Company Logo"
+              width={50}
+              height={25}
+              className="object-contain"
+            />
+            <span className="text-2xl font-bold">x</span>
+            {/* Client Logo */}
+            <Image
+              src={clientLogo || "/placeholder.svg?height=50&width=150"}
+              alt="Client Company Logo"
+              width={150}
+              height={50}
+              className="object-contain"
+            />
+          </div>
+        </div>
+
         <div className="w-full mb-6 mt-8">
           <ProfToolbar initialData={profile} editable={false} />
           <p className="text-xl mt-2 mb-6 text-center">{profile.bio}</p>
@@ -181,7 +220,10 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
             </Dialog>
 
             {/* Book a Meeting Dialog */}
-            <Dialog open={isCalDialogOpen} onOpenChange={setIsCalDialogOpen}>
+            <Dialog
+              open={isCalDialogOpen}
+              onOpenChange={setIsCalDialogOpen}
+            >
               <DialogTrigger asChild>
                 <Button className="h-10 rounded-full text-sm">
                   <Calendar className="mr-2 h-4 w-4" /> Book a meeting
@@ -229,13 +271,20 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
         </div>
 
         {/* Share Dialog Content */}
-        <Dialog open={isShareDialogOpen} onOpenChange={setIsShareDialogOpen}>
+        <Dialog
+          open={isShareDialogOpen}
+          onOpenChange={setIsShareDialogOpen}
+        >
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Share Profile</DialogTitle>
             </DialogHeader>
             <div className="mt-4">
-              <Input value={window.location.href} readOnly className="mb-4" />
+              <Input
+                value={window.location.href}
+                readOnly
+                className="mb-4"
+              />
               <Button onClick={copyToClipboard} className="w-full">
                 Copy Link
               </Button>
@@ -260,7 +309,8 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
                 >
                   <img
                     src={
-                      post.coverImage || "/placeholder.svg?height=300&width=400"
+                      post.coverImage ||
+                      "/placeholder.svg?height=300&width=400"
                     }
                     alt={post.title}
                     className="rounded-lg object-cover w-full h-[200px] mb-4"
@@ -268,7 +318,9 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
                   <p className="text-gray-500 text-sm mb-1">
                     {new Date(post._creationTime).toLocaleDateString()}
                   </p>
-                  <h3 className="text-xl font-semibold mb-1">{post.title}</h3>
+                  <h3 className="text-xl font-semibold mb-1">
+                    {post.title}
+                  </h3>
                   <p className="text-gray-600">
                     By {post.authorFullName || "Unknown Author"}
                   </p>

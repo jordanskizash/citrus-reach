@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import dynamic from "next/dynamic";
 import { ProfToolbar } from "@/components/profile-toolbar";
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import VideoRecorder from "@/components/videoRecorder";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,7 +17,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Share2, Calendar, MessageSquare, Linkedin, Paintbrush } from "lucide-react";
+import { Share2, Calendar, MessageSquare, Linkedin, Paintbrush, FileText, X, Trash2, Edit2 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import InlineWidget from "@calcom/embed-react";
 import { motion } from "framer-motion";
@@ -26,6 +26,12 @@ import { useUser } from "@clerk/clerk-react";
 import { Spinner } from "@/components/spinner";
 import FormattingSidebar from '@/components/formatting-sidebar';
 import { useTheme } from 'next-themes';
+import { Document, Page, pdfjs } from 'react-pdf';
+import { useEdgeStore } from '@/lib/edgestore';
+import Image from 'next/image';
+import { ProfileDescription } from "@/app/(main)/_components/prof-description";
+
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 interface ProfileIdPageProps {
   params: {
@@ -38,7 +44,7 @@ const MotionLink = motion(Link);
 export default function ProfileIdPage({ params }: ProfileIdPageProps) {
   const { user } = useUser();
   const documents = useQuery(api.documents.getPublishedDocuments);
-  const latestDocuments = documents ? documents.slice(0, 3) : [];
+  const latestDocuments = documents ? documents.slice(0, 6) : [];
 
   const Editor = useMemo(
     () => dynamic(() => import("@/components/editor"), { ssr: false }),
@@ -54,6 +60,10 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
     user?.id ? { clerkId: user.id } : "skip"
   );
 
+  // Retrieve user logo from user details, if available
+  const userLogo = userDetails?.logoUrl;
+  const clientLogo = profile?.icon || "/acme.png";
+
   const updateProfile = useMutation(api.profiles.update);
 
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
@@ -61,19 +71,62 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
   const [isReplyDialogOpen, setIsReplyDialogOpen] = useState(false);
   const [isCalDialogOpen, setIsCalDialogOpen] = useState(false);
   const [colorPreference, setColorPreference] = useState('#FFFFFF');
+  const [pdfFiles, setPdfFiles] = useState<{ name: string; url: string }[]>([]);
+  const [selectedPdf, setSelectedPdf] = useState<string | null>(null);
+  const [showAdditionalResources, setShowAdditionalResources] = useState(true);
+  const [videoDescription, setVideoDescription] = useState(profile?.description || '');
+  const [isEditingDescription, setIsEditingDescription] = useState(false);
+  const descriptionRef = useRef<HTMLTextAreaElement>(null);
+
+  const { resolvedTheme } = useTheme();
+  const { edgestore } = useEdgeStore();
 
   useEffect(() => {
     if (profile?.colorPreference) {
       setColorPreference(profile.colorPreference);
     }
+    if (profile?.description) {
+      setVideoDescription(profile.description);
+    }
   }, [profile]);
 
-  const handleColorChange = (newColor: string) => {
-    setColorPreference(newColor);
+  const [themeSettings, setThemeSettings] = useState({
+    backgroundColor: profile?.themeSettings?.backgroundColor || '#FFFFFF',
+    accentColor: profile?.themeSettings?.accentColor || '#000000',
+    textColor: profile?.themeSettings?.textColor || '#000000'
+  });
+
+  useEffect(() => {
+    if (profile?.themeSettings) {
+      setThemeSettings(profile.themeSettings);
+    }
+  }, [profile]);
+
+  const handleColorChange = (type: 'background' | 'accent' | 'text', newColor: string) => {
+    const updatedThemeSettings = {
+      ...themeSettings,
+      [type === 'background' ? 'backgroundColor' : type === 'accent' ? 'accentColor' : 'textColor']: newColor
+    };
+    
+    setThemeSettings(updatedThemeSettings);
     updateProfile({
       id: params.profileId,
-      colorPreference: newColor,
+      // themeSettings: updatedThemeSettings
     });
+  };
+
+  const themeStyles = {
+    button: {
+      backgroundColor: themeSettings.accentColor,
+      color: themeSettings.textColor,
+      '&:hover': {
+        backgroundColor: themeSettings.accentColor,
+        filter: 'brightness(90%)',
+      },
+    },
+    hr: {
+      borderColor: themeSettings.accentColor,
+    },
   };
 
   const handleShare = async () => {
@@ -104,6 +157,74 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
     setVideoKey((prevKey) => prevKey + 1);
   };
 
+  const handlePdfUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files) {
+      const files = Array.from(event.target.files);
+      for (const file of files) {
+        try {
+          const response = await edgestore.publicFiles.upload({
+            file,
+          });
+          setPdfFiles(prev => [...prev, { name: file.name, url: response.url }]);
+        } catch (error) {
+          console.error("Error uploading file:", error);
+          toast.error(`Failed to upload ${file.name}`);
+        }
+      }
+    }
+  };
+
+  const handlePdfDelete = async (index: number) => {
+    const fileToDelete = pdfFiles[index];
+    try {
+      await edgestore.publicFiles.delete({
+        url: fileToDelete.url,
+      });
+      setPdfFiles(pdfFiles.filter((_, i) => i !== index));
+      if (selectedPdf === fileToDelete.url) {
+        setSelectedPdf(null);
+      }
+      toast.success(`${fileToDelete.name} deleted successfully`);
+    } catch (error) {
+      console.error("Error deleting file:", error);
+      toast.error(`Failed to delete ${fileToDelete.name}`);
+    }
+  };
+
+  const handleDeleteAllResources = async () => {
+    try {
+      for (const file of pdfFiles) {
+        await edgestore.publicFiles.delete({
+          url: file.url,
+        });
+      }
+      setPdfFiles([]);
+      setSelectedPdf(null);
+      toast.success("All resources deleted successfully");
+    } catch (error) {
+      console.error("Error deleting all resources:", error);
+      toast.error("Failed to delete all resources");
+    }
+  };
+
+  const handleDescriptionSave = () => {
+    updateProfile({
+      id: params.profileId,
+      description: videoDescription,
+    });
+    setIsEditingDescription(false);
+    toast.success("Video description updated successfully");
+  };
+
+  const handleDescriptionEdit = () => {
+    setIsEditingDescription(true);
+    setTimeout(() => {
+      if (descriptionRef.current) {
+        descriptionRef.current.focus();
+      }
+    }, 0);
+  };
+
   if (!profile || userDetails === undefined) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -123,14 +244,41 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
       }`} 
       style={gradientStyle}
     >
-      <div className="fflex flex-col items-center pb-20 pt-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 ml-12">
-        <div className="w-full mb-6 mt-8 flex justify-between items-center">
+      <div className="flex flex-col items-center pb-20 pt-6 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Logo Section */}
+        <div className="w-full flex justify-center items-center mb-8">
+          <div className="flex items-center space-x-4">
+            {/* Use userLogo if it exists, otherwise show placeholder */}
+            <Image
+              src={userLogo || "/placeholder.svg?height=50&width=150"}
+              alt="User Company Logo"
+              width={50}
+              height={25}
+              className="object-contain"
+            />
+            <span className="text-2xl font-bold">x</span>
+            {/* Client Logo */}
+            <Image
+              src={clientLogo}
+              alt="Client Company Logo"
+              width={150}
+              height={50}
+              className="object-contain"
+            />
+          </div>
+        </div>
+
+        {/* ProfToolbar */}
+        <div className="w-full mb-6 flex justify-between items-center">
           <ProfToolbar initialData={profile} />
         </div>
-        <p className="text-xl mt-2 mb-6 text-center">{profile.bio}</p>
 
-        {/* Separation Line */}
-        <hr className="my-8 border-black border-t-2 w-full" />
+        {/* Video Description */}
+        {/* <div className="w-full mb-6">
+          <ProfileDescription initialData={profile} />
+        </div> */}
+
+        <p className="text-xl mt-2 mb-6 text-center">{profile.bio}</p>
 
         <div className="w-full flex flex-col md:flex-row gap-6">
           <div className="w-full md:w-3/4">
@@ -142,7 +290,6 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
             />
           </div>
           <div className="w-full md:w-1/4 flex flex-col gap-3">
-            {/* Reply Dialog */}
             <Dialog
               open={isReplyDialogOpen}
               onOpenChange={setIsReplyDialogOpen}
@@ -159,7 +306,6 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
                 <form
                   onSubmit={(e) => {
                     e.preventDefault();
-                    // Handle form submission here
                     setIsReplyDialogOpen(false);
                   }}
                   className="space-y-4 mt-4"
@@ -208,7 +354,6 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
               </DialogContent>
             </Dialog>
 
-            {/* Book a Meeting Dialog */}
             <Dialog open={isCalDialogOpen} onOpenChange={setIsCalDialogOpen}>
               <DialogTrigger asChild>
                 <Button className="h-10 rounded-full text-sm">
@@ -235,7 +380,6 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
               </DialogContent>
             </Dialog>
 
-            {/* Share Dialog */}
             <Button
               className="h-10 rounded-full text-sm"
               onClick={handleShare}
@@ -255,9 +399,9 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
           </div>
         </div>
 
-        {/* Share Dialog Content */}
         <Dialog open={isShareDialogOpen} onOpenChange={setIsShareDialogOpen}>
           <DialogContent>
+            
             <DialogHeader>
               <DialogTitle>Share Profile</DialogTitle>
             </DialogHeader>
@@ -270,8 +414,98 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
           </DialogContent>
         </Dialog>
 
-        <hr className="my-8 border-black border-t-2 w-full" />
+        {/* Additional Resources Section */}
+        {showAdditionalResources ? (
+          <div className="w-full mt-8">
+            <div className="flex justify-between items-center  mb-6">
+              <h2 className="text-2xl font-bold">Additional Resources</h2>
+              <div className="flex items-center">
+                {pdfFiles.length > 0 && (
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={handleDeleteAllResources}
+                    className="mr-2"
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete All
+                  </Button>
+                )}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowAdditionalResources(false)}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+              {pdfFiles.map((file, index) => (
+                <div key={index} className="relative bg-white p-4 rounded-lg shadow">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute top-2 right-2"
+                    onClick={() => handlePdfDelete(index)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                  <FileText className="h-12 w-12 text-blue-500 mb-2" />
+                  <h3 className="font-medium truncate">{file.name}</h3>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="mt-2"
+                    onClick={() => setSelectedPdf(file.url)}
+                  >
+                    Preview
+                  </Button>
+                </div>
+              ))}
+              <div className="bg-gray-100 p-4 rounded-lg flex items-center justify-center">
+                <label htmlFor="pdf-upload" className="cursor-pointer text-center">
+                  <FileText className="h-12 w-12 text-gray-400 mx-auto mb-2" />
+                  <span className="text-sm text-gray-500">Upload PDF</span>
+                </label>
+                <Input
+                  id="pdf-upload"
+                  type="file"
+                  accept=".pdf"
+                  multiple
+                  className="hidden"
+                  onChange={handlePdfUpload}
+                />
+              </div>
+            </div>
+          </div>
+        ) : (
+          <Button
+            className="mt-8"
+            onClick={() => setShowAdditionalResources(true)}
+          >
+            Show Additional Resources
+          </Button>
+        )}
 
+        {/* PDF Preview Dialog */}
+        {selectedPdf && (
+          <Dialog open={!!selectedPdf} onOpenChange={() => setSelectedPdf(null)}>
+            <DialogContent className="max-w-4xl">
+              <DialogHeader>
+                <DialogTitle>{pdfFiles.find(file => file.url === selectedPdf)?.name}</DialogTitle>
+              </DialogHeader>
+              <div className="mt-4 h-[600px] overflow-y-auto">
+                <Document
+                  file={selectedPdf}
+                  onLoadSuccess={({ numPages }) => console.log(numPages)}
+                >
+                  <Page pageNumber={1} width={500} />
+                </Document>
+              </div>
+            </DialogContent>
+          </Dialog>
+        )}
         
         {/* More from {user.firstName} Section */}
         {user && latestDocuments.length > 0 && (

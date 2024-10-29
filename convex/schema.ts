@@ -22,6 +22,7 @@ export default defineSchema ({
         bio: v.optional(v.string()),
         description: v.optional(v.string()),
         videoUrl: v.optional(v.string()),
+        videoDescription: v.optional(v.string()),
         userId: v.string(),
         isArchived: v.boolean(),
         parentProfile: v.optional(v.id('profiles')),
@@ -32,7 +33,7 @@ export default defineSchema ({
         colorPreference: v.optional(v.string()),
         organizationLogo: v.optional(v.string()),
         isDarkMode: v.optional(v.boolean()),
-        customTitle: v.optional(v.string()),
+        greetingText: v.optional(v.string()),
         themeSettings: v.optional(v.object({
             backgroundColor: v.string(),
             textColor: v.string(),
@@ -52,6 +53,7 @@ export default defineSchema ({
         website: v.optional(v.string()),
         calComUsername: v.optional(v.string()), // Added field
         domainName: v.optional(v.string()),     // Added field
+        logoUrl: v.optional(v.string()),
         createdAt: v.number(),
         updatedAt: v.number(),
       })

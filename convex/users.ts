@@ -33,6 +33,7 @@ export const updateUserSettings = mutation({
     website: v.optional(v.string()),
     calComUsername: v.optional(v.string()),
     domainName: v.optional(v.string()),
+    logoUrl: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const user = await ctx.db

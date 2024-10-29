@@ -127,6 +127,7 @@ export const update = mutation({
       icon: v.optional(v.string()),
       isPublished: v.optional(v.boolean()),
       colorPreference: v.optional(v.string()),
+      greetingText: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
       const { id, ...rest } = args;
