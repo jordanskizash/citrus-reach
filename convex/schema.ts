@@ -34,6 +34,9 @@ export default defineSchema ({
         organizationLogo: v.optional(v.string()),
         isDarkMode: v.optional(v.boolean()),
         greetingText: v.optional(v.string()),
+        themeSettings_backgroundColor: v.optional(v.string()),
+        themeSettings_textColor: v.optional(v.string()),
+        themeSettings_accentColor: v.optional(v.string()),
         themeSettings: v.optional(v.object({
             backgroundColor: v.string(),
             textColor: v.string(),

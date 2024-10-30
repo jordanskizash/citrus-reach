@@ -84,7 +84,7 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
 
   // User and Client Logos
   const userLogo = userDetails?.logoUrl;
-  const clientLogo = profile?.icon || "/acme.png";
+  const clientLogo = profile?.clientLogoUrl || "/acme.png";
 
   // Handle video upload
   const handleVideoUpload = () => {

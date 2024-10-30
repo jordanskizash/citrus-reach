@@ -131,9 +131,16 @@ export const update = mutation({
     },
     handler: async (ctx, args) => {
       const { id, ...rest } = args;
-      await ctx.db.patch(id, rest);
+  
+      // Filter out undefined values from rest
+      const updates = Object.fromEntries(
+        Object.entries(rest).filter(([_, value]) => value !== undefined)
+      );
+  
+      await ctx.db.patch(id, updates);
     },
   });
+  
 
 export const remove = mutation({
     args: { id: v.id("profiles") },
