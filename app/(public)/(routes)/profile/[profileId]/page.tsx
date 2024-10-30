@@ -35,6 +35,7 @@ interface ProfileIdPageProps {
 
 const MotionLink = motion(Link);
 
+
 export default function ProfileIdPage({ params }: ProfileIdPageProps) {
   // Hooks must be called at the top level
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
@@ -84,7 +85,7 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
 
   // User and Client Logos
   const userLogo = userDetails?.logoUrl;
-  const clientLogo = profile?.clientLogoUrl || "/acme.png";
+  const clientLogo = profile?.icon || "/acme.png";
 
   // Handle video upload
   const handleVideoUpload = () => {
