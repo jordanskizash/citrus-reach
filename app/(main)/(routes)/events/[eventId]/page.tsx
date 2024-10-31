@@ -313,7 +313,7 @@ export default function EventPage() {
                     <div className="space-y-4">
                       <div className="space-y-2">
                         <Label>
-                          I'd like to learn more about the Figma Organization or Enterprise plan. <span className="text-red-500">*</span>
+                          I&apos;d like to learn more about the Figma Organization or Enterprise plan. <span className="text-red-500">*</span>
                         </Label>
                         <RadioGroup defaultValue="no" className="space-y-2">
                           <div className="flex items-center space-x-2">
@@ -322,7 +322,7 @@ export default function EventPage() {
                           </div>
                           <div className="flex items-center space-x-2">
                             <RadioGroupItem value="no" id="no" />
-                            <Label htmlFor="no">No, I'm not interested</Label>
+                            <Label htmlFor="no">No, I&apos;m not interested</Label>
                           </div>
                         </RadioGroup>
                       </div>
@@ -346,7 +346,7 @@ export default function EventPage() {
             <p>8:30AM PT / 11:30AM ET / 4:30PM CET</p>
           </div>
           <p className="text-xl leading-relaxed max-w-3xl mt-10">
-            We're back with our second episode of Release Notes—a look at all the latest Figma updates to help you make your greatest work yet. Join us live as we drop brand new features and recap everything we shipped in October [CYMK].
+            We&apos;re back with our second episode of Release Notes—a look at all the latest Figma updates to help you make your greatest work yet. Join us live as we drop brand new features and recap everything we shipped in October [CYMK].
           </p>
           
         </div>
