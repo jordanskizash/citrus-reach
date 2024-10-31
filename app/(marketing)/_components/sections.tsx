@@ -33,7 +33,7 @@ export const Sections = () => {
     {
       title: "Event Registration",
       content: "Host webinars, virtual events, or product demos to showcase your offerings and attract qualified leads, driving targeted interactions with potential clients.",
-      imageUrl: "/images/event-registration.png"
+      imageUrl: "/eventsOne.png"
     },
     {
       title: "Promotional",
@@ -72,11 +72,13 @@ export const Sections = () => {
 
       <div className="bg-orange-50 p-4 rounded-lg min-h-[250px] flex flex-col justify-center items-center">
         <p className="text-base mb-8 text-center max-w-2xl">{sections[selectedIndex].content}</p>
-        <img
-          src={sections[selectedIndex].imageUrl}
-          alt={sections[selectedIndex].title}
-          className="rounded-lg shadow-lg max-w-4xl border-black border-l-8 border-b-8 border-t-2 border-r-2"
-        />
+        <div className="w-full max-w-4xl px-4">
+          <img
+            src={sections[selectedIndex].imageUrl}
+            alt={sections[selectedIndex].title}
+            className="rounded-lg shadow-lg w-full border-black border-l-8 border-b-8 border-t-2 border-r-2"
+          />
+        </div>
       </div>
     </div>
   );

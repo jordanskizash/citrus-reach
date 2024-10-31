@@ -22,6 +22,7 @@ import { useSettings } from "@/hooks/use-settings";
 import { TrashBox } from "./trash-box";
 import { Navbar } from "./navbar";
 import { NavbarProfile } from "./navbarprof";
+import { EventList } from "./event-list";
 
 
 
@@ -34,6 +35,7 @@ export const Navigation = () => {
     const isMobile = useMediaQuery("(max-width: 768px)");
     const create = useAction(api.documents.create);
     const createProf = useMutation(api.profiles.create);
+    const createEvent = useMutation(api.events.create);
 
     const isResizingRef = useRef(false);
     const sidebarRef = useRef<ElementRef<"aside">>(null);
@@ -146,6 +148,25 @@ export const Navigation = () => {
         })
     }
 
+    const handleCreateEvent = () => {
+        const promise = createEvent({ 
+            title: "Untitled Event",
+            description: "",
+            eventDate: new Date().toISOString(),
+            eventTime: "12:00",
+            location: "",
+            isArchived: false,
+            isPublished: false
+        })
+            .then((eventId) => router.push(`/events/${eventId}`))
+
+        toast.promise(promise, {
+            loading: "Creating a new event...",
+            success: "New event created!",
+            error: "Failed to create a new event"
+        });
+    };
+
     return ( 
         <>
             <aside
@@ -210,11 +231,22 @@ export const Navigation = () => {
                     </div>
                 </div>
                     <ProfileList />
-                    <Item 
+
+                {/* Events Section */}
+                <div className="flex items-center justify-between mt-4 ml-4 mb-2">
+                        <h1 className="text-sm text-muted-foreground">Events</h1>
+                        <div 
+                            className="cursor-pointer group-hover:opacity-100 h-full ml-auto rounded-md hover:bg-neutral-300 dark:hover:bg-neutral-600 mr-2"
+                        >
+                            <CirclePlusIcon className="h-5 w-5 text-muted-foreground" onClick={handleCreateEvent} />  
+                        </div>
+                    </div>
+                    <EventList />
+                    {/* <Item 
                         onClick={handleCreate} 
                         icon={Plus}
                         label="Add a page"
-                    />
+                    /> */}
                     <Popover>
                         <PopoverTrigger className="w-full mt-4">
                             <Item label="Trash" icon={Trash} />

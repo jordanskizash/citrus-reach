@@ -60,6 +60,34 @@ export default defineSchema ({
         createdAt: v.number(),
         updatedAt: v.number(),
       })
+    
         .index("by_clerk_id", ["clerkId"])
-        .index("by_email", ["email"])
+        .index("by_email", ["email"]),
+
+        events: defineTable({
+            title: v.string(),
+            description: v.string(),
+            userId: v.string(),
+            coverImage: v.optional(v.string()),
+            eventDate: v.string(),
+            eventTime: v.string(),
+            location: v.string(),
+            isArchived: v.boolean(),
+            content: v.optional(v.string()),
+            isPublished: v.boolean(),
+            speakers: v.optional(v.array(v.object({
+                name: v.string(),
+                role: v.string(),
+                imageUrl: v.optional(v.string()),
+                bio: v.optional(v.string())
+            }))),
+            registrations: v.optional(v.array(v.object({
+                name: v.string(),
+                role: v.string(),
+                company: v.string(),
+                email: v.string(),
+                timestamp: v.number()
+            })))
+        })
+        .index("by_user", ["userId"])
     })
