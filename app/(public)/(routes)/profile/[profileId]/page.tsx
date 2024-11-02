@@ -51,7 +51,7 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
 
   const userDetails = useQuery(
     api.users.getUserByClerkId,
-    user?.id ? { clerkId: user.id } : "skip"
+    profile ? { clerkId: profile.userId } : "skip"
   );
 
   if (!profile || documents === undefined) {
@@ -61,6 +61,10 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
       </div>
     );
   }
+
+  // Get the logo URL from either userDetails or profile
+  const displayLogo = userDetails?.logoUrl || profile.logoUrl || "/placeholder.svg?height=60&width=180";
+
 
   const authorFullName = documents.length > 0 && documents[0].authorFullName
     ? documents[0].authorFullName
@@ -110,7 +114,7 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
         <div className="w-full flex justify-center items-center mb-4">
           <div className="flex items-center space-x-4">
             <Image
-              src={userLogo || "/placeholder.svg?height=60&width=180"}
+              src={displayLogo|| "/placeholder.svg?height=60&width=180"}
               alt="User Company Logo"
               width={60}
               height={30}
@@ -244,7 +248,11 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
           <div className="mt-16 w-full">
             <div className="flex justify-between items-center mb-8 px-2 sm:px-0">
               <h2 className="text-xl sm:text-2xl font-bold">More from {authorFirstName}</h2>
-              <Link href="/homepage">
+              <Link 
+                href={`/homepage/${encodeURIComponent(authorFullName.toLowerCase().replace(/ /g, '-'))}`}
+                target="_blank" 
+                rel="noopener noreferrer"
+              >
                 <Button variant="outline" className="rounded-full hover:scale-105 hover:bg-black hover:text-white bg-black text-white transition-transform text-sm sm:text-base">
                   View All <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
@@ -255,6 +263,8 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
                 <Link
                   key={post._id}
                   href={`/preview/${post._id}`}
+                  target="_blank" 
+                  rel="noopener noreferrer"
                   className="flex flex-col group"
                 >
                   <div className="relative overflow-hidden rounded-xl shadow-lg">

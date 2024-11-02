@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useConvexAuth } from "convex/react"
 import { SignInButton, UserButton } from "@clerk/clerk-react"
-import { Menu, ChevronDown, Star } from "lucide-react"
+import { Menu } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -34,20 +34,32 @@ const NavItems: React.FC<NavItemsProps> = ({ isAuthenticated, isLoading }) => (
     {!isAuthenticated && !isLoading && (
       <>
         <SignInButton mode="modal">
-          <Button variant="ghost" size="sm">
-            Log in
+          <Button 
+            variant="ghost" 
+            size="sm"
+            className="text-gray-700 hover:text-gray-900"
+          >
+            Sign In
           </Button>
         </SignInButton>
         <SignInButton>
-          <Button size="sm">
-            Get Citrus free
+          <Button 
+            size="sm"
+            className="bg-orange-50 hover:bg-orange-100 text-orange-500"
+          >
+            Try Citrus Free
           </Button>
         </SignInButton>
       </>
     )}
     {isAuthenticated && !isLoading && (
       <>
-        <Button variant="ghost" size="sm" asChild>
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          asChild
+          className="text-gray-700 hover:text-gray-900"
+        >
           <Link href="/dashboard">
             Enter Citrus
           </Link>
@@ -60,8 +72,6 @@ const NavItems: React.FC<NavItemsProps> = ({ isAuthenticated, isLoading }) => (
   </>
 )
 
-
-
 const ExamplesDropdown = () => (
   <NavigationMenu>
     <NavigationMenuList>
@@ -69,7 +79,7 @@ const ExamplesDropdown = () => (
         <NavigationMenuTrigger 
           className="bg-transparent hover:bg-transparent focus:bg-transparent data-[state=open]:bg-transparent data-[active]:bg-transparent"
         >
-          <Button variant="link" size="lg" className="p-0">
+          <Button variant="ghost" size="sm" className="text-gray-700 hover:text-gray-900">
             Examples
           </Button>
         </NavigationMenuTrigger>
@@ -125,92 +135,102 @@ const ListItem = ({ className, title, children, ...props }: React.ComponentProps
   )
 }
 
+const MainNav = () => (
+  <nav className="hidden md:flex items-center space-x-8">
+    <NavigationMenu>
+      <NavigationMenuList className="space-x-2">
+        <NavigationMenuItem>
+          <Button 
+            variant="ghost" 
+            size="sm"
+            className="text-gray-700 hover:text-gray-900"
+            asChild
+          >
+            <Link href="/about">About</Link>
+          </Button>
+        </NavigationMenuItem>
+        <NavigationMenuItem>
+          <Button 
+            variant="ghost" 
+            size="sm"
+            className="text-gray-700 hover:text-gray-900"
+            asChild
+          >
+            <Link href="/blog">Blog</Link>
+          </Button>
+        </NavigationMenuItem>
+        <NavigationMenuItem>
+          <Button 
+            variant="ghost" 
+            size="sm"
+            className="text-gray-700 hover:text-gray-900"
+            asChild
+          >
+            <Link href="/pricing">Pricing</Link>
+          </Button>
+        </NavigationMenuItem>
+        <NavigationMenuItem>
+          <ExamplesDropdown />
+        </NavigationMenuItem>
+      </NavigationMenuList>
+    </NavigationMenu>
+  </nav>
+)
+
 export const Navbar: React.FC = () => {
   const { isAuthenticated, isLoading } = useConvexAuth()
   const scrolled = useScrollTop()
   const [isOpen, setIsOpen] = useState(false)
 
-  const toggleMenu = () => setIsOpen(!isOpen)
-
   return (
     <div className={cn(
-      "z-50 fixed top-0 w-full p-4 md:p-6 backdrop-filter backdrop-blur-lg bg-orange-50/80 dark:bg-[#1F1F1F]/80",
-      scrolled && "border-b shadow-md"
+      "z-50 fixed top-0 w-full bg-white border-b border-black",
+      scrolled && "shadow-sm"
     )}>
-      <div className="flex items-center justify-between max-w-8xl mx-auto">
+      <div className="flex h-16 items-center px-4 md:px-6">
+        <Sheet open={isOpen} onOpenChange={setIsOpen}>
+          <SheetTrigger asChild className="md:hidden">
+            <Button variant="ghost" size="icon" className="mr-2">
+              <Menu className="h-5 w-5" />
+              <span className="sr-only">Toggle menu</span>
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left" className="w-[300px] sm:w-[400px]">
+            <nav className="flex flex-col gap-4">
+              <Button variant="ghost" className="justify-start" asChild>
+                <Link href="/about">About</Link>
+              </Button>
+              <Button variant="ghost" className="justify-start" asChild>
+                <Link href="/blog">Blog</Link>
+              </Button>
+              <Button variant="ghost" className="justify-start" asChild>
+                <Link href="/pricing">Pricing</Link>
+              </Button>
+              <ExamplesDropdown />
+            </nav>
+          </SheetContent>
+        </Sheet>
+
         <div className="flex items-center flex-1">
-          <Sheet open={isOpen} onOpenChange={setIsOpen}>
-            <SheetTrigger asChild className="md:hidden mr-4">
-              <Button variant="ghost" size="icon">
-                <Menu className="h-5 w-5" />
-                <span className="sr-only">Toggle menu</span>
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="left" className="w-[300px] sm:w-[400px]">
-              <nav className="flex flex-col gap-4">
-                <Button variant="ghost" asChild onClick={toggleMenu}>
-                  <Link href="/about">About</Link>
-                </Button>
-                <Button variant="ghost" asChild onClick={toggleMenu}>
-                  <Link href="/blog">Blog</Link>
-                </Button>
-                <ExamplesDropdown />
-              </nav>
-            </SheetContent>
-          </Sheet>
           <Logo />
-          <div className="hidden md:flex items-center ml-16">
-            <NavigationMenu>
-              <NavigationMenuList>
-                <NavigationMenuItem>
-                  <NavigationMenuLink asChild>
-                    <Button variant="link" size="lg" asChild>
-                      <Link href="/about">About</Link>
-                    </Button>
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
-                <NavigationMenuItem>
-                  <NavigationMenuLink asChild>
-                    <Button variant="link" size="lg" asChild>
-                      <Link href="/blog">Blog</Link>
-                    </Button>
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
-                <NavigationMenuItem>
-                  <ExamplesDropdown />
-                </NavigationMenuItem>
-              </NavigationMenuList>
-            </NavigationMenu>
-          </div>
         </div>
-        <div className="flex items-center justify-end space-x-2">
-          <div className="hidden md:flex items-center gap-x-2">
-            <NavItems isAuthenticated={isAuthenticated} isLoading={isLoading} />
-          </div>
-          <div className="md:hidden flex items-center space-x-2">
-            {isAuthenticated && !isLoading && (
-              <Button variant="ghost" size="sm" asChild className="mr-2">
-                <Link href="/dashboard">
-                  Enter Citrus
-                </Link>
-              </Button>
-            )}
-            {!isAuthenticated && !isLoading && (
-              <SignInButton mode="modal">
-                <Button variant="ghost" size="sm">
-                  Log in
-                </Button>
-              </SignInButton>
-            )}
-            {isLoading && (
-              <Spinner />
-            )}
-            {isAuthenticated && !isLoading && (
-              <UserButton afterSignOutUrl="/" />
-            )}
-          </div>
+
+        <div className="flex-1 flex justify-center">
+          <MainNav />
+        </div>
+
+        <div className="flex items-center justify-end flex-1">
+          <NavItems isAuthenticated={isAuthenticated} isLoading={isLoading} />
+          <Button 
+            size="sm" 
+            className="hidden md:flex ml-4 bg-orange-500 hover:bg-orange-600 text-white"
+          >
+            Book a Demo
+          </Button>
         </div>
       </div>
     </div>
   )
 }
+
+export default Navbar;

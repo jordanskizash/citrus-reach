@@ -1,57 +1,49 @@
-import * as React from "react"
-import Image from "next/image"
-import { Card, CardContent } from "@/components/ui/card"
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel"
+"use client"
 
-export const Refs = () =>  {
-  const companies = [
-    { name: "Globex Corporation", logo: "/IBMLogo.png" },
-    { name: "Soylent Corp", logo: "/IBMLogo.png" },
-    { name: "Initech", logo: "/IBMLogo.png" },
-    { name: "Umbrella Corporation", logo: "/IBMLogo.png" },
-    { name: "Hooli", logo: "/IBMLogo.png" },
-    { name: "Stark Industries", logo: "/IBMLogo.png" },
-    { name: "Wayne Enterprises", logo: "/IBMLogo.png" },
-  ]
+import React, { useState, useEffect } from 'react'
+import Image from 'next/image'
+
+interface Logo {
+  src: string
+  alt: string
+}
+
+export default function LogoCarousel({ logos = [] }: { logos?: Logo[] }) {
+  const [isClient, setIsClient] = useState(false)
+
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
+
+  // Duplicate the logos array to create a seamless loop
+  const extendedLogos = [...logos, ...logos]
 
   return (
-    <section className="w-full py-12 background-color:transparent dark:bg-[#0b0b0b]">
-      <div className="container px-4 sm:px-9 md:px-12">
-        <h2 className="text-3xl font-bold text-center mb-8">Trusted by Industry Leaders</h2>
-        <Carousel
-          opts={{
-            align: "start",
-            loop: true,
+    <div className="w-full overflow-hidden mt-10 bg-white py-4">
+      <div className="relative">
+        <div
+          className="flex animate-scroll"
+          style={{
+            width: `${logos.length * 300}px`, // Increased spacing between logos
+            animation: isClient ? `scroll ${logos.length * 5}s linear infinite` : 'none', // Reduced time for faster animation
           }}
-          className="w-full max-w-sm mx-auto md:max-w-4xl"
         >
-          <CarouselContent className="-ml-2 md:-ml-4">
-            {companies.map((company, index) => (
-              <CarouselItem key={index} className="pl-2 md:pl-4 md:basis-1/3 lg:basis-1/4">
-                <div className="p-1">
-                    <CardContent className="flex items-center justify-center p-6">
-                      <Image
-                        src={company.logo}
-                        alt={`${company.name} logo`}
-                        width={160}
-                        height={80}
-                        className="max-w-[160px] max-h-[80px] object-contain"
-                      />
-                    </CardContent>
-                </div>
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-          <CarouselPrevious />
-          <CarouselNext />
-        </Carousel>
+          {extendedLogos.map((logo, index) => (
+            <div
+              key={index}
+              className="w-[300px] flex items-center justify-center px-8" // Increased width and padding
+            >
+              <Image
+                src={logo.src}
+                alt={logo.alt}
+                width={100} // Reduced from 150
+                height={50} // Reduced from 75
+                className="max-w-[100px] max-h-[50px] object-contain" // Reduced max dimensions
+              />
+            </div>
+          ))}
+        </div>
       </div>
-    </section>
+    </div>
   )
 }

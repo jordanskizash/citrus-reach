@@ -5,18 +5,32 @@ import { Footer } from "./_components/footer";
 import { Car } from "lucide-react";
 import { Hero } from "./_components/hero";
 import { Suite } from "./_components/suite";
-import { Refs } from "./_components/references"; 
 import { FAQ } from "./_components/faq";
 import { Teams } from "./_components/teams";
 import { CardFeatures } from "./_components/appfeatures";
 import { Sections } from "./_components/sections";
+import LogoCarousel from "./_components/references";
 
+
+const logos = [
+  { src: '/IBMNew.png', alt: 'IBM Logo' },
+  { src: '/FlexportLogo.png', alt: 'Flexport' },
+  { src: '/TellaLogo.png', alt: 'Tella' },
+  { src: '/LinkedInLogo.png', alt: 'LinkedIn' },
+  { src: '/CoLabLogo.png', alt: 'CoLab' },
+  { src: '/SalesforceLogo.png', alt: 'Salesforce' },
+  { src: '/SlackLogo.png', alt: 'Slack' },
+  { src: '/LendUpLogo.png', alt: 'LendUp' },
+
+  // ... add up to 10 logos
+];
 
 const MarketingPage = () => {
   return (
     <div className="min-h-full flex flex-col">
       <div className="flex flex-col items-center justify-center md:justify-start text-center gap-y-8 flex-1 pb-10  ">
         <Heading />
+        <LogoCarousel logos={logos} />
         <Hero />
         <CardFeatures />
         {/* <Refs /> */}

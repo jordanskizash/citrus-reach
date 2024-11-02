@@ -1,28 +1,48 @@
 "use client";
+
 import { Spinner } from "@/components/spinner";
 import { Button } from "@/components/ui/button";
 import { SignInButton } from "@clerk/clerk-react";
 import { useConvexAuth } from "convex/react";
-import { ArrowRight } from "lucide-react";
 import Link from "next/link";
-import { Zilla_Slab } from "next/font/google";
+import { Inter } from "next/font/google";
 import Typewriter from 'typewriter-effect';
+import { motion } from 'framer-motion';
 
-const roboto = Zilla_Slab({
+const inter = Inter({
   subsets: ['latin'],
-  weight: ['400']
+  weight: ['400', '500', '600', '700']
 });
+
+const MotionButton = motion(Button);
 
 export const Heading = () => {
   const { isAuthenticated, isLoading } = useConvexAuth();
 
   return (
-    <div className="px-4 sm:px-6 md:px-8"> {/* Add padding here */}
-      <div className="max-w-4xl space-y-4 justify-center items-center mx-auto"> {/* Added mx-auto for centering */}
-        <main className={roboto.className}>
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold mb-8">
-            Video powered microsites to help you reach {" "}
-            <main className="text-3xl sm:text-4xl md:text-5xl font-semibold text-orange-500 mt-8 mb-8">
+    <div className={`${inter.className} w-full`}>
+      {/* Announcement Banner */}
+      <div className="hidden sm:flex max-w-3xl mx-auto border border-black rounded-lg mb-12 p-4 items-center justify-center gap-1">
+        <p className="text-sm">
+          Citrus is now live!{" "}
+          <Link href="#" className="text-orange-500 hover:text-orange-600">
+            Read more
+          </Link>
+          .{"         "}|{"         "}You can support our launch on Product Hunt{" "}
+          <Link href="#" className="text-orange-500 hover:text-orange-600">
+            here
+          </Link>
+          .
+        </p>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6">
+        <div className="flex flex-col">
+          <div className="flex-1 max-w-5xl">
+            <h1 className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold tracking-tight text-left leading-tight">
+              Microsites that reach
+            </h1>
+            <div className="mt-4 text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold tracking-tight text-left text-orange-500">
               <Typewriter
                 options={{
                   strings: [
@@ -36,39 +56,59 @@ export const Heading = () => {
                   loop: true,
                 }}
               />
-            </main>
-          </h1>
-          <h3 className="text-base sm:text-lg md:text-xl font-normal mb-10">
-            Citrus Reach helps you craft interactive microsites featuring video, marketing content, forms and calendars to elevate your professional outreach and secure more meetings. 
-          </h3>
-        </main>
-        {isLoading && (
-          <div className="w-full flex items-center justify-center">
-            <Spinner size="lg" />
+            </div>
           </div>
-        )}
-        {isAuthenticated && !isLoading && (
-          <Button asChild>
-            <Link href="/dashboard">
-              Enter Citrus Reach
-              <ArrowRight className="h-4 w-4 ml-2" />
-            </Link>
-          </Button>
-        )}
-        {!isAuthenticated && !isLoading && (
-          <div className="flex justify-center space-x-2 mb-10">
-            <SignInButton mode="modal">
-              <Button className="py-5 px-5 text-lg rounded">
-                Get Citrus free
-                <ArrowRight className="h-4 w-4 ml-2" />
-              </Button>
-            </SignInButton>
+
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mt-8">
+            <p className="text-lg sm:text-xl text-left font-medium text-gray-900 max-w-4xl mb-4 sm:mb-0">
+              Citrus Reach is where thoughtfully crafted microsites deliver quota-crushing results
+            </p>
+
+            {isLoading ? (
+              <div className="w-full sm:w-auto flex items-center justify-center">
+                <Spinner size="lg" />
+              </div>
+            ) : (
+              <div className="flex">
+                {isAuthenticated ? (
+                  <MotionButton 
+                    size="sm"
+                    className="bg-orange-500 hover:bg-orange-600 text-white"
+                    asChild
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <Link href="/dashboard">
+                      Enter Citrus
+                    </Link>
+                  </MotionButton>
+                ) : (
+                  <>
+                    <SignInButton>
+                      <MotionButton 
+                        size="sm"
+                        className="bg-orange-50 hover:bg-orange-100 text-orange-500"
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        Try Citrus Free
+                      </MotionButton>
+                    </SignInButton>
+                    <MotionButton 
+                      size="sm" 
+                      className="ml-4 bg-orange-500 hover:bg-orange-600 text-white"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      Book a Demo
+                    </MotionButton>
+                  </>
+                )}
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
-      <h2 className="mt-16 text-2xl sm:text-3xl md:text-4xl font-extrabold">
-        Check out how <span className="font-bold text-orange-500 drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]">200+</span> users are increasing engagement rates
-      </h2>
     </div>
   );
 };

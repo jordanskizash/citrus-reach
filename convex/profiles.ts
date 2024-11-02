@@ -58,7 +58,9 @@ export const create = mutation({
     args: {
         displayName: v.string(),
         description: v.optional(v.string()),
-        bio: v.optional(v.string()), // Use 'description' if that's what the schema defines
+        bio: v.optional(v.string()),
+        logoUrl: v.optional(v.string()),
+        authorFullName: v.optional(v.string()), 
     },
     handler: async (ctx, args) => {
         const identity = await ctx.auth.getUserIdentity();
@@ -76,8 +78,9 @@ export const create = mutation({
             bio: args.bio,
             description: args.description, // Handle 'description' correctly
             isArchived: false,  
-            isPublished: false,   // Assuming you might want to keep track of archival status
-            // Ensure only fields defined in your schema are included here
+            isPublished: false, 
+            logoUrl: args.logoUrl, 
+            authorFullName: args.authorFullName, 
         });
 
         return profile;
@@ -123,6 +126,7 @@ export const update = mutation({
       isArchived: v.optional(v.boolean()),
       parentProfile: v.optional(v.id('profiles')),
       content: v.optional(v.string()),
+      logoUrl: v.optional(v.string()),
       coverImage: v.optional(v.string()),
       icon: v.optional(v.string()),
       isPublished: v.optional(v.boolean()),
@@ -315,5 +319,80 @@ export const getPublishedProfilesByUserId = query({
         .collect();
   
       return profiles;
+    },
+  });
+
+  export const getByUserId = query({
+    args: { userId: v.string() },
+    handler: async (ctx, args) => {
+      const profile = await ctx.db
+        .query("profiles")
+        .filter((q) => q.eq(q.field("userId"), args.userId))
+        .first();
+      
+      if (!profile) {
+        throw new Error("Profile not found");
+      }
+  
+      return profile;
+    },
+  });
+
+  export const getByAuthorName = query({
+    args: { authorFullName: v.string() },
+    handler: async (ctx, args) => {
+      const profile = await ctx.db
+        .query("profiles")
+        .filter((q) => q.eq(q.field("authorFullName"), args.authorFullName))
+        .first();
+      
+      if (!profile) {
+        throw new Error("Profile not found");
+      }
+  
+      return profile;
+    },
+  });
+
+  // In your profiles.ts
+export const getByAuthorSlug = query({
+    args: { authorSlug: v.string() },
+    handler: async (ctx, args) => {
+      const documents = await ctx.db
+        .query("documents")
+        .filter((q) => q.eq(q.field("isPublished"), true))
+        .collect();
+  
+      // Find the matching document to get the correct authorFullName
+      const matchingDoc = documents.find(doc => {
+        if (!doc.authorFullName) return false;
+        
+        const docSlug = doc.authorFullName
+          .toLowerCase()
+          .replace(/ /g, '-')
+          .replace(/[^a-z0-9-]/g, '');
+        
+        return docSlug === args.authorSlug.toLowerCase();
+      });
+  
+      if (!matchingDoc) {
+        throw new Error("Author not found");
+      }
+  
+      // Now get the profile associated with this author
+      const profile = await ctx.db
+        .query("profiles")
+        .filter((q) => q.eq(q.field("userId"), matchingDoc.userId))
+        .first();
+  
+      if (!profile) {
+        throw new Error("Profile not found");
+      }
+  
+      // Add the authorFullName from the document to the profile response
+      return {
+        ...profile,
+        authorFullName: matchingDoc.authorFullName
+      };
     },
   });
