@@ -3,22 +3,28 @@ import { Id } from "@/convex/_generated/dataModel";
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "@/convex/_generated/api";
 import DocumentIdPage from './documentIdPage';
+import { notFound } from 'next/navigation';
 
 
 interface PageProps {
     params: {
-        documentId: Id<"documents">;
+        slug: string;
     };
 }
 
 const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
-async function getDocument(documentId: Id<"documents">) {
-  return await convex.query(api.documents.getById, { documentId });
+async function getDocumentBySlug(slug: string) {
+    try {
+        return await convex.query(api.documents.getBySlug, { slug });
+    } catch (error) {
+        console.error("Error fetching document:", error);
+        return null;
+    }
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-    const document = await getDocument(params.documentId);
+    const document = await getDocumentBySlug(params.slug);
 
     if (!document) {
         return {
@@ -51,17 +57,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function Page({ params }: PageProps) {
-    const document = await getDocument(params.documentId);
+    const document = await getDocumentBySlug(params.slug);
 
     if (!document) {
-        return <div>Document not found</div>;
+        notFound();
     }
 
-    return (
-        <>
-          <DocumentIdPage params={params} initialDocument={document} />
-          {/* return <DocumentIdPage initialDocument={document} />; */}
-        </>
-
-      );
+    return <DocumentIdPage document={document} />;
 }

@@ -7,6 +7,7 @@ export default defineSchema ({
         userId: v.string(),
         authorFullName: v.optional(v.string()),
         authorImageUrl: v.optional(v.string()),
+        slug: v.optional(v.string()),
         isArchived: v.boolean(),
         parentDocument: v.optional(v.id("documents")),
         content: v.optional(v.string()),
@@ -15,6 +16,7 @@ export default defineSchema ({
         isPublished: v.boolean(),
     })
     .index("by_user", ["userId"])
+    .index("by_slug", ["slug"])
     .index("by_user_parent", ["userId", "parentDocument"]),
 
     profiles: defineTable ({

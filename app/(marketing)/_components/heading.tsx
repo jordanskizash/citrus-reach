@@ -9,10 +9,7 @@ import { Inter } from "next/font/google";
 import Typewriter from 'typewriter-effect';
 import { motion } from 'framer-motion';
 
-const inter = Inter({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700']
-});
+
 
 const MotionButton = motion(Button);
 
@@ -20,8 +17,8 @@ export const Heading = () => {
   const { isAuthenticated, isLoading } = useConvexAuth();
 
   return (
-    <div className={`${inter.className} w-full`}>
-      {/* Announcement Banner */}
+    <div className={` w-full`}>
+      {/* Desktop Announcement Banner */}
       <div className="hidden sm:flex max-w-3xl mx-auto border border-black rounded-lg mb-12 p-4 items-center justify-center gap-1">
         <p className="text-sm">
           Citrus is now live!{" "}
@@ -36,7 +33,23 @@ export const Heading = () => {
         </p>
       </div>
 
-      <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6">
+      {/* Mobile Announcement Banner */}
+      <div className="sm:hidden mx-4 border border-black rounded-lg mb-8 p-3 flex flex-col items-center justify-center gap-2">
+        <p className="text-xs text-center">
+          Citrus is now live!{" "}
+          <Link href="#" className="text-orange-500 hover:text-orange-600">
+            Read more
+          </Link>
+        </p>
+        <p className="text-xs text-center">
+          Support our launch on Product Hunt{" "}
+          <Link href="#" className="text-orange-500 hover:text-orange-600">
+            here
+          </Link>
+        </p>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-6">
         <div className="flex flex-col">
           <div className="flex-1 max-w-5xl">
             <h1 className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold tracking-tight text-left leading-tight">
@@ -69,11 +82,11 @@ export const Heading = () => {
                 <Spinner size="lg" />
               </div>
             ) : (
-              <div className="flex">
+              <div className="flex w-full sm:w-auto sm:justify-start gap-4">
                 {isAuthenticated ? (
                   <MotionButton 
                     size="sm"
-                    className="bg-orange-500 hover:bg-orange-600 text-white"
+                    className="bg-orange-500 hover:bg-orange-600 text-white text-base"
                     asChild
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
@@ -87,7 +100,7 @@ export const Heading = () => {
                     <SignInButton>
                       <MotionButton 
                         size="sm"
-                        className="bg-orange-50 hover:bg-orange-100 text-orange-500"
+                        className="bg-orange-50 hover:bg-orange-100 text-orange-500 text-base"
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                       >
@@ -95,8 +108,8 @@ export const Heading = () => {
                       </MotionButton>
                     </SignInButton>
                     <MotionButton 
-                      size="sm" 
-                      className="ml-4 bg-orange-500 hover:bg-orange-600 text-white"
+                      size="sm"
+                      className="bg-orange-500 hover:bg-orange-600 text-white text-base"
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                     >

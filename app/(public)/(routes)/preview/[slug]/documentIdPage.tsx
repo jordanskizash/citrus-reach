@@ -22,10 +22,8 @@ const AUTHOR_NAME = 'Citrus Team';
 const AUTHOR_IMAGE = '/logo.svg'; // Replace with the actual author image path
 
 interface DocumentIdPageProps {
-    params: {
-        documentId: Id<"documents">;
-    };
-    initialDocument: Doc<"documents">;
+    document: Doc<"documents">; 
+    
 }
 
 interface Heading {
@@ -34,20 +32,24 @@ interface Heading {
   level: number;
 }
 
-const DocumentIdPage = ({ params, initialDocument }: DocumentIdPageProps) => {
+const DocumentIdPage = ({ document }: DocumentIdPageProps) => {
     const Editor = useMemo(() => dynamic(() => import("@/components/editor"), { ssr: false }), []);
     const [headings, setHeadings] = useState<Heading[]>([]);
     const [readingTime, setReadingTime] = useState<number>(0);
 
-    const document = useQuery(api.documents.getById, {
-        documentId: params.documentId
+    // Get the latest version of the document using slug
+    const latestDocument = useQuery(api.documents.getBySlug, {
+        slug: document.slug ?? '' // Add null check since slug might be optional during migration
     });
+
+    // Use the latest document data if available, otherwise use the initial document
+    const currentDocument = latestDocument ?? document;
 
     const update = useMutation(api.documents.update);
 
     const onChange = (content: string) => {
         update({
-            id: params.documentId,
+            id: currentDocument._id, // Use the current document's ID
             content
         });
     };

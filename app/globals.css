@@ -136,3 +136,35 @@
   .animate-scroll {
     animation: scroll linear infinite;
   }
+
+  @keyframes dropdownOpen {
+    from {
+      opacity: 0;
+      transform: translateX(-50%) scaleY(0);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(-50%) scaleY(1);
+    }
+  }
+  
+  @keyframes dropdownClose {
+    from {
+      opacity: 1;
+      transform: translateX(-50%) scaleY(1);
+    }
+    to {
+      opacity: 0;
+      transform: translateX(-50%) scaleY(0);
+    }
+  }
+  
+  .animate-dropdown-open {
+    animation: dropdownOpen 0.3s ease-out forwards;
+    transform-origin: top;
+  }
+  
+  .animate-dropdown-close {
+    animation: dropdownClose 0.2s ease-in forwards;
+    transform-origin: top;
+  }

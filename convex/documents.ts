@@ -7,6 +7,70 @@ import { clerkClient } from "@clerk/clerk-sdk-node";
 import { ActionCtx, MutationCtx } from "./_generated/server";
 
 
+// Add this utility function at the top of your file
+function slugify(text: string): string {
+    return text
+      .toLowerCase()
+      .replace(/[^\w\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .trim();
+  }
+
+  // Add these new query and mutation handlers
+export const getDocumentsBySlug = query({
+  args: { 
+    slug: v.string(),
+    userId: v.string()
+  },
+  handler: async (ctx, args) => {
+    const documents = await ctx.db
+      .query("documents")
+      .filter((q) => 
+        q.and(
+          q.eq(q.field("slug"), args.slug),
+          q.eq(q.field("userId"), args.userId)
+        )
+      )
+      .collect();
+    
+    return documents;
+  },
+});
+
+export const updateSlug = mutation({
+  args: {
+    id: v.id("documents"),
+    slug: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const { id, slug } = args;
+    
+    const existingDocument = await ctx.db.get(id);
+    if (!existingDocument) {
+      throw new Error("Document not found");
+    }
+
+    return await ctx.db.patch(id, { slug });
+  },
+});
+
+
+  // Add this new query to get document by slug
+  export const getBySlug = query({
+    args: { slug: v.string() },
+    handler: async (ctx, args) => {
+      const documents = await ctx.db
+        .query("documents")
+        .filter((q) => q.eq(q.field("slug"), args.slug))
+        .filter((q) => q.eq(q.field("isPublished"), true))
+        .filter((q) => q.eq(q.field("isArchived"), false))
+        .first();
+      
+      return documents;
+    },
+  });
+
 
 export const archive = mutation({
     args: { id: v.id("documents") },
@@ -201,36 +265,30 @@ type Document = Doc<"documents">;
 
 // The mutation to handle database insertion
 export const insertDocument = mutation({
-  args: {
-    title: v.string(),
-    parentDocument: v.optional(v.id("documents")),
-    userId: v.string(),
-    authorFullName: v.string(),
-    authorImageUrl: v.string(),
-  },
-  handler: async (
-    ctx: MutationCtx,
     args: {
-      title: string;
-      parentDocument?: Id<"documents">;
-      userId: string;
-      authorFullName: string;
-      authorImageUrl: string;
-    }
-  ): Promise<Id<"documents">> => {
-    const document = await ctx.db.insert("documents", {
-      title: args.title,
-      parentDocument: args.parentDocument,
-      userId: args.userId,
-      authorFullName: args.authorFullName,
-      authorImageUrl: args.authorImageUrl,
-      isArchived: false,
-      isPublished: false,
-    });
-
-    return document;
-  },
-});
+      title: v.string(),
+      parentDocument: v.optional(v.id("documents")),
+      userId: v.string(),
+      authorFullName: v.string(),
+      authorImageUrl: v.string(),
+      slug: v.string(), // Add slug to the args type
+    },
+    handler: async (ctx, args) => {
+      const document = await ctx.db.insert("documents", {
+        title: args.title,
+        parentDocument: args.parentDocument,
+        userId: args.userId,
+        authorFullName: args.authorFullName,
+        authorImageUrl: args.authorImageUrl,
+        isArchived: false,
+        isPublished: false,
+        slug: args.slug, // Use the provided slug
+        content: "",
+      });
+  
+      return document;
+    },
+  });
 
 // The action that handles Clerk API call and runs the mutation
 export const create = action({
@@ -274,6 +332,20 @@ export const create = action({
       console.error(`Error fetching user ${userId} from Clerk:`, error);
     }
 
+    // Generate base slug from title
+    const baseSlug = slugify(args.title);
+
+    // Check for existing documents with this slug
+    const existingDocs = await ctx.runQuery(api.documents.getDocumentsBySlug, {
+      slug: baseSlug,
+      userId,
+    });
+
+    // Create unique slug
+    const slug = existingDocs.length > 0 
+      ? `${baseSlug}-${existingDocs.length + 1}`
+      : baseSlug;
+
     // Use the api object to reference the mutation
     const documentId = await ctx.runMutation(api.documents.insertDocument, {
       title: args.title,
@@ -281,6 +353,7 @@ export const create = action({
       userId,
       authorFullName,
       authorImageUrl,
+      slug,
     });
 
     return documentId;
@@ -499,43 +572,73 @@ export const getById = query ({
     }
 });
 
+// Update your update mutation to handle slug updates
 export const update = mutation({
     args: {
-        id: v.id("documents"),
-        title: v.optional(v.string()),
-        content: v.optional(v.string()),
-        coverImage: v.optional(v.string()),
-        icon: v.optional(v.string()),
-        isPublished: v.optional(v.boolean())
+      id: v.id("documents"),
+      title: v.optional(v.string()),
+      content: v.optional(v.string()),
+      coverImage: v.optional(v.string()),
+      icon: v.optional(v.string()),
+      isPublished: v.optional(v.boolean()),
     },
-    handler: async(ctx, args) => {
-        const identity = await ctx.auth.getUserIdentity();
-
-        if (!identity) {
-            throw new Error("Unauthenticated");
-        }
-
-        const userId = identity.subject;
-
-        const { id, ...rest } = args;
+    handler: async (ctx, args) => {
+      const identity = await ctx.auth.getUserIdentity();
+  
+      if (!identity) {
+        throw new Error("Unauthenticated");
+      }
+  
+      const userId = identity.subject;
+      const { id, title, ...rest } = args;
+  
+      const existingDocument = await ctx.db.get(args.id);
+  
+      if (!existingDocument) {
+        throw new Error("Not found");
+      }
+  
+      if (existingDocument.userId !== userId) {
+        throw new Error("Unauthorized");
+      }
+  
+      let updateData: Partial<Doc<"documents">> = {
+        ...rest,
+      };
+  
+      // Only update slug if title is changing
+      if (title) {
+        const baseSlug = slugify(title);
         
-        const existingDocument = await ctx.db.get(args.id);
-
-        if (!existingDocument) {
-            throw new Error("Not found");
-        }
-
-        if (existingDocument.userId != userId) {
-            throw new Error("Unauthorized");
-        }
-
-        const document = await ctx.db.patch(args.id, {
-            ...rest,
-        });
-
-        return document;
+        // Check for existing slugs, excluding current document
+        const existingDocs = await ctx.db
+          .query("documents")
+          .filter((q) => 
+            q.and(
+              q.eq(q.field("userId"), userId),
+              q.eq(q.field("slug"), baseSlug),
+              q.neq(q.field("_id"), id)
+            )
+          )
+          .collect();
+        
+        // Create unique slug
+        const slug = existingDocs.length > 0 
+          ? `${baseSlug}-${existingDocs.length + 1}`
+          : baseSlug;
+  
+        updateData = {
+          ...updateData,
+          title,
+          slug,
+        };
+      }
+  
+      const document = await ctx.db.patch(args.id, updateData);
+  
+      return document;
     },
-});
+  });
 
 export const removeIcon = mutation({
     args: { id: v.id("documents") },
@@ -790,3 +893,31 @@ export const testClerkConnection = query({
     }
 });
 
+export const migrateExistingDocumentsToSlugs = action({
+    handler: async (ctx) => {
+      const documents = await ctx.runQuery(api.documents.getAllDocuments);
+      
+      for (const doc of documents) {
+        if (!doc.slug && doc.title) {
+          const baseSlug = slugify(doc.title);
+          
+          // Check for existing slugs
+          const existingDocs = await ctx.runQuery(api.documents.getDocumentsBySlug, { 
+            slug: baseSlug,
+            userId: doc.userId 
+          });
+          
+          const slug = existingDocs.length > 0 
+            ? `${baseSlug}-${existingDocs.length + 1}`
+            : baseSlug;
+          
+          await ctx.runMutation(api.documents.updateSlug, {
+            id: doc._id,
+            slug,
+          });
+        }
+      }
+      
+      return { message: "Migration completed" };
+    },
+  });

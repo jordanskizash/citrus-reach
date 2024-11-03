@@ -1,5 +1,6 @@
-// components/ShareButtons.tsx
-import React, { useState } from 'react';
+'use client';
+
+import React, { useState, useEffect } from 'react';
 import { Twitter, Facebook, Link as LinkIcon, Linkedin, Mail } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -7,13 +8,19 @@ import toast from 'react-hot-toast';
 
 const ShareButtons = () => {
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
+  const [currentUrl, setCurrentUrl] = useState('');
+
+  useEffect(() => {
+    // Set the URL only after component mounts
+    setCurrentUrl(window.location.href);
+  }, []);
 
   const handleShareDialog = () => {
     setIsShareDialogOpen(true);
   };
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(window.location.href);
+    navigator.clipboard.writeText(currentUrl);
     toast.success('Link copied to clipboard!');
     setIsShareDialogOpen(false);
   };
@@ -24,7 +31,7 @@ const ShareButtons = () => {
         <LinkIcon size={20} />
       </button>
       <a
-        href={`https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(window.location.href)}`}
+        href={`https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(currentUrl)}`}
         target="_blank"
         rel="noopener noreferrer"
         aria-label="Share on LinkedIn"
@@ -33,7 +40,7 @@ const ShareButtons = () => {
         <Linkedin size={20} />
       </a>
       <a
-        href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.href)}`}
+        href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(currentUrl)}`}
         target="_blank"
         rel="noopener noreferrer"
         aria-label="Share on Twitter"
@@ -42,7 +49,7 @@ const ShareButtons = () => {
         <Twitter size={20} />
       </a>
       <a
-        href="https://www.facebook.com/sharer/sharer.php"
+        href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(currentUrl)}`}
         target="_blank"
         rel="noopener noreferrer"
         aria-label="Share on Facebook"
@@ -51,21 +58,20 @@ const ShareButtons = () => {
         <Facebook size={20} />
       </a>
       <a
-        href={`mailto:?subject=Check this out&body=Check out this link: ${encodeURIComponent(window.location.href)}`}
+        href={`mailto:?subject=Check this out&body=Check out this link: ${encodeURIComponent(currentUrl)}`}
         aria-label="Share via Email"
         className="share-button"
       >
         <Mail size={20} />
       </a>
 
-      {/* Share Dialog */}
       <Dialog open={isShareDialogOpen} onOpenChange={setIsShareDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Share this page</DialogTitle>
           </DialogHeader>
           <div className="mt-4">
-            <input value={window.location.href} readOnly className="mb-4 w-full p-2 border rounded" />
+            <input value={currentUrl} readOnly className="mb-4 w-full p-2 border rounded" />
             <Button onClick={copyToClipboard} className="w-full">
               Copy Link
             </Button>

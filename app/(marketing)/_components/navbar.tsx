@@ -4,23 +4,16 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useConvexAuth } from "convex/react"
 import { SignInButton, UserButton } from "@clerk/clerk-react"
-import { Menu } from "lucide-react"
+import { Menu, ChevronDown } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-} from "@/components/ui/navigation-menu"
 import { Logo } from "./logo"
 import { Spinner } from "@/components/spinner"
 import { useScrollTop } from "@/hooks/use-scroll-top"
 
+// ... (keeping NavItemsProps interface and NavItems component the same)
 interface NavItemsProps {
   isAuthenticated: boolean;
   isLoading: boolean;
@@ -72,112 +65,152 @@ const NavItems: React.FC<NavItemsProps> = ({ isAuthenticated, isLoading }) => (
   </>
 )
 
-const ExamplesDropdown = () => (
-  <NavigationMenu>
-    <NavigationMenuList>
-      <NavigationMenuItem>
-        <NavigationMenuTrigger 
-          className="bg-transparent hover:bg-transparent focus:bg-transparent data-[state=open]:bg-transparent data-[active]:bg-transparent"
-        >
-          <Button variant="ghost" size="sm" className="text-gray-700 hover:text-gray-900">
-            Examples
-          </Button>
-        </NavigationMenuTrigger>
-        <NavigationMenuContent className="bg-white">
-          <ul className="grid gap-3 p-6 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
-            <li className="row-span-3">
-              <NavigationMenuLink asChild>
-                <a
-                  className="flex h-full w-full select-none flex-col justify-end rounded-md p-6 no-underline outline-none focus:shadow-md bg-white"
-                  href="/"
-                >
-                  <Logo />
-                  <p className="mt-6 text-sm leading-tight text-muted-foreground">
-                    Beautifully designed microsites to help you secure meetings
-                  </p>
-                </a>
-              </NavigationMenuLink>
-            </li>
-            <ListItem href="/blog" title="Blog Post">
-              Create professional blog posts quickly with our editor
-            </ListItem>
-            <ListItem href="/examples/tasks" title="Video Profile">
-              Create video profiles that reach prospects and book meetings
-            </ListItem>
-            <ListItem href="/examples/calendar" title="Event">
-              Coming Soon
-            </ListItem>
-          </ul>
-        </NavigationMenuContent>
-      </NavigationMenuItem>
-    </NavigationMenuList>
-  </NavigationMenu>
-)
 
-const ListItem = ({ className, title, children, ...props }: React.ComponentPropsWithoutRef<"a"> & { title: string }) => {
+const ExamplesDropdown = () => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const items = [
+    {
+      section: "YOUR FORMAT",
+      items: [
+        { icon: "🎯", title: "In-Person Events", description: "Create engaging face-to-face experiences" },
+        { icon: "💻", title: "Virtual Events", description: "Host immersive online gatherings" },
+        { icon: "🔄", title: "Hybrid Events", description: "Blend physical and digital experiences" }
+      ]
+    },
+    {
+      section: "YOUR BUSINESS",
+      items: [
+        { icon: "🏢", title: "Enterprise", description: "Solutions for large organizations" },
+        { icon: "💻", title: "Technology", description: "Digital-first event experiences" },
+        { icon: "🛍️", title: "Retail", description: "Engage customers and drive sales" }
+      ]
+    },
+    {
+      section: "YOUR EVENTS",
+      items: [
+        { icon: "🎤", title: "Conferences", description: "Large-scale professional gatherings" },
+        { icon: "📺", title: "Webinars", description: "Online educational sessions" },
+        { icon: "📣", title: "Field Marketing", description: "Local and regional events" }
+      ]
+    }
+  ];
+
   return (
-    <li>
-      <NavigationMenuLink asChild>
-        <a
+    <div 
+      className="relative"
+      onMouseEnter={() => setIsOpen(true)} 
+      onMouseLeave={() => setIsOpen(false)}
+    >
+      <Button 
+        variant="ghost" 
+        size="sm"
+        className={cn(
+          "text-gray-700 hover:text-gray-900 gap-2",
+          isOpen && "text-orange-500"
+        )}
+      >
+        Examples
+        <ChevronDown 
           className={cn(
-            "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground bg-white",
-            className
-          )}
-          {...props}
-        >
-          <div className="text-sm font-medium leading-none">{title}</div>
-          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-            {children}
-          </p>
-        </a>
-      </NavigationMenuLink>
-    </li>
+            "h-4 w-4 transition-transform duration-200",
+            isOpen && "transform rotate-180"
+          )} 
+        />
+      </Button>
+      
+      {isOpen && (
+        <>
+          {/* Semi-transparent overlay */}
+          <div 
+            className="fixed inset-x-0 top-16 h-screen bg-black/5 z-40"
+            onClick={() => setIsOpen(false)}
+          />
+          
+          {/* Dropdown container */}
+          <div 
+            className={cn(
+              "absolute left-0 right-0 border-b border-black bg-white origin-top z-50",
+              isOpen ? "animate-dropdown-open" : "animate-dropdown-close"
+            )}
+            style={{
+              top: 'calc(100% + 1px)',
+              marginTop: '3px',
+              width: '120vw',
+              marginLeft: '50%',
+              transform: 'translateX(-50%)',
+            }}
+          >
+            {/* Content wrapper for max-width constraint */}
+            <div className="w-full px-4 md:px-6 py-6">
+              <div className="max-w-[1400px] mx-auto">
+                <div className="grid grid-cols-3 gap-8">
+                  {items.map((section) => (
+                    <div key={section.section}>
+                      <h3 className="text-sm font-semibold text-gray-400 mb-4">{section.section}</h3>
+                      <div className="space-y-4">
+                        {section.items.map((item) => (
+                          <Link 
+                            href="#" 
+                            key={item.title}
+                            className="group flex items-start p-3 rounded-lg hover:bg-gray-50 transition-colors"
+                          >
+                            <span className="text-2xl mr-3">{item.icon}</span>
+                            <div>
+                              <h4 className="text-sm font-medium text-gray-900 group-hover:text-orange-500 transition-colors">
+                                {item.title}
+                              </h4>
+                              <p className="text-sm text-gray-500 mt-1">{item.description}</p>
+                            </div>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
   )
 }
 
+
 const MainNav = () => (
   <nav className="hidden md:flex items-center space-x-8">
-    <NavigationMenu>
-      <NavigationMenuList className="space-x-2">
-        <NavigationMenuItem>
-          <Button 
-            variant="ghost" 
-            size="sm"
-            className="text-gray-700 hover:text-gray-900"
-            asChild
-          >
-            <Link href="/about">About</Link>
-          </Button>
-        </NavigationMenuItem>
-        <NavigationMenuItem>
-          <Button 
-            variant="ghost" 
-            size="sm"
-            className="text-gray-700 hover:text-gray-900"
-            asChild
-          >
-            <Link href="/blog">Blog</Link>
-          </Button>
-        </NavigationMenuItem>
-        <NavigationMenuItem>
-          <Button 
-            variant="ghost" 
-            size="sm"
-            className="text-gray-700 hover:text-gray-900"
-            asChild
-          >
-            <Link href="/pricing">Pricing</Link>
-          </Button>
-        </NavigationMenuItem>
-        <NavigationMenuItem>
-          <ExamplesDropdown />
-        </NavigationMenuItem>
-      </NavigationMenuList>
-    </NavigationMenu>
+    <div className="flex items-center space-x-2">
+      <Button 
+        variant="ghost" 
+        size="sm"
+        className="text-gray-700 hover:text-gray-900"
+        asChild
+      >
+        <Link href="/about">About</Link>
+      </Button>
+      <Button 
+        variant="ghost" 
+        size="sm"
+        className="text-gray-700 hover:text-gray-900"
+        asChild
+      >
+        <Link href="/blog">Blog</Link>
+      </Button>
+      <Button 
+        variant="ghost" 
+        size="sm"
+        className="text-gray-700 hover:text-gray-900"
+        asChild
+      >
+        <Link href="/pricing">Pricing</Link>
+      </Button>
+      <ExamplesDropdown />
+    </div>
   </nav>
 )
 
-export const Navbar: React.FC = () => {
+export const Navbar = () => {
   const { isAuthenticated, isLoading } = useConvexAuth()
   const scrolled = useScrollTop()
   const [isOpen, setIsOpen] = useState(false)
