@@ -13,7 +13,7 @@ import { Spinner } from '@/components/spinner'
 const MotionLink = motion(Link)
 
 const BLOG_AUTHOR_ID = 'user_2mrbDezxzWCnqMT5dQrLod4s1AS'
-const AUTHOR_NAME = 'Citrus Reach' // Replace with the actual author name
+const AUTHOR_NAME = 'Citrus Reach'
 
 export default function BlogPage() {
   const documents = useQuery(api.documents.getPublishedDocumentsByUserId, { 
@@ -39,6 +39,12 @@ export default function BlogPage() {
     );
   }
 
+  // Helper function to get the post URL
+  const getPostUrl = (post: Doc<'documents'>) => {
+    // If slug is available, use it; otherwise, fallback to ID
+    return `/preview/${post.slug ?? post._id}`;
+  };
+
   return (
     <>
       <Head>
@@ -56,7 +62,7 @@ export default function BlogPage() {
         <div className="space-y-12">
         {pinnedPost && (
           <MotionLink 
-            href={`/preview/${pinnedPost._id}`}
+            href={getPostUrl(pinnedPost)} // Updated to use slug
             className="flex flex-col md:flex-row gap-6 mb-12 p-6 rounded-lg"
             whileHover={{ scale: 1.02 }}
             transition={{ type: "spring", stiffness: 300 }}
@@ -72,7 +78,7 @@ export default function BlogPage() {
             </div>
             <div className="md:w-1/2 flex flex-col justify-center p-6">
               <h2 className="text-2xl font-bold mb-2">{pinnedPost.title}</h2>
-              <p className="text-gray-600 mb-2">By {AUTHOR_NAME}</p>
+              <p className="text-gray-600 mb-2">By {pinnedPost.authorFullName || AUTHOR_NAME}</p>
               <p className="text-gray-500">{new Date(pinnedPost._creationTime).toLocaleDateString()}</p>
             </div>
           </MotionLink>
@@ -82,7 +88,7 @@ export default function BlogPage() {
           {otherPosts.map((post) => (
             <MotionLink 
               key={post._id}
-              href={`/preview/${post._id}`}
+              href={getPostUrl(post)} // Updated to use slug
               className="flex flex-col"
               whileHover={{ y: -5 }}
               transition={{ type: "spring", stiffness: 300 }}
@@ -96,7 +102,7 @@ export default function BlogPage() {
               />
               <p className="text-gray-500 text-sm mb-1">{new Date(post._creationTime).toLocaleDateString()}</p>
               <h3 className="text-xl font-semibold mb-1">{post.title}</h3>
-              <p className="text-gray-600">By {AUTHOR_NAME}</p>
+              <p className="text-gray-600">By {post.authorFullName || AUTHOR_NAME}</p>
             </MotionLink>
           ))}
         </div>
