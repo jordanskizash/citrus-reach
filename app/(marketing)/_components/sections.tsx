@@ -52,22 +52,23 @@ export const Sections = () => {
           Sites for any revenue generating purpose
         </p>
         <div className="mb-6">
-          <div className={`flex ${isMobile ? 'flex-col space-y-4' : 'space-x-6 justify-center'} border-b`}>
-            {sections.map((section, index) => (
-              <button
-                key={index}
-                className={`py-3 px-4 text-${isMobile ? 'lg' : 'xl'} font-semibold transition-colors duration-200 ${
-                  selectedIndex === index 
-                  ? 'text-orange-600 border-b-2 border-orange-600' 
-                  : 'text-gray-600 hover:text-orange-600'
-                }`}
-                onClick={() => setSelectedIndex(index)}
-              >
-                {section.title}
-              </button>
-            ))}
-          </div>
+        <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-6 justify-center border-b">
+          {sections.map((section, index) => (
+            <button
+              key={index}
+              className={`py-3 px-4 text-${isMobile ? 'lg' : 'xl'} font-semibold transition-colors duration-200 ${
+                selectedIndex === index 
+                ? 'text-orange-600 border-b-2 border-orange-600' 
+                : 'text-gray-600 hover:text-orange-600'
+              }`}
+              onClick={() => setSelectedIndex(index)}
+            >
+              {section.title}
+            </button>
+          ))}
         </div>
+      </div>
+
       </div>
 
       <div className="bg-orange-50 p-4 rounded-lg min-h-[250px] flex flex-col justify-center items-center">
