@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { Id } from "@/convex/_generated/dataModel";
+import { Doc, Id } from "@/convex/_generated/dataModel";
 import dynamic from "next/dynamic";
 import { ProfToolbar } from "@/components/profile-toolbar";
 import { useMemo, useState, useEffect, useRef } from "react";
@@ -190,6 +190,11 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
     user?.id ? { clerkId: user.id } : "skip"
   );
 
+  const getPostUrl = (post: Doc<'documents'>) => {
+    // If slug is available, use it; otherwise, fallback to ID
+    return `/preview/${post.slug ?? post._id}`;
+  };
+  
   // Retrieve user logo from user details, if available
   const userLogo = userDetails?.logoUrl;
   const clientLogo = profile?.icon || "/acme.png";
@@ -669,7 +674,7 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
               {latestDocuments.map((post) => (
                 <MotionLink
                   key={post._id}
-                  href={`/preview/${post._id}`}
+                  href={getPostUrl(post)}
                   className="flex flex-col"
                   whileHover={{ y: -5 }}
                   transition={{ type: "spring", stiffness: 300 }}

@@ -117,33 +117,49 @@ export const getById = query ({
 });
 
 export const update = mutation({
-    args: {
-      id: v.id("profiles"),
-      displayName: v.optional(v.string()),
-      bio: v.optional(v.string()),
-      description: v.optional(v.string()),
-      videoUrl: v.optional(v.string()),
-      isArchived: v.optional(v.boolean()),
-      parentProfile: v.optional(v.id('profiles')),
-      content: v.optional(v.string()),
-      logoUrl: v.optional(v.string()),
-      coverImage: v.optional(v.string()),
-      icon: v.optional(v.string()),
-      isPublished: v.optional(v.boolean()),
-      colorPreference: v.optional(v.string()),
-      greetingText: v.optional(v.string()),
-    },
-    handler: async (ctx, args) => {
-      const { id, ...rest } = args;
-  
-      // Filter out undefined values from rest
-      const updates = Object.fromEntries(
-        Object.entries(rest).filter(([_, value]) => value !== undefined)
-      );
-  
-      await ctx.db.patch(id, updates);
-    },
-  });
+  args: {
+    id: v.id("profiles"),
+    displayName: v.optional(v.string()),
+    bio: v.optional(v.string()),
+    description: v.optional(v.string()),
+    videoUrl: v.optional(v.string()),
+    videoThumbnail: v.optional(v.string()),
+    isArchived: v.optional(v.boolean()),
+    parentProfile: v.optional(v.id('profiles')),
+    content: v.optional(v.string()),
+    logoUrl: v.optional(v.string()),
+    coverImage: v.optional(v.string()),
+    icon: v.optional(v.string()),
+    isPublished: v.optional(v.boolean()),
+    colorPreference: v.optional(v.string()),
+    greetingText: v.optional(v.string()),
+    // Add themeSettings if you want to update them
+    themeSettings: v.optional(v.object({
+      backgroundColor: v.string(),
+      accentColor: v.string(),
+      textColor: v.string(),
+    })),
+  },
+  handler: async (ctx, args) => {
+    const { id, ...updates } = args;
+
+    // Filter out undefined values
+    const filteredUpdates = Object.fromEntries(
+      Object.entries(updates).filter(([_, value]) => value !== undefined)
+    );
+
+    // Add video thumbnail to the updates if it exists
+    if (updates.videoThumbnail) {
+      filteredUpdates.videoThumbnail = updates.videoThumbnail;
+    }
+
+    // Perform the update
+    await ctx.db.patch(id, filteredUpdates);
+
+    // Return the updated profile
+    return await ctx.db.get(id);
+  },
+});
   
 
 export const remove = mutation({

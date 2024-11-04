@@ -26,6 +26,7 @@ export default defineSchema ({
         description: v.optional(v.string()),
         videoUrl: v.optional(v.string()),
         videoDescription: v.optional(v.string()),
+        videoThumbnail: v.optional(v.string()),
         userId: v.string(),
         isArchived: v.boolean(),
         parentProfile: v.optional(v.id('profiles')),

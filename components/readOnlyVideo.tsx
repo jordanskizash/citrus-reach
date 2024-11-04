@@ -1,18 +1,20 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 interface ReadOnlyVideoProps {
   videoUrl?: string;
+  onThumbnailGenerated?: (thumbnailUrl: string) => void;
 }
 
-export default function ReadOnlyVideo({ videoUrl }: ReadOnlyVideoProps) {
+export default function ReadOnlyVideo({ videoUrl, onThumbnailGenerated }: ReadOnlyVideoProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (videoUrl && videoRef.current) {
       const videoElement = videoRef.current;
 
       const handleLoadedMetadata = () => {
-        // Seek to a specific time to avoid black frames (e.g., 0.1 seconds)
+        // Seek to a specific time for thumbnail generation (e.g., 0.1 seconds)
         videoElement.currentTime = 0.1;
       };
 
@@ -25,10 +27,15 @@ export default function ReadOnlyVideo({ videoUrl }: ReadOnlyVideoProps) {
         if (ctx) {
           ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
           try {
-            const dataURL = canvas.toDataURL("image/png");
+            const dataURL = canvas.toDataURL("image/jpeg", 0.8); // Using JPEG for smaller size
             videoElement.setAttribute("poster", dataURL);
+            setThumbnailUrl(dataURL);
+            // Notify parent component about the thumbnail
+            if (onThumbnailGenerated) {
+              onThumbnailGenerated(dataURL);
+            }
           } catch (error) {
-            console.error("Failed to generate poster image:", error);
+            console.error("Failed to generate thumbnail:", error);
           }
         }
 
@@ -46,7 +53,7 @@ export default function ReadOnlyVideo({ videoUrl }: ReadOnlyVideoProps) {
         videoElement.removeEventListener("seeked", handleSeeked);
       };
     }
-  }, [videoUrl]);
+  }, [videoUrl, onThumbnailGenerated]);
 
   if (!videoUrl) {
     return (
@@ -67,6 +74,7 @@ export default function ReadOnlyVideo({ videoUrl }: ReadOnlyVideoProps) {
         controlsList="nodownload"
         crossOrigin="anonymous"
         muted
+        poster={thumbnailUrl || undefined}
       >
         <source src={videoUrl} type="video/mp4" />
         Your browser does not support the video tag.

@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { Id } from "@/convex/_generated/dataModel";
+import { Doc, Id } from "@/convex/_generated/dataModel";
 import dynamic from "next/dynamic";
 import { ProfToolbar } from "@/components/profile-toolbar";
 import { useState } from "react";
@@ -65,6 +65,14 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
   // Get the logo URL from either userDetails or profile
   const displayLogo = userDetails?.logoUrl || profile.logoUrl || "/placeholder.svg?height=60&width=180";
 
+  const handleThumbnailGenerated = (thumbnailUrl: string) => {
+    // Store the thumbnail URL in your profile data using your update mutation
+    updateProfile({
+      id: params.profileId,
+      videoThumbnail: thumbnailUrl
+    });
+  };
+
 
   const authorFullName = documents.length > 0 && documents[0].authorFullName
     ? documents[0].authorFullName
@@ -107,6 +115,11 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
       : "white",
   };
 
+  const getPostUrl = (post: Doc<'documents'>) => {
+    // If slug is available, use it; otherwise, fallback to ID
+    return `/preview/${post.slug ?? post._id}`;
+  };
+
   return (
     <div className="min-h-screen" style={gradientStyle}>
       <div className="flex flex-col items-center pb-20 pt-6 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -142,7 +155,10 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
         <div className="w-full flex flex-col md:flex-row gap-6 md:gap-8">
           <div className="w-full md:w-3/4 px-2 sm:px-0">
             <div className="rounded-xl overflow-hidden shadow-lg">
-              <ReadOnlyVideo videoUrl={profile.videoUrl} />
+              <ReadOnlyVideo 
+                videoUrl={profile.videoUrl} 
+                onThumbnailGenerated={handleThumbnailGenerated} 
+              />
             </div>
           </div>
           <div className="w-full md:w-1/4 flex flex-col gap-4 px-6 sm:px-0">
@@ -262,7 +278,7 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
               {latestDocuments.map((post) => (
                 <Link
                   key={post._id}
-                  href={`/preview/${post._id}`}
+                  href={getPostUrl(post)}
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="flex flex-col group"
@@ -289,4 +305,8 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
       </div>
     </div>
   );
+}
+
+function updateProfile(arg0: { id: Id<"profiles">; videoThumbnail: string; }) {
+  throw new Error("Function not implemented.");
 }
