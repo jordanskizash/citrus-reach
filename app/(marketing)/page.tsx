@@ -10,6 +10,7 @@ import { Teams } from "./_components/teams";
 import { CardFeatures } from "./_components/appfeatures";
 import { Sections } from "./_components/sections";
 import LogoCarousel from "./_components/references";
+import Catcher from "./_components/catcher";
 
 
 const logos = [
@@ -31,7 +32,8 @@ const MarketingPage = () => {
       <div className="flex flex-col items-center justify-center md:justify-start text-center gap-y-8 flex-1 pb-10  ">
         <Heading />
         <LogoCarousel logos={logos} />
-        <Hero />
+        <Catcher />
+        {/* <Hero /> */}
         <CardFeatures />
         {/* <Refs /> */}
         {/* <Suite /> */}

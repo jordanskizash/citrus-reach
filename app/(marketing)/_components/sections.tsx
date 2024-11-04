@@ -44,7 +44,7 @@ export const Sections = () => {
 
   return (
     <div className="bg-orange-50 w-full py-6">
-      <div className="max-w-2xl mx-auto px-6 text-center">
+      <div className="max-w-3xl mx-auto px-6 text-center">
         <h1 className={`text-${isMobile ? '3xl' : '4xl'} font-bold mb-10`}>
           Build custom sites that move key metrics for your team & clients
         </h1>
