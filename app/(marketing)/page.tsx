@@ -37,7 +37,7 @@ const MarketingPage = () => {
         <CardFeatures />
         {/* <Refs /> */}
         {/* <Suite /> */}
-        <Sections />
+        {/* <Sections /> */}
         <FAQ />
       </div>
     </div>
