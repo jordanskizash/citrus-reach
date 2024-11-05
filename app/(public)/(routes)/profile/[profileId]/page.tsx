@@ -17,7 +17,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Share2, Calendar, MessageSquare, Linkedin, ArrowRight } from "lucide-react";
+import { Share2, Calendar, MessageSquare, Linkedin, ArrowRight, Mail } from "lucide-react";
 import { toast } from "react-hot-toast";
 import InlineWidget from "@calcom/embed-react";
 import Link from "next/link";
@@ -39,6 +39,11 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
   const [isCalDialogOpen, setIsCalDialogOpen] = useState(false);
 
   const { user } = useUser();
+
+  const dbQuery = useQuery(api.users.getUserByClerkId, { 
+    clerkId: user?.id ?? "skip" 
+  });
+
 
   const profile = useQuery(api.profiles.getById, {
     profileId: params.profileId,
@@ -163,7 +168,7 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
           </div>
           <div className="w-full md:w-1/4 flex flex-col gap-4 px-6 sm:px-0">
             {/* Reply Dialog */}
-            <Dialog open={isReplyDialogOpen} onOpenChange={setIsReplyDialogOpen}>
+            {/* <Dialog open={isReplyDialogOpen} onOpenChange={setIsReplyDialogOpen}>
               <DialogTrigger asChild>
                 <Button className="h-12 rounded-full text-base font-medium hover:scale-105 transition-transform mx-auto w-full">
                   <MessageSquare className="mr-2 h-5 w-5" /> Reply
@@ -197,7 +202,19 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
                   </Button>
                 </form>
               </DialogContent>
-            </Dialog>
+            </Dialog> */}
+
+            <Button
+              className="h-12 rounded-full text-base font-medium hover:scale-105 transition-transform mx-auto w-full"
+              asChild
+            >
+              <a
+                href={`mailto:jordan.steinberg@ibm.com`}
+                className="inline-block"
+              >
+                <Mail className="mr-2 h-5 w-5" /> Reply
+              </a>
+            </Button>
 
             {/* Book a Meeting Dialog */}
             <Dialog open={isCalDialogOpen} onOpenChange={setIsCalDialogOpen}>

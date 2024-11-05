@@ -47,6 +47,11 @@ export default function BlogHomepage({ params }: HomepageProps) {
   const authorFullName = documents[0]?.authorFullName || profile.authorFullName || "Unknown Author";
   const authorFirstName = authorFullName.split(' ')[0];
 
+  const getPostUrl = (post: Doc<'documents'>) => {
+    // If slug is available, use it; otherwise, fallback to ID
+    return `/preview/${post.slug ?? post._id}`;
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-8 sm:px-16 py-8">
       <h1 className="text-4xl font-bold mb-8">Latest from {authorFirstName}</h1>
@@ -80,7 +85,7 @@ export default function BlogHomepage({ params }: HomepageProps) {
         {otherPosts.map((post) => (
           <MotionLink 
             key={post._id}
-            href={`/preview/${post._id}`}
+            href={getPostUrl(post)}
             className="flex flex-col"
             whileHover={{ y: -5 }}
             transition={{ type: "spring", stiffness: 300 }}

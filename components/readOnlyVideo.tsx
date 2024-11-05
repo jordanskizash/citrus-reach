@@ -8,17 +8,23 @@ interface ReadOnlyVideoProps {
 export default function ReadOnlyVideo({ videoUrl, onThumbnailGenerated }: ReadOnlyVideoProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   useEffect(() => {
     if (videoUrl && videoRef.current) {
       const videoElement = videoRef.current;
 
       const handleLoadedMetadata = () => {
-        // Seek to a specific time for thumbnail generation (e.g., 0.1 seconds)
-        videoElement.currentTime = 0.1;
+        // Only generate thumbnail if video hasn't started playing
+        if (!isPlaying) {
+          videoElement.currentTime = 0.1;
+        }
       };
 
       const handleSeeked = () => {
+        // Only generate thumbnail if video hasn't started playing
+        if (isPlaying) return;
+        
         const canvas = document.createElement("canvas");
         canvas.width = videoElement.videoWidth;
         canvas.height = videoElement.videoHeight;
@@ -27,10 +33,8 @@ export default function ReadOnlyVideo({ videoUrl, onThumbnailGenerated }: ReadOn
         if (ctx) {
           ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
           try {
-            const dataURL = canvas.toDataURL("image/jpeg", 0.8); // Using JPEG for smaller size
-            videoElement.setAttribute("poster", dataURL);
+            const dataURL = canvas.toDataURL("image/jpeg", 0.8);
             setThumbnailUrl(dataURL);
-            // Notify parent component about the thumbnail
             if (onThumbnailGenerated) {
               onThumbnailGenerated(dataURL);
             }
@@ -38,22 +42,38 @@ export default function ReadOnlyVideo({ videoUrl, onThumbnailGenerated }: ReadOn
             console.error("Failed to generate thumbnail:", error);
           }
         }
-
-        videoElement.removeEventListener("seeked", handleSeeked);
       };
 
-      // Set the crossOrigin attribute to handle CORS
+      const handlePlay = () => {
+        setIsPlaying(true);
+        setThumbnailUrl(null); // Clear thumbnail when video starts playing
+      };
+
+      const handlePause = () => {
+        setIsPlaying(false);
+      };
+
+      const handleEnded = () => {
+        setIsPlaying(false);
+      };
+
       videoElement.crossOrigin = "anonymous";
 
       videoElement.addEventListener("loadedmetadata", handleLoadedMetadata);
       videoElement.addEventListener("seeked", handleSeeked);
+      videoElement.addEventListener("play", handlePlay);
+      videoElement.addEventListener("pause", handlePause);
+      videoElement.addEventListener("ended", handleEnded);
 
       return () => {
         videoElement.removeEventListener("loadedmetadata", handleLoadedMetadata);
         videoElement.removeEventListener("seeked", handleSeeked);
+        videoElement.removeEventListener("play", handlePlay);
+        videoElement.removeEventListener("pause", handlePause);
+        videoElement.removeEventListener("ended", handleEnded);
       };
     }
-  }, [videoUrl, onThumbnailGenerated]);
+  }, [videoUrl, onThumbnailGenerated, isPlaying]);
 
   if (!videoUrl) {
     return (
@@ -73,10 +93,10 @@ export default function ReadOnlyVideo({ videoUrl, onThumbnailGenerated }: ReadOn
         preload="metadata"
         controlsList="nodownload"
         crossOrigin="anonymous"
-        muted
-        poster={thumbnailUrl || undefined}
+        poster={!isPlaying ? thumbnailUrl || undefined : undefined}
       >
         <source src={videoUrl} type="video/mp4" />
+        <source src={videoUrl} type="video/webm" />
         Your browser does not support the video tag.
       </video>
     </div>

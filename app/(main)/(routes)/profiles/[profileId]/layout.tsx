@@ -76,7 +76,7 @@ export async function generateMetadata({ params }: ProfileParams): Promise<Metad
   } catch (error) {
     console.error('Error generating metadata:', error);
     return {
-      title: 'Profile',
+      title: 'New Profile Site',
       description: 'View profile details',
     };
   }

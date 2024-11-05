@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: ProfileParams): Promise<Metad
     }
 
     const metadata: Metadata = {
-      title: `Recording for ${profile.displayName}`,
+      title: `New Recording for ${profile.displayName}`,
       description: profile.description || profile.bio || `Check out ${profile.displayName}'s profile`,
       openGraph: {
         title: `Recording for ${profile.displayName}`,
@@ -102,7 +102,7 @@ export async function generateMetadata({ params }: ProfileParams): Promise<Metad
   } catch (error) {
     console.error('Error generating metadata:', error);
     return {
-      title: 'Profile',
+      title: 'New Video Message',
       description: 'View profile details',
     };
   }
