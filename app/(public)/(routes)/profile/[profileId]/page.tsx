@@ -265,7 +265,7 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
             <div className="flex justify-between items-center mb-8 px-2 sm:px-0">
               <h2 className="text-xl sm:text-2xl font-bold">More from {authorFirstName}</h2>
               <Link 
-                href={`/homepage/${profile.handle || encodeURIComponent(authorFullName.toLowerCase().replace(/ /g, '-'))}`}
+                href={`/homepage/${encodeURIComponent(profile.handle ?? '')}`}
                 target="_blank" 
                 rel="noopener noreferrer"
               >
