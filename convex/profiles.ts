@@ -393,44 +393,35 @@ export const getPublishedProfilesByUserId = query({
   });
 
   // In your profiles.ts
-export const getByAuthorSlug = query({
+  export const getByAuthorSlug = query({
     args: { authorSlug: v.string() },
     handler: async (ctx, args) => {
-      const documents = await ctx.db
-        .query("documents")
-        .filter((q) => q.eq(q.field("isPublished"), true))
-        .collect();
+      const [authorNameSlug, userId] = args.authorSlug.split('-').slice(-1);
   
-      // Find the matching document to get the correct authorFullName
-      const matchingDoc = documents.find(doc => {
-        if (!doc.authorFullName) return false;
-        
-        const docSlug = doc.authorFullName
-          .toLowerCase()
-          .replace(/ /g, '-')
-          .replace(/[^a-z0-9-]/g, '');
-        
-        return docSlug === args.authorSlug.toLowerCase();
-      });
-  
-      if (!matchingDoc) {
-        throw new Error("Author not found");
-      }
-  
-      // Now get the profile associated with this author
       const profile = await ctx.db
         .query("profiles")
-        .filter((q) => q.eq(q.field("userId"), matchingDoc.userId))
+        .filter((q) => q.eq(q.field("userId"), userId))
         .first();
   
       if (!profile) {
         throw new Error("Profile not found");
       }
   
-      // Add the authorFullName from the document to the profile response
+      const documents = await ctx.db
+        .query("documents")
+        .filter((q) => q.eq(q.field("userId"), userId))
+        .filter((q) => q.eq(q.field("isPublished"), true))
+        .collect();
+  
+      if (documents.length === 0) {
+        throw new Error("No published documents found for this author");
+      }
+  
+      const authorFullName = documents[0].authorFullName;
+  
       return {
         ...profile,
-        authorFullName: matchingDoc.authorFullName
+        authorFullName,
       };
     },
   });

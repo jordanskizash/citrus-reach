@@ -18,6 +18,7 @@ interface HomepageProps {
 
 export default function BlogHomepage({ params }: HomepageProps) {
   const { authorSlug } = params;
+  const [authorNameSlug, userId] = authorSlug.split('-').slice(-1);
   
   const profile = useQuery(api.profiles.getByAuthorSlug, { 
     authorSlug
