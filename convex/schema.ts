@@ -23,6 +23,7 @@ export default defineSchema ({
         displayName: v.string(),
         authorFullName: v.optional(v.string()),
         bio: v.optional(v.string()),
+        handle: v.optional(v.string()),
         description: v.optional(v.string()),
         videoUrl: v.optional(v.string()),
         videoDescription: v.optional(v.string()),
@@ -51,7 +52,8 @@ export default defineSchema ({
     
     .index("by_user", ["userId"])
     .index("by_user_parent", ["userId", "parentProfile"])
-    .index("by_author_full_name", ["authorFullName"]) ,
+    .index("by_author_full_name", ["authorFullName"])
+    .index("by_handle", ["handle"]),
 
     users: defineTable({
         clerkId: v.string(),

@@ -54,38 +54,52 @@ export const archive = mutation({
     }
 })
 
+// First, add a new field to store unique handles
 export const create = mutation({
-    args: {
-        displayName: v.string(),
-        description: v.optional(v.string()),
-        bio: v.optional(v.string()),
-        logoUrl: v.optional(v.string()),
-        authorFullName: v.optional(v.string()), 
-    },
-    handler: async (ctx, args) => {
-        const identity = await ctx.auth.getUserIdentity();
+  args: {
+      displayName: v.string(),
+      description: v.optional(v.string()),
+      bio: v.optional(v.string()),
+      logoUrl: v.optional(v.string()),
+      authorFullName: v.optional(v.string()),
+      handle: v.string(), // New required field
+  },
+  handler: async (ctx, args) => {
+      const identity = await ctx.auth.getUserIdentity();
 
-        if (!identity) {
-            throw new Error("Not authenticated");
-        }
+      if (!identity) {
+          throw new Error("Not authenticated");
+      }
 
-        const userId = identity.subject;
+      const userId = identity.subject;
 
-        // Insert a new profile into the 'profile' table
-        const profile = await ctx.db.insert("profiles", {
-            userId,                // Assuming each profile is linked to a userId
-            displayName: args.displayName,
-            bio: args.bio,
-            description: args.description, // Handle 'description' correctly
-            isArchived: false,  
-            isPublished: false, 
-            logoUrl: args.logoUrl, 
-            authorFullName: args.authorFullName, 
-        });
+      // Check if handle is already taken
+      const existingProfile = await ctx.db
+          .query("profiles")
+          .filter((q) => q.eq(q.field("handle"), args.handle))
+          .first();
 
-        return profile;
-    }
-})
+      if (existingProfile) {
+          throw new Error("Handle already taken");
+      }
+
+      // Insert profile with handle
+      const profile = await ctx.db.insert("profiles", {
+          userId,
+          displayName: args.displayName,
+          bio: args.bio,
+          description: args.description,
+          isArchived: false,
+          isPublished: false,
+          logoUrl: args.logoUrl,
+          authorFullName: args.authorFullName,
+          handle: args.handle.toLowerCase(), // Store handle in lowercase
+      });
+
+      return profile;
+  }
+});
+
 
 export const getById = query ({
     args: { profileId: v.id("profiles") },
@@ -371,44 +385,36 @@ export const getPublishedProfilesByUserId = query({
   });
 
   // In your profiles.ts
-export const getByAuthorSlug = query({
-    args: { authorSlug: v.string() },
+  export const getByAuthorSlug = query({
+    args: { handle: v.string() },
     handler: async (ctx, args) => {
-      const documents = await ctx.db
-        .query("documents")
-        .filter((q) => q.eq(q.field("isPublished"), true))
-        .collect();
-  
-      // Find the matching document to get the correct authorFullName
-      const matchingDoc = documents.find(doc => {
-        if (!doc.authorFullName) return false;
-        
-        const docSlug = doc.authorFullName
-          .toLowerCase()
-          .replace(/ /g, '-')
-          .replace(/[^a-z0-9-]/g, '');
-        
-        return docSlug === args.authorSlug.toLowerCase();
-      });
-  
-      if (!matchingDoc) {
-        throw new Error("Author not found");
-      }
-  
-      // Now get the profile associated with this author
-      const profile = await ctx.db
-        .query("profiles")
-        .filter((q) => q.eq(q.field("userId"), matchingDoc.userId))
-        .first();
-  
-      if (!profile) {
-        throw new Error("Profile not found");
-      }
-  
-      // Add the authorFullName from the document to the profile response
-      return {
-        ...profile,
-        authorFullName: matchingDoc.authorFullName
-      };
+        const profile = await ctx.db
+            .query("profiles")
+            .filter((q) => 
+                q.and(
+                    q.eq(q.field("handle"), args.handle.toLowerCase()),
+                    q.eq(q.field("isPublished"), true)
+                )
+            )
+            .first();
+
+        if (!profile) {
+            throw new Error("Author not found");
+        }
+
+        return profile;
     },
-  });
+});
+
+// Add a utility function to check handle availability
+export const checkHandleAvailability = query({
+  args: { handle: v.string() },
+  handler: async (ctx, args) => {
+      const profile = await ctx.db
+          .query("profiles")
+          .filter((q) => q.eq(q.field("handle"), args.handle.toLowerCase()))
+          .first();
+
+      return !profile;
+  },
+});
