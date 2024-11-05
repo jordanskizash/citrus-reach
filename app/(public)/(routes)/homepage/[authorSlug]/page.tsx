@@ -20,7 +20,7 @@ export default function BlogHomepage({ params }: HomepageProps) {
   const { authorSlug } = params;
   
   const profile = useQuery(api.profiles.getByAuthorSlug, { 
-    authorSlug: decodeURIComponent(authorSlug)
+    authorSlug
   });
   
   const documents = useQuery(
