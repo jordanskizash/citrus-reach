@@ -79,18 +79,14 @@ export const ProfItem = ({
 
   const onCreate = async (
     event: React.MouseEvent<HTMLDivElement, MouseEvent>
-  ) => {
+) => {
     event.stopPropagation();
     if (!id) return;
     
-    // Generate a unique handle using timestamp
-    const timestamp = Date.now().toString().slice(-4);
-    const handle = "profile-" + timestamp; // This ensures uniqueness
-
     const promise = create({ 
         displayName: "Untitled", 
         bio: "This One Works",
-        handle: handle.toLowerCase() // Required field, ensure lowercase for consistency
+        authorFullName: "Untitled" // Instead of handle
     })
     .then((profileId) => {
         if (!expanded) {

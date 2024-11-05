@@ -62,7 +62,6 @@ export const create = mutation({
       bio: v.optional(v.string()),
       logoUrl: v.optional(v.string()),
       authorFullName: v.optional(v.string()),
-      handle: v.string(), // New required field
   },
   handler: async (ctx, args) => {
       const identity = await ctx.auth.getUserIdentity();
@@ -73,17 +72,26 @@ export const create = mutation({
 
       const userId = identity.subject;
 
-      // Check if handle is already taken
-      const existingProfile = await ctx.db
-          .query("profiles")
-          .filter((q) => q.eq(q.field("handle"), args.handle))
-          .first();
+      // Generate base slug from authorFullName or displayName
+      const baseSlug = (args.authorFullName || args.displayName)
+          .toLowerCase()
+          .replace(/ /g, '-')
+          .replace(/[^a-z0-9-]/g, '');
 
-      if (existingProfile) {
-          throw new Error("Handle already taken");
+      // Check for existing profiles with similar slugs
+      const existingProfiles = await ctx.db
+          .query("profiles")
+          .filter((q) => 
+              q.eq(q.field("authorSlug"), baseSlug)
+          )
+          .collect();
+
+      // If exists, append number
+      let authorSlug = baseSlug;
+      if (existingProfiles.length > 0) {
+          authorSlug = `${baseSlug}-${existingProfiles.length + 1}`;
       }
 
-      // Insert profile with handle
       const profile = await ctx.db.insert("profiles", {
           userId,
           displayName: args.displayName,
@@ -93,7 +101,7 @@ export const create = mutation({
           isPublished: false,
           logoUrl: args.logoUrl,
           authorFullName: args.authorFullName,
-          handle: args.handle.toLowerCase(), // Store handle in lowercase
+          authorSlug, // Store the unique slug
       });
 
       return profile;
@@ -386,13 +394,13 @@ export const getPublishedProfilesByUserId = query({
 
   // In your profiles.ts
   export const getByAuthorSlug = query({
-    args: { handle: v.string() },
+    args: { authorSlug: v.string() },
     handler: async (ctx, args) => {
         const profile = await ctx.db
             .query("profiles")
             .filter((q) => 
                 q.and(
-                    q.eq(q.field("handle"), args.handle.toLowerCase()),
+                    q.eq(q.field("authorSlug"), args.authorSlug),
                     q.eq(q.field("isPublished"), true)
                 )
             )

@@ -12,15 +12,15 @@ const MotionLink = motion(Link)
 
 interface HomepageProps {
   params: {
-    handle: string;
+    authorSlug: string;
   };
 }
 
 export default function BlogHomepage({ params }: HomepageProps) {
-  const { handle } = params;
+  const { authorSlug } = params;
   
   const profile = useQuery(api.profiles.getByAuthorSlug, { 
-    handle: decodeURIComponent(handle).toLowerCase()
+    authorSlug: decodeURIComponent(authorSlug)
   });
   
   const documents = useQuery(

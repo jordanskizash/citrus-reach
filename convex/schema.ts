@@ -24,6 +24,7 @@ export default defineSchema ({
         authorFullName: v.optional(v.string()),
         bio: v.optional(v.string()),
         handle: v.optional(v.string()),
+        authorSlug: v.optional(v.string()),
         description: v.optional(v.string()),
         videoUrl: v.optional(v.string()),
         videoDescription: v.optional(v.string()),

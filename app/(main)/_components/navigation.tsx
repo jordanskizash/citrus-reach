@@ -123,15 +123,11 @@ export const Navigation = () => {
     }
 
     const handlecreateProfile = async () => {
-        // Generate a unique handle using timestamp
-        const timestamp = Date.now().toString().slice(-4);
-        const handle = "profile-" + timestamp; // This ensures uniqueness
-    
-        const promise = createProf({ 
+        const promise = createProf({
             displayName: "Untitled",
-            handle: handle.toLowerCase() // Required field, ensure lowercase for consistency
+            authorFullName: "Untitled" // Instead of handle
         });
-    
+        
         toast
             .promise(promise, {
                 loading: "Creating a new profile...",
