@@ -123,18 +123,25 @@ export const Navigation = () => {
     }
 
     const handlecreateProfile = async () => {
-        const promise = createProf({ displayName: "Untitled" });
-
+        // Generate a unique handle using timestamp
+        const timestamp = Date.now().toString().slice(-4);
+        const handle = "profile-" + timestamp; // This ensures uniqueness
+    
+        const promise = createProf({ 
+            displayName: "Untitled",
+            handle: handle.toLowerCase() // Required field, ensure lowercase for consistency
+        });
+    
         toast
-          .promise(promise, {
-            loading: "Creating a new profile...",
-            success: "New profile created!",
-            error: "Failed to create new profile.",
-          })
-          .then((profileId) => {
-            router.push(`/profiles/${profileId}`);
-          });
-      };
+            .promise(promise, {
+                loading: "Creating a new profile...",
+                success: "New profile created!",
+                error: "Failed to create new profile.",
+            })
+            .then((profileId) => {
+                router.push(`/profiles/${profileId}`);
+            });
+    };
 
 
     const handleCreate = () => {
