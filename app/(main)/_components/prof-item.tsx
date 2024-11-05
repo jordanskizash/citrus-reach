@@ -82,20 +82,29 @@ export const ProfItem = ({
   ) => {
     event.stopPropagation();
     if (!id) return;
-    const promise = create({ displayName: "Untitled", bio: "This One Works" })
-      .then((profileId) => {
+    
+    // Generate a unique handle using timestamp
+    const timestamp = Date.now().toString().slice(-4);
+    const handle = "profile-" + timestamp; // This ensures uniqueness
+
+    const promise = create({ 
+        displayName: "Untitled", 
+        bio: "This One Works",
+        handle: handle.toLowerCase() // Required field, ensure lowercase for consistency
+    })
+    .then((profileId) => {
         if (!expanded) {
-          onExpand?.();
+            onExpand?.();
         }
         router.push(`/profiles/${profileId}`);
-      });
+    });
 
     toast.promise(promise, {
-      loading: "Creating a new profile...",
-      success: "New profile created!",
-      error: "Failed to create a new profile.",
+        loading: "Creating a new profile...",
+        success: "New profile created!",
+        error: "Failed to create a new profile.",
     });
-  };
+};
 
   const ChevronIcon = expanded ? ChevronDown : ChevronRight;
 
