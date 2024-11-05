@@ -20,6 +20,7 @@ export default function Catcher() {
               alt="Platform dashboard showing event setup interface"
               width={300}
               height={200}
+              className="mx-auto"
               
             />
           </div>
@@ -56,13 +57,13 @@ export default function Catcher() {
               Make it easy for prospects to book meetings or reply by linking your calendar and email.
             </p>
           </div>
-          <div className="mt-8 justify-center max-h-10 mb-4">
+          <div className="mt-8 justify-center max-h-12 mb-4">
             <Image
               src="/meetinglink.png"
               alt="Team members collaborating and smiling"
               width={300}
               height={100}
-              className="rounded-lg"
+              className="rounded-lg mx-auto"
             />
           </div>
         </div>

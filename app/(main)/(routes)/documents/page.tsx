@@ -42,7 +42,9 @@ const DocumentsPage = () => {
     };
 
     const onCreateProfile = () => {
-      const promise = createProf({ displayName: "JSTEIN", bio:"Hello Mates"}) // Adjust parameters as needed for profile creation
+      const timestamp = Date.now().toString().slice(-4);
+      const handle = "jstein-" + timestamp;
+      const promise = createProf({ displayName: "JSTEIN", bio:"Hello Mates", handle: handle.toLowerCase()}) // Adjust parameters as needed for profile creation
           .then((profileId) => router.push(`/profiles/${profileId}`)) // Make sure the route matches your Next.js file structure
   
       toast.promise(promise, {
