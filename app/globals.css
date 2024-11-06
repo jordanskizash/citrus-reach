@@ -168,3 +168,8 @@
     animation: dropdownClose 0.4s ease-in forwards;
     transform-origin: top;
   }
+
+  ::selection {
+    background-color: #ff9900; /* Light orange */
+    color: #ffff; /* Optional: Set the text color to contrast the selection */
+}

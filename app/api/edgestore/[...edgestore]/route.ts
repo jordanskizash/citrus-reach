@@ -7,10 +7,10 @@ const es = initEdgeStore.create();
  * This is the main router for the Edge Store buckets.
  */
 const edgeStoreRouter = es.router({
-  publicFiles: es.fileBucket({
-    accept: ['video/*'],
-    maxSize: 512 * 1024 * 1024, // 512MB
-  })
+  publicFiles: es.fileBucket()
+    .beforeDelete(() => {
+      return true; // allow delete
+  }),
 });
  
 const handler = createEdgeStoreNextHandler({

@@ -135,7 +135,7 @@ const ExamplesDropdown = () => {
             )}
             style={{
               top: 'calc(100% + 1px)',
-              marginTop: '3px',
+              marginTop: '2px',
               width: '120vw',
               marginLeft: '50%',
               transform: 'translateX(-50%)',
