@@ -44,36 +44,64 @@ export async function generateMetadata({ params }: ProfileParams): Promise<Metad
             width: 1280,
             height: 720,
             type: 'video/mp4',
+            secureUrl: profile.videoUrl,
           },
         ],
-        // Use video thumbnail if available, fallback to other images
+        // Always include video thumbnail for better preview support
         images: [
           {
             url: profile.videoThumbnail || profile.icon || '/acme.png',
             width: 1280,
             height: 720,
             alt: `${profile.displayName}'s video preview`,
+            secureUrl: profile.videoThumbnail || profile.icon || '/acme.png',
           },
         ],
       };
 
+      // Enhanced metadata for better video preview support
       metadata.other = {
+        // Basic video metadata
         'og:video': profile.videoUrl,
         'og:video:secure_url': profile.videoUrl,
         'og:video:type': 'video/mp4',
         'og:video:width': '1280',
         'og:video:height': '720',
         'og:type': 'video.other',
+        
+        // Enhanced video preview metadata
         'og:image': profile.videoThumbnail || profile.icon || '/acme.png',
         'og:image:secure_url': profile.videoThumbnail || profile.icon || '/acme.png',
+        'og:image:width': '1280',
+        'og:image:height': '720',
+        'og:image:type': 'image/jpeg',
+        
+        // Video player specific metadata
+        'og:video:duration': '300', // Optional: Add actual duration if available
+        'og:video:release_date': new Date().toISOString(),
+        
+        // Additional metadata for better platform support
+        'theme-color': '#ffffff',
+        'twitter:player': profile.videoUrl,
+        'twitter:player:width': '1280',
+        'twitter:player:height': '720',
       };
 
-      // Use summary_large_image for Twitter with the video thumbnail
+      // Enhanced Twitter card metadata
       metadata.twitter = {
-        card: 'summary_large_image',
+        card: 'player',
+        site: '@YourTwitterHandle', // Replace with your actual Twitter handle
         title: `Custom profile for ${profile.displayName}`,
         description: profile.description || profile.bio || `Check out ${profile.displayName}'s profile`,
         images: [profile.videoThumbnail || profile.icon || '/acme.png'],
+        players: [
+          {
+            playerUrl: profile.videoUrl,
+            streamUrl: profile.videoUrl, // Added streamUrl as required by TwitterPlayerDescriptor
+            width: 1280,
+            height: 720
+          }
+        ]
       };
     } else {
       // Fallback to regular image metadata if no video

@@ -17,7 +17,7 @@ export const Heading = () => {
   return (
     <div className="w-full">
       {/* Desktop Announcement Banner */}
-      <div className="hidden sm:flex max-w-3xl mx-auto border border-black rounded-lg mb-12 p-4 items-center justify-center gap-1">
+      <div className="hidden sm:flex max-w-7xl mx-auto border border-black rounded-lg mb-12 p-4 items-center justify-center gap-1">
         <p className="text-lg">
           Citrus is now live!{" "}
           <Link href="#" className="text-orange-500 hover:text-orange-600">
@@ -50,10 +50,10 @@ export const Heading = () => {
       <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-6">
         <div className="flex flex-col">
           <div className="flex-1 max-w-5xl">
-            <h1 className="text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold tracking-tight text-left leading-tight">
+            <h1 className="text-5xl md:text-7xl lg:text-8xl xl:text-8xl font-bold tracking-tight text-left leading-tight">
               Microsites that reach
             </h1>
-            <div className="mt-4 text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold tracking-tight text-left text-orange-500">
+            <div className="mt-4 text-5xl md:text-7xl lg:text-7xl xl:text-8xl font-bold tracking-tight text-left text-orange-500">
               <Typewriter
                 options={{
                   strings: [

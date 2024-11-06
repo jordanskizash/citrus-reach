@@ -9,6 +9,11 @@ import { useEdgeStore } from "@/lib/edgestore"
 import { Button } from "@/components/ui/button"
 import { Camera, Upload } from "lucide-react"
 
+// Add TypeScript interfaces for MediaRecorder events
+interface MediaRecorderDataAvailableEvent extends Event {
+  data: Blob;
+}
+
 const MediaRecorder = dynamic(
   () => import("react-media-recorder").then((mod) => mod.ReactMediaRecorder),
   { ssr: false }
@@ -25,6 +30,7 @@ export default function VideoRecorder({ profileId, videoUrl, onVideoUpload }: Vi
   const [isClient, setIsClient] = useState(false)
   const [previewStream, setPreviewStream] = useState<MediaStream | null>(null)
   const [shouldStartRecording, setShouldStartRecording] = useState<boolean>(false)
+  const [isProcessing, setIsProcessing] = useState(false)
 
   const startRecordingRef = useRef<(() => void) | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -32,10 +38,90 @@ export default function VideoRecorder({ profileId, videoUrl, onVideoUpload }: Vi
   const updateProfileVideoUrl = useMutation(api.profiles.updateVideoUrl)
   const { edgestore } = useEdgeStore()
 
-  const handleUpload = async (file: File) => {
-    const response = await edgestore.publicFiles.upload({ file })
-    return response.url
+  // Function to convert video to MP4 format
+  const convertToMP4 = async (blob: Blob): Promise<Blob> => {
+    return new Promise((resolve, reject) => {
+      try {
+        // Create video element to check format
+        const video = document.createElement('video')
+        video.preload = 'metadata'
+        
+        video.onloadedmetadata = () => {
+          // If video is already MP4, return as is
+          if (blob.type === 'video/mp4') {
+            resolve(blob)
+            return
+          }
+
+          // Create canvas and MediaRecorder for conversion
+          const canvas = document.createElement('canvas')
+          const ctx = canvas.getContext('2d')
+          if (!ctx) {
+            reject(new Error('Failed to get canvas context'))
+            return
+          }
+
+          canvas.width = video.videoWidth
+          canvas.height = video.videoHeight
+
+          const stream = canvas.captureStream()
+          
+          // Use the Web MediaRecorder API directly with proper type
+          const recorder = new window.MediaRecorder(stream, {
+            mimeType: 'video/mp4; codecs="avc1.42E01E,mp4a.40.2"'
+          })
+
+          const chunks: Blob[] = []
+          recorder.ondataavailable = (e: MediaRecorderDataAvailableEvent) => chunks.push(e.data)
+          recorder.onstop = () => resolve(new Blob(chunks, { type: 'video/mp4' }))
+
+          video.onplay = () => {
+            const draw = () => {
+              if (video.paused || video.ended) return
+              ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
+              requestAnimationFrame(draw)
+            }
+            draw()
+            recorder.start()
+          }
+
+          video.onended = () => recorder.stop()
+          video.play()
+        }
+
+        video.src = URL.createObjectURL(blob)
+      } catch (error) {
+        console.error('Error converting video:', error)
+        // If conversion fails, return original blob
+        resolve(blob)
+      }
+    })
   }
+
+  const handleUpload = async (file: File) => {
+    setIsProcessing(true);
+    try {
+      // Convert video to MP4 if needed
+      const videoBlob = await convertToMP4(file);
+      
+      // Create new File with MP4 extension
+      const processedFile = new File([videoBlob], 'video.mp4', {
+        type: 'video/mp4'
+      });
+  
+      // Upload with EdgeStore's supported options
+      const response = await edgestore.publicFiles.upload({
+        file: processedFile,
+        options: {
+          temporary: false
+        }
+      });
+  
+      return response.url;
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
   const handleDeleteVideo = async () => {
     if (!currentVideoUrl) return
@@ -53,7 +139,11 @@ export default function VideoRecorder({ profileId, videoUrl, onVideoUpload }: Vi
   const handleStartPreview = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: true,
+        video: {
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+          frameRate: { ideal: 30 }
+        },
         audio: true,
       })
       setPreviewStream(stream)
@@ -114,11 +204,22 @@ export default function VideoRecorder({ profileId, videoUrl, onVideoUpload }: Vi
 
   return (
     <div className="w-full">
+      {isProcessing && (
+        <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-50 rounded-lg">
+          <div className="bg-white p-4 rounded-lg flex items-center space-x-2">
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-900"></div>
+            <span>Processing video...</span>
+          </div>
+        </div>
+      )}
+      
       {currentVideoUrl ? (
         <div className="relative">
           <video
             className="w-full h-[512px] rounded-lg object-cover"
             controls
+            playsInline
+            preload="auto"
             src={currentVideoUrl}
           />
           <div className="absolute top-4 right-4 flex space-x-2">
@@ -148,13 +249,17 @@ export default function VideoRecorder({ profileId, videoUrl, onVideoUpload }: Vi
                     type="file"
                     ref={fileInputRef}
                     onChange={handleFileUpload}
-                    accept="video/*"
+                    accept="video/mp4,video/quicktime,video/webm"
                     className="hidden"
                   />
                 </div>
               ) : (
                 <MediaRecorder
-                  video
+                  video={{
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 },
+                    frameRate: { ideal: 30 }
+                  }}
                   audio
                   customMediaStream={previewStream}
                   render={({
@@ -174,6 +279,7 @@ export default function VideoRecorder({ profileId, videoUrl, onVideoUpload }: Vi
                           <video
                             className="w-full h-full rounded-lg object-cover"
                             autoPlay
+                            playsInline
                             muted
                             ref={(videoElement) => {
                               if (videoElement) {
@@ -211,6 +317,8 @@ export default function VideoRecorder({ profileId, videoUrl, onVideoUpload }: Vi
                             <video
                               className="w-full h-full rounded-lg object-cover"
                               controls
+                              playsInline
+                              preload="auto"
                               src={mediaBlobUrl}
                             />
                             <div className="absolute top-4 right-4">
@@ -220,8 +328,8 @@ export default function VideoRecorder({ profileId, videoUrl, onVideoUpload }: Vi
                                     const blob = await fetch(mediaBlobUrl).then((res) =>
                                       res.blob()
                                     )
-                                    const file = new File([blob], "recorded-video.webm", {
-                                      type: blob.type,
+                                    const file = new File([blob], "recorded-video.mp4", {
+                                      type: 'video/mp4'
                                     })
                                     const newVideoUrl = await handleUpload(file)
                                     await updateProfileVideoUrl({
