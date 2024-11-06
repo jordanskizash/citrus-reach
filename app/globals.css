@@ -171,5 +171,11 @@
 
   ::selection {
     background-color: #ff9900; /* Light orange */
-    color: #ffff; /* Optional: Set the text color to contrast the selection */
+    color: #000000; /* Optional: Set the text color to contrast the selection */
+}
+
+.editor-container a {
+  text-decoration: underline;
+  cursor: pointer;
+  color: #ff9900;
 }
