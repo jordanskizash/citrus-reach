@@ -139,7 +139,7 @@ const ExamplesDropdown = () => {
   const featuredPost = {
     title: "Citrus Pulp: November 2024",
     description: "Check out our latest product updates and improvements",
-    image: "/oranges.jpg",
+    image: "/oranges.png",
     href: "#",
     label: "New Blog Post"
   }
