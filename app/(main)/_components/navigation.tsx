@@ -201,9 +201,9 @@ export const Navigation = () => {
                         onClick={search.onOpen}
                     />
                     <Item
-                        label="Settings" 
+                        label="Settings"
                         icon={Settings}
-                        onClick={settings.onOpen}
+                        onClick={() => window.location.href = '/settings'}
                     />
                     <Item
                         onClick={handleCreate} 

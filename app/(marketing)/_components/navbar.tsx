@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import Image from "next/image"
 import { useConvexAuth } from "convex/react"
 import { SignInButton, UserButton } from "@clerk/clerk-react"
 import { Menu, ChevronDown } from "lucide-react"
@@ -13,10 +14,22 @@ import { Logo } from "./logo"
 import { Spinner } from "@/components/spinner"
 import { useScrollTop } from "@/hooks/use-scroll-top"
 
-// ... (keeping NavItemsProps interface and NavItems component the same)
 interface NavItemsProps {
   isAuthenticated: boolean;
   isLoading: boolean;
+}
+
+interface ExampleItem {
+  title: string
+  description: string
+  logo: string
+  hoverLogo: string
+  href: string
+}
+
+interface ExampleSection {
+  title: string
+  items: ExampleItem[]
 }
 
 const NavItems: React.FC<NavItemsProps> = ({ isAuthenticated, isLoading }) => (
@@ -65,36 +78,71 @@ const NavItems: React.FC<NavItemsProps> = ({ isAuthenticated, isLoading }) => (
   </>
 )
 
-
 const ExamplesDropdown = () => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false)
 
-  const items = [
+  const sections: ExampleSection[] = [
     {
-      section: "YOUR FORMAT",
+      title: "ANY FORMAT",
       items: [
-        { icon: "🎯", title: "In-Person Events", description: "Create engaging face-to-face experiences" },
-        { icon: "💻", title: "Virtual Events", description: "Host immersive online gatherings" },
-        { icon: "🔄", title: "Hybrid Events", description: "Blend physical and digital experiences" }
+        {
+          title: "Blog Pages",
+          description: "Create engaging face-to-face experiences",
+          logo: "/bloggray.png",
+          hoverLogo: "/blogorange.png",
+          href: "#"
+        },
+        {
+          title: "Video Sites",
+          description: "Host immersive online gatherings",
+          logo: "/cameragray.png",
+          hoverLogo: "/cameraorange.png",
+          href: "#"
+        },
+        {
+          title: "Hybrid Events",
+          description: "Blend physical and digital experiences",
+          logo: "/calendargray.png",
+          hoverLogo: "/calendarorange.png",
+          href: "#"
+        }
       ]
     },
     {
-      section: "YOUR BUSINESS",
+      title: "INTEGRATIONS",
       items: [
-        { icon: "🏢", title: "Enterprise", description: "Solutions for large organizations" },
-        { icon: "💻", title: "Technology", description: "Digital-first event experiences" },
-        { icon: "🛍️", title: "Retail", description: "Engage customers and drive sales" }
-      ]
-    },
-    {
-      section: "YOUR EVENTS",
-      items: [
-        { icon: "🎤", title: "Conferences", description: "Large-scale professional gatherings" },
-        { icon: "📺", title: "Webinars", description: "Online educational sessions" },
-        { icon: "📣", title: "Field Marketing", description: "Local and regional events" }
+        {
+          title: "Cloud Storage",
+          description: "Connect with google drive, box, seismic and more ",
+          logo: "/cloudgray.png",
+          hoverLogo: "/cloudorange.png",
+          href: "#"
+        },
+        {
+          title: "CRM",
+          description: "Connect to salesforce, hubspot or your custom CRM",
+          logo: "/messagegray.png",
+          hoverLogo: "/messageorange.png",
+          href: "#"
+        },
+        {
+          title: "Your Website",
+          description: "Connect any custom domain to your sites.",
+          logo: "/browsergray.png",
+          hoverLogo: "/browserorange.png",
+          href: "#"
+        }
       ]
     }
-  ];
+  ]
+
+  const featuredPost = {
+    title: "Citrus Pulp: November 2024",
+    description: "Check out our latest product updates and improvements",
+    image: "/oranges.jpg",
+    href: "#",
+    label: "New Blog Post"
+  }
 
   return (
     <div 
@@ -121,52 +169,121 @@ const ExamplesDropdown = () => {
       
       {isOpen && (
         <>
-          {/* Semi-transparent overlay */}
           <div 
             className="fixed inset-x-0 top-16 h-screen bg-black/5 z-40"
             onClick={() => setIsOpen(false)}
           />
           
-          {/* Dropdown container */}
           <div 
             className={cn(
-              "absolute left-0 right-0 border-b border-black bg-white origin-top z-50",
+              "absolute inset-x-0 top-full border-b border-black bg-white origin-top z-50 transition-all duration-500 ease-out",
               isOpen ? "animate-dropdown-open" : "animate-dropdown-close"
             )}
             style={{
-              top: 'calc(100% + 1px)',
-              marginTop: '2px',
               width: '120vw',
               marginLeft: '50%',
               transform: 'translateX(-50%)',
             }}
           >
-            {/* Content wrapper for max-width constraint */}
             <div className="w-full px-4 md:px-6 py-6">
               <div className="max-w-[1400px] mx-auto">
-                <div className="grid grid-cols-3 gap-8">
-                  {items.map((section) => (
-                    <div key={section.section}>
-                      <h3 className="text-sm font-semibold text-gray-400 mb-4">{section.section}</h3>
-                      <div className="space-y-4">
-                        {section.items.map((item) => (
-                          <Link 
-                            href="#" 
+                <div className="grid grid-cols-12 gap-8">
+                  <div className="col-span-4 -ml-4">
+                    <div className="space-y-6">
+                      <h3 className="font-semibold text-sm text-muted-foreground">{sections[0].title}</h3>
+                      <div className="grid gap-4">
+                        {sections[0].items.map((item) => (
+                          <Link
                             key={item.title}
-                            className="group flex items-start p-3 rounded-lg hover:bg-gray-50 transition-colors"
+                            href={item.href}
+                            className="group grid grid-cols-[auto,1fr] gap-4 p-3 rounded-lg hover:bg-muted"
                           >
-                            <span className="text-2xl mr-3">{item.icon}</span>
+                            <div className="relative size-10">
+                              <Image
+                                src={item.logo}
+                                alt=""
+                                className="size-full object-contain group-hover:opacity-0 transition-opacity"
+                                width={40}
+                                height={40}
+                              />
+                              <Image
+                                src={item.hoverLogo}
+                                alt=""
+                                className="absolute inset-0 size-full object-contain opacity-0 group-hover:opacity-100 transition-opacity"
+                                width={40}
+                                height={40}
+                              />
+                            </div>
                             <div>
-                              <h4 className="text-sm font-medium text-gray-900 group-hover:text-orange-500 transition-colors">
-                                {item.title}
-                              </h4>
-                              <p className="text-sm text-gray-500 mt-1">{item.description}</p>
+                              <h4 className="font-medium text-base">{item.title}</h4>
+                              <p className="text-sm text-muted-foreground">{item.description}</p>
                             </div>
                           </Link>
                         ))}
                       </div>
                     </div>
-                  ))}
+                  </div>
+                  
+                  <div className="col-span-4 -ml-4">
+                    <div className="space-y-6">
+                      <h3 className="font-semibold text-sm text-muted-foreground">{sections[1].title}</h3>
+                      <div className="grid gap-4">
+                        {sections[1].items.map((item) => (
+                          <Link
+                            key={item.title}
+                            href={item.href}
+                            className="group grid grid-cols-[auto,1fr] gap-4 p-3 rounded-lg hover:bg-muted"
+                          >
+                            <div className="relative size-10">
+                              <Image
+                                src={item.logo}
+                                alt=""
+                                className="size-full object-contain group-hover:opacity-0 transition-opacity"
+                                width={40}
+                                height={40}
+                              />
+                              <Image
+                                src={item.hoverLogo}
+                                alt=""
+                                className="absolute inset-0 size-full object-contain opacity-0 group-hover:opacity-100 transition-opacity"
+                                width={40}
+                                height={40}
+                              />
+                            </div>
+                            <div>
+                              <h4 className="font-medium text-base">{item.title}</h4>
+                              <p className="text-sm text-muted-foreground">{item.description}</p>
+                            </div>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="col-span-3 border-l pl-6 -ml-6">
+                    <div className="space-y-4">
+                      <div className="text-sm font-medium text-primary rounded-full w-fit px-3 py-1 bg-primary/10">
+                        {featuredPost.label}
+                      </div>
+                      <Link href={featuredPost.href} className="group block space-y-4">
+                        <div className="aspect-[4/3] overflow-hidden rounded-lg w-[280px]">
+                          <Image
+                            src={featuredPost.image}
+                            alt=""
+                            width={280}
+                            height={210}
+                            className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
+                          />
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-semibold group-hover:text-primary transition-colors">
+                            {featuredPost.title}
+                          </h3>
+                          <p className="text-sm text-muted-foreground">{featuredPost.description}</p>
+                        </div>
+                      </Link>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
