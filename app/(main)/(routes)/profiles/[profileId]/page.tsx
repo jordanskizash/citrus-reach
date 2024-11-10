@@ -26,15 +26,18 @@ import { useUser } from "@clerk/clerk-react";
 import { Spinner } from "@/components/spinner";
 import FormattingSidebar from '@/components/formatting-sidebar';
 import { useTheme } from 'next-themes';
-import { Document, Page, pdfjs } from 'react-pdf';
+import { Document, Page } from 'react-pdf';
 import { useEdgeStore } from '@/lib/edgestore';
 import Image from 'next/image';
 import { ProfileDescription } from "@/app/(main)/_components/prof-description";
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
+import * as pdfjsLib from 'pdfjs-dist';
+import 'pdfjs-dist/web/pdf_viewer.css';
+import PdfViewer from "@/app/(main)/_components/pdf-viewer";
 
 
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+
 
 interface ProfileIdPageProps {
   params: {
@@ -57,7 +60,7 @@ const PdfThumbnail = ({ url }: { url: string }) => {
     <div className="h-40 overflow-hidden border rounded mb-2">
       <Document
         file={url}
-        onLoadError={(error) => {
+        onLoadError={(error: Error) => {
           console.error('Error loading PDF thumbnail:', error);
           setError('Failed to load preview');
         }}
@@ -72,11 +75,6 @@ const PdfThumbnail = ({ url }: { url: string }) => {
           width={200}
           renderTextLayer={false}
           renderAnnotationLayer={false}
-          loading={
-            <div className="h-full flex items-center justify-center">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900" />
-            </div>
-          }
         />
       </Document>
       {error && (
@@ -89,94 +87,104 @@ const PdfThumbnail = ({ url }: { url: string }) => {
 };
 
 
-const PdfPreview = ({ file, onClose }: { file: { name: string; url: string }, onClose: () => void }) => {
-  const [numPages, setNumPages] = useState<number>(0);
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const [scale, setScale] = useState<number>(1.0);
-  const [error, setError] = useState<string | null>(null);
+// const PdfPreview = ({ file, onClose }: { file: { name: string; url: string }, onClose: () => void }) => {
+//   const [pdfDocument, setPdfDocument] = useState<pdfjsLib.PDFDocumentProxy | null>(null);
+//   const [currentPage, setCurrentPage] = useState(1);
+//   const [scale, setScale] = useState(1.0);
+//   const [error, setError] = useState<string | null>(null);
 
-  const handleLoadSuccess = ({ numPages }: { numPages: number }) => {
-    setNumPages(numPages);
-  };
+//   useEffect(() => {
+//     pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
-  const handleLoadError = (error: Error) => {
-    console.error('Error loading PDF:', error);
-    setError('Failed to load PDF');
-  };
+//     const loadPdf = async () => {
+//       try {
+//         const pdf = await pdfjsLib.getDocument(file.url).promise;
+//         setPdfDocument(pdf);
+//       } catch (error) {
+//         console.error('Error loading PDF:', error);
+//         setError('Failed to load PDF');
+//       }
+//     };
 
-  return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold">{file.name}</h2>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setScale(prev => Math.max(0.5, prev - 0.1))}
-                className="px-2 py-1 bg-gray-100 rounded"
-              >
-                -
-              </button>
-              <span className="mx-2">{Math.round(scale * 100)}%</span>
-              <button
-                onClick={() => setScale(prev => Math.min(2, prev + 0.1))}
-                className="px-2 py-1 bg-gray-100 rounded"
-              >
-                +
-              </button>
-            </div>
-            <Button variant="ghost" size="sm" onClick={onClose}>
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
+//     loadPdf();
+//   }, [file.url]);
 
-        {error ? (
-          <div className="text-red-500 text-center p-4">
-            {error}
-          </div>
-        ) : (
-          <Document
-            file={file.url}
-            onLoadSuccess={handleLoadSuccess}
-            onLoadError={handleLoadError}
-            loading={
-              <div className="flex items-center justify-center p-12">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
-              </div>
-            }
-          >
-            {Array.from(new Array(numPages), (el, index) => (
-              <div key={`page_${index + 1}`} className="mb-4">
-                <Page
-                  pageNumber={index + 1}
-                  scale={scale}
-                  renderTextLayer={false}
-                  renderAnnotationLayer={false}
-                  loading={
-                    <div className="flex items-center justify-center p-4">
-                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900" />
-                    </div>
-                  }
-                />
-                <p className="text-center text-sm text-gray-500 mt-2">
-                  Page {index + 1} of {numPages}
-                </p>
-              </div>
-            ))}
-          </Document>
-        )}
-      </div>
-    </div>
-  );
-};
+//   return (
+//     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+//       <div className="bg-white p-6 rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+//         <div className="flex justify-between items-center mb-4">
+//           <h2 className="text-xl font-bold">{file.name}</h2>
+//           <div className="flex items-center gap-4">
+//             <div className="flex items-center gap-2">
+//               <button
+//                 onClick={() => setScale(prev => Math.max(0.5, prev - 0.1))}
+//                 className="px-2 py-1 bg-gray-100 rounded"
+//               >
+//                 -
+//               </button>
+//               <span className="mx-2">{Math.round(scale * 100)}%</span>
+//               <button
+//                 onClick={() => setScale(prev => Math.min(2, prev + 0.1))}
+//                 className="px-2 py-1 bg-gray-100 rounded"
+//               >
+//                 +
+//               </button>
+//             </div>
+//             <Button variant="ghost" size="sm" onClick={onClose}>
+//               <X className="h-4 w-4" />
+//             </Button>
+//           </div>
+//         </div>
+
+//         {error ? (
+//           <div className="text-red-500 text-center p-4">
+//             {error}
+//           </div>
+//         ) : (
+//           <div>
+//             {pdfDocument && (
+//               <div>
+//                 {Array.from(new Array(pdfDocument.numPages), (el, index) => (
+//                   <div key={`page_${index + 1}`} className="mb-4">
+//                     <canvas
+//                       className="w-full"
+//                       ref={(ref) => {
+//                         if (ref) {
+//                           pdfDocument.getPage(index + 1).then((page) => {
+//                             const viewport = page.getViewport({ scale });
+//                             ref.width = viewport.width;
+//                             ref.height = viewport.height;
+//                             page.render({ canvasContext: ref.getContext('2d') as CanvasRenderingContext2D, viewport });
+//                           });
+//                         }
+//                       }}
+//                     />
+//                     <p className="text-center text-sm text-gray-500 mt-2">
+//                       Page {index + 1} of {pdfDocument.numPages}
+//                     </p>
+//                   </div>
+//                 ))}
+//               </div>
+//             )}
+
+//             {!pdfDocument && (
+//               <div className="flex items-center justify-center p-12">
+//                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
+//               </div>
+//             )}
+//           </div>
+//         )}
+//       </div>
+//     </div>
+//   );
+// };
 
 export default function ProfileIdPage({ params }: ProfileIdPageProps) {
   const { user } = useUser();
   const documents = useQuery(api.documents.getPublishedDocuments);
   const latestDocuments = documents ? documents.slice(0, 6) : [];
 
-  const Editor = useMemo(
+ const Editor = useMemo(
     () => dynamic(() => import("@/components/editor"), { ssr: false }),
     []
   );
@@ -566,6 +574,7 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
         </Dialog>
 
         {/* Additional Resources Section */}
+        <PdfViewer files={pdfFiles} onDelete={handlePdfDelete} />
         {showAdditionalResources ? (
           <div className="w-full mt-8">
             <div className="flex justify-between items-center  mb-6">
@@ -653,10 +662,10 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
                 <DialogTitle>{pdfFiles.find(file => file.url === selectedPdf)?.name}</DialogTitle>
               </DialogHeader>
               <div className="mt-4 h-[600px] overflow-y-auto">
-                <Document
-                  file={selectedPdf}
-                  onLoadSuccess={({ numPages }) => console.log(numPages)}
-                >
+              <Document
+                file={selectedPdf}
+                onLoadSuccess={({ numPages }: { numPages: number }) => console.log(numPages)}
+              >
                   <Page pageNumber={1} width={500} />
                 </Document>
               </div>
