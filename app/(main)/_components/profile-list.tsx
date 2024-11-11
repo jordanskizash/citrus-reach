@@ -18,94 +18,80 @@ interface ProfileListProps {
 
 export const ProfileList = ({
   parentProfileId,
-  level = 0,
+  level = 0
 }: ProfileListProps) => {
   const params = useParams();
   const router = useRouter();
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
-  const createProfile = useMutation(api.profiles.create);
-
-  const onExpand = (profileId: string) => {
-    setExpanded((prevExpanded) => ({
-      ...prevExpanded,
-      [profileId]: !prevExpanded[profileId],
-    }));
-  };
-
   const profiles = useQuery(api.profiles.getSidebar, {
-    parentProfile: parentProfileId,
+      parentProfile: parentProfileId
   });
 
-  const onRedirect = (profileId: string) => {
-    router.push(`/profiles/${profileId}`);
+  const onExpand = (profileId: string) => {
+      setExpanded(prevExpanded => ({
+          ...prevExpanded,
+          [profileId]: !prevExpanded[profileId]
+      }));
   };
 
-  const onCreateProfile = async () => {
-    const promise = createProfile({ 
-        displayName: "Untitled", 
-        bio: "Ello Mate",
-        authorFullName: "Untitled" // Instead of handle
-    });
-    
-    toast
-        .promise(promise, {
-            loading: "Creating a new profile...",
-            success: "New profile created!",
-            error: "Failed to create new profile.",
-        })
-        .then((profileId) => {
-            router.push(`/profiles/${profileId}`);
-        });
-};
+  const onRedirect = (profileId: string) => {
+      router.push(`/profiles/${profileId}`);
+  };
 
   if (profiles === undefined) {
-    return (
-      <>
-        <ProfItem.Skeleton level={level} />
-        {level === 0 && (
+      return (
           <>
-            <ProfItem.Skeleton level={level} />
-            <ProfItem.Skeleton level={level} />
+              <ProfItem.Skeleton level={level} />
+              {level === 0 && (
+                  <>
+                      <ProfItem.Skeleton level={level} />
+                      <ProfItem.Skeleton level={level} />
+                  </>
+              )}
           </>
-        )}
-      </>
-    );
+      );
   }
 
+  // Get height of first profile to set container height
+  const singleItemHeight = 27; // min-height from ProfItem component
+  const maxVisibleItems = 5;
+  const containerHeight = singleItemHeight * maxVisibleItems;
+
   return (
-    <>
-      <p
-        style={{
-          paddingLeft: level ? `${level * 12 + 25}px` : undefined,
-        }}
-        className={cn(
-          "hidden text-sm font-medium text-muted-foreground/80",
-          expanded && "last:block",
-          level === 0 && "hidden"
-        )}
-      >
-        No profiles inside
-      </p>
-      {profiles.map((profile) => (
-        <div key={profile._id} style={{ paddingLeft: `${level * 15}px` }}>
-          <ProfItem
-            id={profile._id}
-            onClick={() => onRedirect(profile._id)}
-            label={profile.displayName}
-            icon={UserIcon}
-            active={params.profileId === profile._id}
-            onExpand={() => onExpand(profile._id)}
-            expanded={expanded[profile._id]}
-          />
-          {expanded[profile._id] && (
-            <ProfileList
-              parentProfileId={profile._id}
-              level={level + 1}
-            />
-          )}
-        </div>
-      ))}
-    </>
+      <>
+          <div className="flex flex-col">
+              {profiles.length > 5 && (
+                  <div className="px-3 py-1 text-xs text-muted-foreground">
+                      Scroll for all {profiles.length} items
+                  </div>
+              )}
+              <div 
+                  className="overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600"
+                  style={{ maxHeight: `${containerHeight}px` }}
+              >
+                  {profiles.map((profile) => (
+                      <div key={profile._id}>
+                          <ProfItem
+                              id={profile._id}
+                              onClick={() => onRedirect(profile._id)}
+                              label={profile.displayName}
+                              icon={UserIcon}
+                              active={params.profileId === profile._id}
+                              level={level}
+                              onExpand={() => onExpand(profile._id)}
+                              expanded={expanded[profile._id]}
+                          />
+                          {expanded[profile._id] && (
+                              <ProfileList
+                                  parentProfileId={profile._id}
+                                  level={level + 1}
+                              />
+                          )}
+                      </div>
+                  ))}
+              </div>
+          </div>
+      </>
   );
 };

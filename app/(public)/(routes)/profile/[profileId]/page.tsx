@@ -5,7 +5,7 @@ import { api } from "@/convex/_generated/api";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import dynamic from "next/dynamic";
 import { ProfToolbar } from "@/components/profile-toolbar";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import VideoRecorder from "@/components/videoRecorder";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,6 +25,7 @@ import ReadOnlyVideo from "@/components/readOnlyVideo";
 import Image from "next/image";
 import { ProfileDescription } from "@/app/(main)/_components/prof-description";
 import { useUser } from "@clerk/clerk-react";
+import { event } from "@/lib/analytics";
 
 interface ProfileIdPageProps {
   params: {
@@ -59,6 +60,25 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
     profile ? { clerkId: profile.userId } : "skip"
   );
 
+  // Track page view with profile owner's ID
+  useEffect(() => {
+    if (profile) {
+      event({
+        action: 'profile_view',
+        category: 'profile',
+        label: profile.displayName || 'Unknown Profile',
+        userId: profile.userId, // This is the profile owner's ID
+        pageType: 'profile',
+        value: 1,
+        metadata: {
+          profileId: params.profileId,
+          viewerId: user?.id || 'anonymous', // Track who viewed it (optional)
+          viewTimestamp: new Date().toISOString()
+        }
+      });
+    }
+  }, [profile, params.profileId]);
+
   if (!profile || documents === undefined) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -92,7 +112,28 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
     setVideoKey((prevKey) => prevKey + 1);
   };
 
+  // Track interactions with profile owner's ID
+  const trackInteraction = (interactionType: string, additionalMetadata = {}) => {
+    if (profile) {
+      event({
+        action: interactionType,
+        category: 'profile_interaction',
+        label: profile.displayName || 'Unknown Profile',
+        userId: profile.userId, // Profile owner's ID
+        pageType: 'profile',
+        metadata: {
+          profileId: params.profileId,
+          viewerId: user?.id || 'anonymous',
+          interactionTimestamp: new Date().toISOString(),
+          ...additionalMetadata
+        }
+      });
+    }
+  };
+
+
   const handleShare = async () => {
+    trackInteraction('share_profile');
     if (navigator.share) {
       try {
         await navigator.share({
@@ -122,7 +163,7 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
 
   const getPostUrl = (post: Doc<'documents'>) => {
     // If slug is available, use it; otherwise, fallback to ID
-    return `/preview/${post.slug ?? post._id}`;
+    return `/blog/${post.slug ?? post._id}`;
   };
 
   return (

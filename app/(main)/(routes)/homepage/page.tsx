@@ -36,7 +36,7 @@ export default function BlogHomepage() {
       <div className="space-y-12">
       {pinnedPost && (
         <MotionLink 
-          href={`/preview/${pinnedPost._id}`}
+          href={`/blog/${pinnedPost._id}`}
           className="flex flex-col md:flex-row gap-6 mb-12 p-6 rounded-lg"
           whileHover={{ scale: 1.02 }}
           transition={{ type: "spring", stiffness: 300 }}
@@ -62,7 +62,7 @@ export default function BlogHomepage() {
         {otherPosts.map((post) => (
           <MotionLink 
             key={post._id}
-            href={`/preview/${post._id}`}
+            href={`/blog/${post._id}`}
             className="flex flex-col"
             whileHover={{ y: -5 }}
             transition={{ type: "spring", stiffness: 300 }}

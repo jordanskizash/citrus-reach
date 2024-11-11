@@ -42,7 +42,7 @@ export default function BlogPage() {
   // Helper function to get the post URL
   const getPostUrl = (post: Doc<'documents'>) => {
     // If slug is available, use it; otherwise, fallback to ID
-    return `/preview/${post.slug ?? post._id}`;
+    return `/blog/${post.slug ?? post._id}`;
   };
 
   return (

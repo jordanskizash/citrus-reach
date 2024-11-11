@@ -200,7 +200,7 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
 
   const getPostUrl = (post: Doc<'documents'>) => {
     // If slug is available, use it; otherwise, fallback to ID
-    return `/preview/${post.slug ?? post._id}`;
+    return `/blog/${post.slug ?? post._id}`;
   };
   
   // Retrieve user logo from user details, if available

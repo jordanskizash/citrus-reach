@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronsLeft, CirclePlusIcon, LineChart, MenuIcon, Plus, PlusCircle, Search, Settings, Trash } from "lucide-react";
+import { ChevronsLeft, CirclePlusIcon, CreditCard, LineChart, MenuIcon, Plus, PlusCircle, Search, Settings, Trash } from "lucide-react";
 import { ElementRef, useRef, useState, useEffect } from "react";
 import { useMediaQuery } from "usehooks-ts";
 import { useParams, usePathname, useRouter } from "next/navigation";
@@ -23,6 +23,7 @@ import { TrashBox } from "./trash-box";
 import { Navbar } from "./navbar";
 import { NavbarProfile } from "./navbarprof";
 import { EventList } from "./event-list";
+import { Button } from "@/components/ui/button";
 
 
 
@@ -151,6 +152,14 @@ export const Navigation = () => {
         })
     }
 
+    const handleUpgrade = () => {
+        // TODO: Implement Stripe integration
+        console.log("Upgrade account clicked");
+        toast.success("Redirecting to upgrade page...");
+        // Placeholder: Replace this with actual Stripe integration
+        // window.location.href = '/upgrade';
+    };
+
     const handleCreateEvent = () => {
         const promise = createEvent({ 
             title: "Untitled Event",
@@ -267,6 +276,15 @@ export const Navigation = () => {
                     onClick={resetWidth}
                     className="opacity-0 group-hover/sidebar:opacity-100 transition cursor-ew-resize absolute h-full w-1 bg-primary/10 right-0 top-0"
                 />
+                 <div className="mt-auto p-4">
+                    <Button
+                        onClick={handleUpgrade}
+                        className="w-full bg-orange-500 hover:bg-orange-600 text-white"
+                    >
+                        <CreditCard className="mr-2 h-4 w-4" />
+                        Upgrade Account
+                    </Button>
+                </div>
             </aside>
             <div
                 ref={navbarRef}

@@ -18,57 +18,61 @@ interface EventListProps {
 
 export const EventList = ({
   parentEventId,
-  level = 0,
+  level = 0
 }: EventListProps) => {
   const params = useParams();
   const router = useRouter();
-  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
   const events = useQuery(api.events.getSidebar);
 
   const onRedirect = (eventId: string) => {
-    router.push(`/events/${eventId}`);
+      router.push(`/events/${eventId}`);
   };
 
   if (events === undefined) {
-    return (
-      <>
-        <EventItem.Skeleton level={level} />
-        {level === 0 && (
+      return (
           <>
-            <EventItem.Skeleton level={level} />
-            <EventItem.Skeleton level={level} />
+              <EventItem.Skeleton level={level} />
+              {level === 0 && (
+                  <>
+                      <EventItem.Skeleton level={level} />
+                      <EventItem.Skeleton level={level} />
+                  </>
+              )}
           </>
-        )}
-      </>
-    );
+      );
   }
 
+  // Get height of first event to set container height
+  const singleItemHeight = 27; // min-height from EventItem component
+  const maxVisibleItems = 5;
+  const containerHeight = singleItemHeight * maxVisibleItems;
+
   return (
-    <>
-      <p
-        style={{
-          paddingLeft: level ? `${level * 12 + 25}px` : undefined,
-        }}
-        className={cn(
-          "hidden text-sm font-medium text-muted-foreground/80",
-          expanded && "last:block",
-          level === 0 && "hidden"
-        )}
-      >
-        No events
-      </p>
-      {events.map((event) => (
-        <div key={event._id}>
-          <EventItem
-            id={event._id}
-            onClick={() => onRedirect(event._id)}
-            label={event.title}
-            icon={CalendarDays}
-            active={params.eventId === event._id}
-          />
-        </div>
-      ))}
-    </>
+      <>
+          <div className="flex flex-col">
+              {events.length > 5 && (
+                  <div className="px-3 py-1 text-xs text-muted-foreground">
+                      Showing all {events.length} items
+                  </div>
+              )}
+              <div 
+                  className="overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600"
+                  style={{ maxHeight: `${containerHeight}px` }}
+              >
+                  {events.map((event) => (
+                      <EventItem
+                          key={event._id}
+                          id={event._id}
+                          onClick={() => onRedirect(event._id)}
+                          label={event.title}
+                          icon={CalendarDays}
+                          active={params.eventId === event._id}
+                          level={level}
+                      />
+                  ))}
+              </div>
+          </div>
+      </>
   );
 };

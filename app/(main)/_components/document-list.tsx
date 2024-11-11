@@ -16,6 +16,7 @@ interface DocumentListProps {
     data?: Doc<"documents">[];
 }
 
+// document-list.tsx
 export const DocumentList = ({
     parentDocumentId,
     level = 0
@@ -24,7 +25,9 @@ export const DocumentList = ({
     const router = useRouter();
     const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
-    const createDocument = useAction(api.documents.create);
+    const documents = useQuery(api.documents.getSidebar, {
+        parentDocument: parentDocumentId
+    });
 
     const onExpand = (documentId: string) => {
         setExpanded(prevExpanded => ({
@@ -33,25 +36,9 @@ export const DocumentList = ({
         }));
     };
 
-    const documents = useQuery(api.documents.getSidebar, {
-        parentDocument: parentDocumentId
-    });
-
     const onRedirect = (documentId: string) => {
         router.push(`/documents/${documentId}`);
     };
-
-    const onCreateBlog = async () => {
-        const promise = createDocument({ title: "Untitled" })
-        toast.promise(promise, {
-            loading: "Creating a new blog...",
-            success: "New blog created!",
-            error: "Failed to create new blog."
-        }).then((documentId) => {
-            router.push(`/documents/${documentId}`);
-        });
-
-    }
 
     if (documents === undefined) {
         return (
@@ -67,40 +54,46 @@ export const DocumentList = ({
         );
     };
 
+    // Get height of first document to set container height
+    const singleItemHeight = 27; // min-height from Item component
+    const maxVisibleItems = 5;
+    const containerHeight = singleItemHeight * maxVisibleItems;
+
     return (
         <>
-            <p
-                style={{
-                    paddingLeft: level ? `${(level * 12) + 25}px` : undefined
-                }}
-                className={cn(
-                    "hidden text-sm font-medium text-muted-foreground/80",
-                    expanded && "last:block",
-                    level === 0 && "hidden"
+            <div className="flex flex-col">
+                {documents.length > 5 && (
+                    <div className="px-3 py-1 text-xs text-muted-foreground">
+                        Scroll for all {documents.length} items
+                    </div>
                 )}
-            >
-                No pages inside
-            </p>
-            {documents.map((document) => (
-                <div key={document._id} style={{ paddingLeft: `${level * 15}px` }}>
-                    <Item 
-                        id={document._id}
-                        onClick={() => onRedirect(document._id)}
-                        label={document.title}
-                        icon={FileIcon} 
-                        documentIcon={document.icon}
-                        active={params.documentId === document._id}
-                        onExpand={() => onExpand(document._id)}
-                        expanded={expanded[document._id]}
-                    />
-                    {expanded[document._id] && (
-                        <DocumentList 
-                            parentDocumentId={document._id}
-                            level={level + 1}
-                        />
-                    )}
+                <div 
+                    className="overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600"
+                    style={{ maxHeight: `${containerHeight}px` }}
+                >
+                    {documents.map((document) => (
+                        <div key={document._id}>
+                            <Item
+                                id={document._id}
+                                onClick={() => onRedirect(document._id)}
+                                label={document.title}
+                                icon={FileIcon}
+                                documentIcon={document.icon}
+                                active={params.documentId === document._id}
+                                level={level}
+                                onExpand={() => onExpand(document._id)}
+                                expanded={expanded[document._id]}
+                            />
+                            {expanded[document._id] && (
+                                <DocumentList
+                                    parentDocumentId={document._id}
+                                    level={level + 1}
+                                />
+                            )}
+                        </div>
+                    ))}
                 </div>
-            ))}
+            </div>
         </>
-    )
-}
+    );
+};
