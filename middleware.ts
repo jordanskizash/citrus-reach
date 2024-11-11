@@ -1,4 +1,3 @@
-// middleware.ts
 import { authMiddleware } from "@clerk/nextjs";
  
 export default authMiddleware({
@@ -7,7 +6,9 @@ export default authMiddleware({
     "/sign-in(.*)",
     "/sign-up(.*)",
     "/api/webhook(.*)",
-    "/blog/(.*)",
+    "/blog",           // Base blog route
+    "/blog/(.*)",      // All nested blog routes
+    "/about",          // Adding about page
     "/preview/(.*)",
     "/homepage/(.*)",
     "/profile/(.*)"
