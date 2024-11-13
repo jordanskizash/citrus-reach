@@ -399,7 +399,7 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
               height={25}
               className="object-contain"
             />
-            <span className="text-2xl font-bold">x</span>
+            <span className="text-2xl font-bold text-black" >x</span>
             {/* Client Logo */}
             <Image
               src={clientLogo || "/acme.png"}
@@ -546,7 +546,13 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
               <Share2 className="mr-2 h-4 w-4" /> Share
             </Button>
 
-            <Button className="h-10 rounded-full text-sm" asChild>
+            <Button 
+              className="h-10 rounded-full text-sm" 
+              style={{
+                backgroundColor: profile.themeSettings?.accentColor || '#000000',
+                color: '#FFFFFF'
+              }}
+              asChild>
               <a
                 href={userDetails?.linkedin || "#"}
                 target="_blank"
@@ -578,7 +584,11 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
         {showAdditionalResources ? (
           <div className="w-full mt-8">
             <div className="flex justify-between items-center  mb-6">
-              <h2 className="text-2xl font-bold">Additional Resources</h2>
+              <h2 className="text-2xl font-bold"
+                style={{
+                  color: '#000000'
+                }}
+              >Additional Resources</h2>
               <div className="flex items-center">
                 {pdfFiles.length > 0 && (
                   <Button
@@ -676,7 +686,11 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
         {/* More from {user.firstName} Section */}
         {user && latestDocuments.length > 0 && (
           <div className="mt-12 w-full">
-            <h2 className="text-2xl font-bold mb-6">
+            <h2 className="text-2xl font-bold mb-6" 
+              style={{
+                color: '#000000'
+              }}
+            >
               More from {user.firstName}
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
@@ -698,7 +712,7 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
                   <p className="text-gray-500 text-sm mb-1">
                     {new Date(post._creationTime).toLocaleDateString()}
                   </p>
-                  <h3 className="text-xl font-semibold mb-1">{post.title}</h3>
+                  <h3 className="text-xl font-semibold mb-1 text-black">{post.title}</h3>
                   <p className="text-gray-600">
                     By {user?.fullName || "Unknown Author"}
                   </p>

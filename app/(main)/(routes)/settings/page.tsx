@@ -74,7 +74,7 @@ export default function SettingsPage() {
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               className="w-full max-w-[400px] pl-9"
-              placeholder="Search for people, tags, folders, Spaces, and Looms"
+              placeholder="Search for sites, folders, content and settings"
             />
           </div>
         </div>

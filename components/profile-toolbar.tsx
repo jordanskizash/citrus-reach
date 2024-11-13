@@ -58,12 +58,12 @@ export const ProfToolbar = ({ initialData, preview, editable = true }: ToolbarPr
           onKeyDown={onKeyDown}
           value={value}
           onChange={(e) => onInput(e.target.value)}
-          className="text-5xl bg-transparent font-bold break-words outline-none text-[#3F3F3F] dark:text-[#CFCFCF] max-w-4xl resize-none"
+          className="text-5xl bg-transparent font-bold break-words outline-none text-[#3F3F3F] dark:text-[#3F3F3F] max-w-4xl resize-none"
         />
       ) : (
         <div
           onClick={editable ? enableInput : undefined}
-          className={`pb-[11.5px] text-5xl font-bold break-words outline-none text-[#3F3F3F] dark:text-[#CFCFCF] relative group ${
+          className={`pb-[11.5px] text-5xl font-bold break-words outline-none text-[#3F3F3F] dark:text-[#3F3F3F] relative group ${
             editable ? "cursor-text" : ""
           }`}
         >

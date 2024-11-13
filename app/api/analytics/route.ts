@@ -5,6 +5,26 @@ import { getAuth } from '@clerk/nextjs/server';
 
 const analytics = google.analyticsdata('v1beta');
 
+// Define interface for the expected request body
+interface AnalyticsRequestBody {
+  startDate: string;
+  endDate: string;
+  pageId?: string;  // Optional - used when querying specific page analytics
+  pageTitle?: string;  // Optional - used for tracking new page views
+}
+
+// Define interface for the analytics response data
+interface AnalyticsResponseData {
+  pageViews: number;
+  uniqueVisitors: number;
+  viewsOverTime: Array<{
+    date: string;
+    pagePath: string;
+    views: number;
+    users: number;
+  }>;
+}
+
 async function getJWTClient() {
   const client = new google.auth.JWT({
     email: process.env.GOOGLE_CLIENT_EMAIL,
@@ -18,55 +38,61 @@ async function getJWTClient() {
 
 export async function POST(req: NextRequest) {
   try {
+    // Get authenticated user from Clerk
     const { userId } = getAuth(req);
-    const { startDate, endDate } = await req.json();
-    const propertyId = process.env.GA4_PROPERTY_ID;
-
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // Parse request body and get GA4 property ID from environment
+    const { startDate, endDate, pageId }: AnalyticsRequestBody = await req.json();
+    const propertyId = process.env.GA4_PROPERTY_ID;
+
     const authClient = await getJWTClient();
 
-    // Updated query without user filtering for initial test
+    // Build the analytics query
     const viewsResponse = await analytics.properties.runReport({
       auth: authClient,
       property: `properties/${propertyId}`,
       requestBody: {
         dateRanges: [{ startDate, endDate }],
         dimensions: [
-          { name: 'date' },
-          { name: 'eventName' }
+          { name: 'pagePath' },  // Track which page was viewed
+          { name: 'date' }       // Track when it was viewed
         ],
         metrics: [
-          { name: 'eventCount' },
-          { name: 'totalUsers' }
-        ]
+          { name: 'screenPageViews' },  // Count of page views
+          { name: 'totalUsers' }        // Count of unique users
+        ],
+        // Only add the filter if we're querying a specific page
+        dimensionFilter: pageId ? {
+          filter: {
+            fieldName: 'pagePath',
+            stringFilter: {
+              matchType: 'EXACT',
+              value: pageId,  // Filter for specific page if pageId is provided
+            },
+          },
+        } : undefined,
       }
     });
 
-    // For debugging
-    console.log('GA4 Response:', JSON.stringify(viewsResponse.data, null, 2));
-
+    // Process the response data
     const viewsOverTime = viewsResponse.data.rows?.map(row => ({
-      date: row.dimensionValues?.[0].value,
-      eventName: row.dimensionValues?.[1].value,
-      count: parseInt(row.metricValues?.[0].value || '0'),
-      users: parseInt(row.metricValues?.[1].value || '0')
+      date: row.dimensionValues?.[1].value ?? '',
+      pagePath: row.dimensionValues?.[0].value ?? '',
+      views: parseInt(row.metricValues?.[0].value ?? '0'),
+      users: parseInt(row.metricValues?.[1].value ?? '0')
     })) || [];
 
-    return NextResponse.json({
-      pageViews: viewsOverTime.reduce((sum, day) => sum + day.count, 0),
+    // Calculate totals and return formatted response
+    const responseData: AnalyticsResponseData = {
+      pageViews: viewsOverTime.reduce((sum, day) => sum + day.views, 0),
       uniqueVisitors: viewsOverTime.reduce((sum, day) => sum + day.users, 0),
-      interactions: {
-        email: viewsOverTime.filter(v => v.eventName === 'email_click').reduce((sum, v) => sum + v.count, 0),
-        calendar: viewsOverTime.filter(v => v.eventName === 'calendar_open').reduce((sum, v) => sum + v.count, 0),
-        linkedin: viewsOverTime.filter(v => v.eventName === 'linkedin_click').reduce((sum, v) => sum + v.count, 0),
-        share: viewsOverTime.filter(v => v.eventName === 'share_profile').reduce((sum, v) => sum + v.count, 0)
-      },
-      viewsOverTime,
-      debug: viewsResponse.data // Added for debugging
-    });
+      viewsOverTime
+    };
+
+    return NextResponse.json(responseData);
 
   } catch (error) {
     console.error('Analytics API Error:', error);

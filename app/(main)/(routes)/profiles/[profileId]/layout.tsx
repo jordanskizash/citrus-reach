@@ -11,6 +11,14 @@ interface ProfileParams {
 
 const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
+function LightModeWrapper({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="light">
+      {children}
+    </div>
+  );
+}
+
 export async function generateMetadata({ params }: ProfileParams): Promise<Metadata> {
   try {
     const profile = await convex.query(api.profiles.getById, { 
@@ -87,5 +95,5 @@ export default function ProfileLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return children;
+  return <LightModeWrapper>{children}</LightModeWrapper>;
 }

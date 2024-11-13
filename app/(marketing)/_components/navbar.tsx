@@ -140,7 +140,7 @@ const ExamplesDropdown = () => {
     title: "Citrus Pulp: November 2024",
     description: "Check out our latest product updates and improvements",
     image: "/oranges.png",
-    href: "#",
+    href: "/blog/release-log-001-november-2024",
     label: "New Blog Post"
   }
 

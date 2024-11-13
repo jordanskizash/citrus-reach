@@ -98,6 +98,29 @@ const DocumentIdPage = ({ document }: DocumentIdPageProps) => {
     };
 
     useEffect(() => {
+        const trackPageView = async () => {
+            try {
+                await fetch('/api/analytics', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        startDate: 'today',
+                        endDate: 'today',
+                        pageId: `/blog/${document._id}`,
+                        pageTitle: document.title,
+                    }),
+                });
+            } catch (error) {
+                console.error('Error tracking page view:', error);
+            }
+        };
+
+        trackPageView();
+    }, [document._id, document.title]);
+
+    useEffect(() => {
         if (document?.content) {
             const extractedHeadings = extractHeadings(document.content);
             setHeadings(extractedHeadings);
