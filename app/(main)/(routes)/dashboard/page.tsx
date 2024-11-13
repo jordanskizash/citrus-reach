@@ -186,7 +186,17 @@ export default function Dashboard() {
   return (
     <div className="container mx-auto p-4 space-y-4">
       <h1 className="text-3xl font-bold mt-4">{user?.fullName}&apos;s Dashboard</h1>
-      
+      <div className="flex flex-col items-end mb-4">
+        <div className="text-sm text-gray-500 mb-2">
+          Last updated: {lastUpdate.toLocaleTimeString()}
+        </div>
+        <Button 
+          onClick={() => fetchAnalytics()}
+          disabled={loading}
+        >
+          {loading ? 'Refreshing...' : 'Refresh Analytics'}
+        </Button>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
         <Card>
           <CardHeader>
@@ -323,17 +333,6 @@ export default function Dashboard() {
             </div>
           </CardContent>
         </Card>
-        <div className="flex justify-between items-center mb-4">
-          <Button 
-            onClick={() => fetchAnalytics()}
-            disabled={loading}
-          >
-            {loading ? 'Refreshing...' : 'Refresh Analytics'}
-          </Button>
-          <div className="text-sm text-gray-500">
-            Last updated: {lastUpdate.toLocaleTimeString()}
-          </div>
-        </div>
       </div>
     </div>
   )
