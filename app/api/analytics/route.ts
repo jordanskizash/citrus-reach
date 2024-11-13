@@ -70,6 +70,7 @@ async function getJWTClient() {
         timestamp: new Date().toISOString()
       });
   
+      // Modify the query to better handle blog paths
       const viewsResponse = await analytics.properties.runReport({
         auth: authClient,
         property: `properties/${propertyId}`,
@@ -87,18 +88,29 @@ async function getJWTClient() {
             filter: {
               fieldName: 'pagePath',
               stringFilter: {
-                matchType: 'CONTAINS',
-                value: pageId,
+                matchType: 'CONTAINS', // Keep CONTAINS for flexible matching
+                value: pageId.toLowerCase(), // Convert to lowercase for case-insensitive matching
               },
             },
-          } : undefined,
+          } : {
+            // When no specific pageId is provided, still filter for blog paths
+            filter: {
+              fieldName: 'pagePath',
+              stringFilter: {
+                matchType: 'BEGINS_WITH',
+                value: '/blog/',
+              },
+            },
+          },
         }
       });
   
+      // Enhanced logging to debug path matching
       console.log('GA4 Response:', {
         pageId,
         hasData: !!viewsResponse.data.rows?.length,
         rowCount: viewsResponse.data.rows?.length,
+        paths: viewsResponse.data.rows?.map(row => row.dimensionValues?.[0].value),
         firstRow: viewsResponse.data.rows?.[0],
         allRows: viewsResponse.data.rows
       });
@@ -109,6 +121,16 @@ async function getJWTClient() {
         views: parseInt(row.metricValues?.[0].value ?? '0'),
         users: parseInt(row.metricValues?.[1].value ?? '0')
       })) || [];
+  
+      // Log the processed data
+      console.log('Processed Views:', {
+        totalViews: viewsOverTime.reduce((sum, day) => sum + day.views, 0),
+        paths: Array.from(new Set(viewsOverTime.map(v => v.pagePath))), // Fixed version
+        viewsByPath: viewsOverTime.reduce((acc, curr) => {
+          acc[curr.pagePath] = (acc[curr.pagePath] || 0) + curr.views;
+          return acc;
+        }, {} as Record<string, number>)
+      });
   
       return NextResponse.json({
         pageViews: viewsOverTime.reduce((sum, day) => sum + day.views, 0),
