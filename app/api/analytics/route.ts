@@ -26,92 +26,105 @@ interface AnalyticsResponseData {
 }
 
 async function getJWTClient() {
-  const client = new google.auth.JWT({
-    email: process.env.GOOGLE_CLIENT_EMAIL,
-    key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-    scopes: ['https://www.googleapis.com/auth/analytics.readonly']
-  });
-  
-  await client.authorize();
-  return client;
-}
-
-export async function POST(req: NextRequest) {
-  try {
-    // Get authenticated user from Clerk
-    const { userId } = getAuth(req);
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!process.env.GOOGLE_CLIENT_EMAIL || !process.env.GOOGLE_PRIVATE_KEY) {
+      console.error('Missing required Google credentials');
+      throw new Error('Missing Google credentials');
     }
+  
+    try {
+      const client = new google.auth.JWT({
+        email: process.env.GOOGLE_CLIENT_EMAIL,
+        key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+        scopes: ['https://www.googleapis.com/auth/analytics.readonly']
+      });
+      
+      await client.authorize();
+      return client;
+    } catch (error) {
+      console.error('Error authorizing Google client:', error);
+      throw error;
+    }
+  }
 
-    // Parse request body and get GA4 property ID from environment
-    const { startDate, endDate, pageId }: AnalyticsRequestBody = await req.json();
-    const propertyId = process.env.GA4_PROPERTY_ID;
-
-    const authClient = await getJWTClient();
-
-    console.log('Analytics Request:', {
+  export async function POST(req: NextRequest) {
+    try {
+      const { userId } = getAuth(req);
+      const { startDate, endDate, pageId } = await req.json();
+      const propertyId = process.env.GA4_PROPERTY_ID;
+  
+      if (!userId) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
+  
+      if (!propertyId) {
+        console.error('Missing GA4_PROPERTY_ID');
+        throw new Error('Missing GA4 property ID');
+      }
+  
+      const authClient = await getJWTClient();
+      
+      console.log('Analytics Request:', {
         pageId,
         startDate,
         endDate,
-        propertyId: propertyId?.substring(0, 5) + '...' // Log partial ID for security
+        timestamp: new Date().toISOString()
       });
-
-    // Build the analytics query
-    const viewsResponse = await analytics.properties.runReport({
-      auth: authClient,
-      property: `properties/${propertyId}`,
-      requestBody: {
-        dateRanges: [{ startDate, endDate }],
-        dimensions: [
-          { name: 'pagePath' },  // Track which page was viewed
-          { name: 'date' }       // Track when it was viewed
-        ],
-        metrics: [
-          { name: 'screenPageViews' },  // Count of page views
-          { name: 'totalUsers' }        // Count of unique users
-        ],
-        // Only add the filter if we're querying a specific page
-        dimensionFilter: pageId ? {
-          filter: {
-            fieldName: 'pagePath',
-            stringFilter: {
-              matchType: 'EXACT',
-              value: pageId,  // Filter for specific page if pageId is provided
+  
+      const viewsResponse = await analytics.properties.runReport({
+        auth: authClient,
+        property: `properties/${propertyId}`,
+        requestBody: {
+          dateRanges: [{ startDate, endDate }],
+          dimensions: [
+            { name: 'pagePath' },
+            { name: 'date' }
+          ],
+          metrics: [
+            { name: 'screenPageViews' },
+            { name: 'totalUsers' }
+          ],
+          dimensionFilter: pageId ? {
+            filter: {
+              fieldName: 'pagePath',
+              stringFilter: {
+                matchType: 'CONTAINS',
+                value: pageId,
+              },
             },
-          },
-        } : undefined,
-      }
-    });
-
-    console.log('Analytics Response:', {
-        hasData: !!viewsResponse.data.rows?.length,
-        rowCount: viewsResponse.data.rows?.length || 0,
-        firstRow: viewsResponse.data.rows?.[0],
+          } : undefined,
+        }
       });
-
-    // Process the response data
-    const viewsOverTime = viewsResponse.data.rows?.map(row => ({
-      date: row.dimensionValues?.[1].value ?? '',
-      pagePath: row.dimensionValues?.[0].value ?? '',
-      views: parseInt(row.metricValues?.[0].value ?? '0'),
-      users: parseInt(row.metricValues?.[1].value ?? '0')
-    })) || [];
-
-    // Calculate totals and return formatted response
-    const responseData: AnalyticsResponseData = {
-      pageViews: viewsOverTime.reduce((sum, day) => sum + day.views, 0),
-      uniqueVisitors: viewsOverTime.reduce((sum, day) => sum + day.users, 0),
-      viewsOverTime
-    };
-
-    return NextResponse.json(responseData);
-
-  } catch (error) {
-    console.error('Analytics API Error:', error);
-    return NextResponse.json({ 
-      error: 'Failed to fetch analytics data',
-      details: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 });
+  
+      console.log('GA4 Response:', {
+        pageId,
+        hasData: !!viewsResponse.data.rows?.length,
+        rowCount: viewsResponse.data.rows?.length,
+        firstRow: viewsResponse.data.rows?.[0],
+        allRows: viewsResponse.data.rows
+      });
+  
+      const viewsOverTime = viewsResponse.data.rows?.map(row => ({
+        date: row.dimensionValues?.[1].value ?? '',
+        pagePath: row.dimensionValues?.[0].value ?? '',
+        views: parseInt(row.metricValues?.[0].value ?? '0'),
+        users: parseInt(row.metricValues?.[1].value ?? '0')
+      })) || [];
+  
+      return NextResponse.json({
+        pageViews: viewsOverTime.reduce((sum, day) => sum + day.views, 0),
+        uniqueVisitors: viewsOverTime.reduce((sum, day) => sum + day.users, 0),
+        viewsOverTime
+      });
+  
+    } catch (error) {
+      console.error('Analytics Error:', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined,
+      });
+      
+      return NextResponse.json({ 
+        error: 'Failed to fetch analytics data',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      }, { status: 500 });
+    }
   }
-}

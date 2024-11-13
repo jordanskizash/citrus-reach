@@ -9,6 +9,7 @@ import { api } from "@/convex/_generated/api"
 import { useUser } from "@clerk/clerk-react"
 import { useCallback, useEffect, useState } from "react"
 import { Id } from "@/convex/_generated/dataModel"
+import { Button } from "@/components/ui/button"
 
 // Sample data for charts (now using percentages)
 const chartData = [
@@ -79,7 +80,7 @@ export default function Dashboard() {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            startDate: 'today',
+            startDate: '7daysAgo',
             endDate: 'today',
             pageId: `/blog/${doc.slug}`,
           }),
@@ -100,7 +101,7 @@ export default function Dashboard() {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            startDate: 'today',
+            startDate: '7daysAgo',
             endDate: 'today',
             pageId: `/profile/${profile._id}`,
           }),
@@ -322,6 +323,17 @@ export default function Dashboard() {
             </div>
           </CardContent>
         </Card>
+        <div className="flex justify-between items-center mb-4">
+          <Button 
+            onClick={() => fetchAnalytics()}
+            disabled={loading}
+          >
+            {loading ? 'Refreshing...' : 'Refresh Analytics'}
+          </Button>
+          <div className="text-sm text-gray-500">
+            Last updated: {lastUpdate.toLocaleTimeString()}
+          </div>
+        </div>
       </div>
     </div>
   )
