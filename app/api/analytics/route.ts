@@ -50,6 +50,13 @@ export async function POST(req: NextRequest) {
 
     const authClient = await getJWTClient();
 
+    console.log('Analytics Request:', {
+        pageId,
+        startDate,
+        endDate,
+        propertyId: propertyId?.substring(0, 5) + '...' // Log partial ID for security
+      });
+
     // Build the analytics query
     const viewsResponse = await analytics.properties.runReport({
       auth: authClient,
@@ -76,6 +83,12 @@ export async function POST(req: NextRequest) {
         } : undefined,
       }
     });
+
+    console.log('Analytics Response:', {
+        hasData: !!viewsResponse.data.rows?.length,
+        rowCount: viewsResponse.data.rows?.length || 0,
+        firstRow: viewsResponse.data.rows?.[0],
+      });
 
     // Process the response data
     const viewsOverTime = viewsResponse.data.rows?.map(row => ({

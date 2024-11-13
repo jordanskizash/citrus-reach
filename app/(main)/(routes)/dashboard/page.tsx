@@ -7,7 +7,7 @@ import { ResponsiveContainer, AreaChart, Area, BarChart, Bar, LineChart, Line, X
 import { useQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import { useUser } from "@clerk/clerk-react"
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { Id } from "@/convex/_generated/dataModel"
 
 // Sample data for charts (now using percentages)
@@ -59,101 +59,128 @@ export default function Dashboard() {
   const documents = useQuery(api.documents.getPublishedDocuments) || []
   const profiles = useQuery(api.profiles.getPublishedProfiles) || []
   const { user } = useUser();
-  const [pageViews, setPageViews] = useState<PageViewsData>({});
   const [blogViews, setBlogViews] = useState<PageViewsData>({});
   const [profileViews, setProfileViews] = useState<PageViewsData>({});
   const [totalViewsData, setTotalViewsData] = useState<any[]>([]);
+  const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
+  const pollInterval = 30000; 
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchAnalytics = async () => {
-      try {
-        setLoading(true)
-        
-        // Fetch blog views
-        const blogViewsPromises = documents.map(async (doc: Document) => {
-          if (!doc.slug) return { slug: '', views: 0 };
+  const fetchAnalytics = useCallback(async () => {
+    try {
+      setLoading(true);
+      console.log('Fetching analytics at:', new Date().toISOString());
+      
+      // Fetch blog views
+      const blogViewsPromises = documents.map(async (doc: Document) => {
+        if (!doc.slug) return { slug: '', views: 0 };
 
-          const response = await fetch('/api/analytics', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              startDate: '30daysAgo',
-              endDate: 'today',
-              pageId: `/blog/${doc.slug}`,
-            }),
-          });
-          const data = await response.json();
-          return { slug: doc.slug, views: data.pageViews || 0 };
-        });
-
-        // Fetch profile views
-        const profileViewsPromises = profiles.map(async (profile: Profile) => {
-          const response = await fetch('/api/analytics', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              startDate: '30daysAgo',
-              endDate: 'today',
-              pageId: `/profile/${profile._id}`,
-            }),
-          });
-          const data = await response.json();
-          return { id: profile._id, views: data.pageViews || 0 };
-        });
-
-        // Wait for all analytics requests to complete
-        const [blogResults, profileResults] = await Promise.all([
-          Promise.all(blogViewsPromises),
-          Promise.all(profileViewsPromises)
-        ]);
-
-        // Process blog views
-        const blogViewsMap = blogResults.reduce((acc: PageViewsData, result) => {
-          if (result.slug) {
-            acc[result.slug] = result.views;
-          }
-          return acc;
-        }, {});
-
-        // Process profile views
-        const profileViewsMap = profileResults.reduce((acc: PageViewsData, result) => {
-          if (result.id) {
-            acc[result.id] = result.views;
-          }
-          return acc;
-        }, {});
-
-        // Fetch total views for charts (combining blog and profile views)
-        const totalResponse = await fetch('/api/analytics', {
+        const response = await fetch('/api/analytics', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            startDate: '30daysAgo',
+            startDate: 'today',
             endDate: 'today',
+            pageId: `/blog/${doc.slug}`,
           }),
         });
-        const totalData = await totalResponse.json();
 
-        const chartData = totalData.viewsOverTime.map((item: any) => ({
-          name: new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-          pageViews: item.views,
-        }));
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
 
-        setBlogViews(blogViewsMap);
-        setProfileViews(profileViewsMap);
-        setTotalViewsData(chartData);
-        setLoading(false);
-      } catch (error) {
-        console.error('Error fetching analytics:', error);
-        setLoading(false);
+        const data = await response.json();
+        console.log(`Blog analytics for ${doc.slug}:`, data);
+        return { slug: doc.slug, views: data.pageViews || 0 };
+      });
+
+      // Fetch profile views
+      const profileViewsPromises = profiles.map(async (profile: Profile) => {
+        const response = await fetch('/api/analytics', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            startDate: 'today',
+            endDate: 'today',
+            pageId: `/profile/${profile._id}`,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log(`Profile analytics for ${profile._id}:`, data);
+        return { id: profile._id, views: data.pageViews || 0 };
+      });
+
+      // Wait for all analytics requests to complete
+      const [blogResults, profileResults] = await Promise.all([
+        Promise.all(blogViewsPromises),
+        Promise.all(profileViewsPromises)
+      ]);
+
+      // Process blog views
+      const blogViewsMap = blogResults.reduce((acc: PageViewsData, result) => {
+        if (result.slug) {
+          acc[result.slug] = result.views;
+        }
+        return acc;
+      }, {});
+
+      // Process profile views
+      const profileViewsMap = profileResults.reduce((acc: PageViewsData, result) => {
+        if (result.id) {
+          acc[result.id] = result.views;
+        }
+        return acc;
+      }, {});
+
+      // Fetch total views for charts
+      const totalResponse = await fetch('/api/analytics', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          startDate: '30daysAgo',
+          endDate: 'today',
+        }),
+      });
+
+      if (!totalResponse.ok) {
+        throw new Error(`HTTP error! status: ${totalResponse.status}`);
       }
-    };
 
+      const totalData = await totalResponse.json();
+
+      const chartData = totalData.viewsOverTime.map((item: any) => ({
+        name: new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        pageViews: item.views,
+      }));
+
+      setBlogViews(blogViewsMap);
+      setProfileViews(profileViewsMap);
+      setTotalViewsData(chartData);
+      setLastUpdate(new Date());
+    } catch (error) {
+      console.error('Error fetching analytics:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [documents, profiles]);
+
+   // Initial fetch
+   useEffect(() => {
     if (documents.length > 0 || profiles.length > 0) {
       fetchAnalytics();
     }
-  }, [documents, profiles]);
+  }, [documents, profiles, fetchAnalytics]);
+
+  // Set up polling
+  useEffect(() => {
+    const interval = setInterval(fetchAnalytics, pollInterval);
+    return () => clearInterval(interval);
+  }, [fetchAnalytics]);
 
   return (
     <div className="container mx-auto p-4 space-y-4">
@@ -246,7 +273,7 @@ export default function Dashboard() {
                           <span className="text-gray-400">Loading...</span>
                         ) : (
                           // Safely access pageViews with optional chaining and string key
-                          doc.slug ? pageViews[doc.slug] || 0 : 0
+                          doc.slug ? blogViews[doc.slug] || 0 : 0
                         )}
                       </TableCell>
                       <TableCell>{Math.floor(Math.random() * 50)}</TableCell>

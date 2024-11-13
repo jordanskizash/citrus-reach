@@ -63,21 +63,39 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
   // Track page view with profile owner's ID
   useEffect(() => {
     if (profile) {
+      // Log that we're attempting to track
+      console.log('Tracking pageview:', {
+        path: `/profile/${params.profileId}`,
+        profileName: profile.displayName,
+        timestamp: new Date().toISOString()
+      });
+  
+      // Your existing event tracking
       event({
         action: 'profile_view',
         category: 'profile',
         label: profile.displayName || 'Unknown Profile',
-        userId: profile.userId, // This is the profile owner's ID
+        userId: profile.userId,
         pageType: 'profile',
         value: 1,
         metadata: {
           profileId: params.profileId,
-          viewerId: user?.id || 'anonymous', // Track who viewed it (optional)
+          viewerId: user?.id || 'anonymous',
           viewTimestamp: new Date().toISOString()
         }
       });
+  
+      // Also track using GA directly for redundancy
+      if (typeof window !== 'undefined' && (window as any).gtag) {
+        (window as any).gtag('event', 'page_view', {
+          page_title: profile.displayName,
+          page_path: `/profile/${params.profileId}`,
+          page_location: window.location.href,
+          send_to: process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
+        });
+      }
     }
-  }, [profile, params.profileId]);
+  }, [profile, params.profileId, user?.id]);
 
   if (!profile || documents === undefined) {
     return (
