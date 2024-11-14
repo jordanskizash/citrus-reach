@@ -20,6 +20,11 @@ const chartData = [
   { name: "May", responseRate: 80, openRate: 90, opportunities: 40 },
 ]
 
+interface ChartDataItem {
+  name: string;
+  pageViews: number;
+}
+
 interface Document {
   _id: Id<"documents">;
   _creationTime: number;
@@ -71,31 +76,42 @@ export default function Dashboard() {
     try {
       setLoading(true);
       console.log('Fetching analytics at:', new Date().toISOString());
-      
-      // Fetch blog views
-      const blogViewsPromises = documents.map(async (doc: Document) => {
-        if (!doc.slug) return { slug: '', views: 0 };
 
-        const response = await fetch('/api/analytics', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            startDate: '7daysAgo',
-            endDate: 'today',
-            pageId: `/blog/${doc.slug}`,
-          }),
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        console.log(`Blog analytics for ${doc.slug}:`, data);
-        return { slug: doc.slug, views: data.pageViews || 0 };
+      // Single request for all blog views
+      const blogResponse = await fetch('/api/analytics', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          startDate: '7daysAgo',
+          endDate: 'today',
+          pageId: '/blog/',
+        }),
       });
 
-      // Fetch profile views
+      if (!blogResponse.ok) {
+        throw new Error(`HTTP error! status: ${blogResponse.status}`);
+      }
+
+      const blogData = await blogResponse.json();
+      console.log('Blog analytics response:', blogData);
+
+      // Create a map of blog views by path
+      const viewsByPath: Record<string, number> = {};
+      blogData.viewsOverTime.forEach((view: any) => {
+        const path = view.pagePath;
+        viewsByPath[path] = (viewsByPath[path] || 0) + view.views;
+      });
+
+      // Match blog views with documents based on slug
+      const blogViewsMap = documents.reduce((acc: PageViewsData, doc) => {
+        if (doc.slug) {
+          const fullPath = `/blog/${doc.slug}`;
+          acc[doc.slug] = viewsByPath[fullPath] || 0;
+        }
+        return acc;
+      }, {});
+
+      // Fetch profile views (keeping your existing implementation)
       const profileViewsPromises = profiles.map(async (profile: Profile) => {
         const response = await fetch('/api/analytics', {
           method: 'POST',
@@ -116,21 +132,8 @@ export default function Dashboard() {
         return { id: profile._id, views: data.pageViews || 0 };
       });
 
-      // Wait for all analytics requests to complete
-      const [blogResults, profileResults] = await Promise.all([
-        Promise.all(blogViewsPromises),
-        Promise.all(profileViewsPromises)
-      ]);
-
-      // Process blog views
-      const blogViewsMap = blogResults.reduce((acc: PageViewsData, result) => {
-        if (result.slug) {
-          acc[result.slug] = result.views;
-        }
-        return acc;
-      }, {});
-
       // Process profile views
+      const profileResults = await Promise.all(profileViewsPromises);
       const profileViewsMap = profileResults.reduce((acc: PageViewsData, result) => {
         if (result.id) {
           acc[result.id] = result.views;
@@ -138,7 +141,7 @@ export default function Dashboard() {
         return acc;
       }, {});
 
-      // Fetch total views for charts
+      // Fetch total views for charts (keeping your existing implementation)
       const totalResponse = await fetch('/api/analytics', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -154,15 +157,25 @@ export default function Dashboard() {
 
       const totalData = await totalResponse.json();
 
+      // Process chart data
       const chartData = totalData.viewsOverTime.map((item: any) => ({
         name: new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
         pageViews: item.views,
       }));
 
+      // Log processed data for debugging
+      console.log('Processed Views:', {
+        blogs: blogViewsMap,
+        profiles: profileViewsMap,
+        totalViews: chartData.reduce((sum: number, item: ChartDataItem) => sum + item.pageViews, 0)
+      });
+
+      // Update state
       setBlogViews(blogViewsMap);
       setProfileViews(profileViewsMap);
       setTotalViewsData(chartData);
       setLastUpdate(new Date());
+
     } catch (error) {
       console.error('Error fetching analytics:', error);
     } finally {
@@ -170,14 +183,13 @@ export default function Dashboard() {
     }
   }, [documents, profiles]);
 
-   // Initial fetch
-   useEffect(() => {
+  // Keep your existing useEffects
+  useEffect(() => {
     if (documents.length > 0 || profiles.length > 0) {
       fetchAnalytics();
     }
   }, [documents, profiles, fetchAnalytics]);
 
-  // Set up polling
   useEffect(() => {
     const interval = setInterval(fetchAnalytics, pollInterval);
     return () => clearInterval(interval);
