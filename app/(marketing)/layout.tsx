@@ -10,6 +10,8 @@ const raleway = Zilla_Slab({
 
 const GA_MEASUREMENT_ID = 'G-M5LKWJ4EZ9';
 
+export const dynamic = 'force-dynamic';
+
 const MarketingLayout = ({
     children 
 }: {

@@ -5,6 +5,12 @@ const nextConfig = {
         "files.edgestore.dev"
       ]
     },
+    experimental: {
+        serverActions: true,
+    },
+    output: 'standalone',
+
+
     async headers() {
       return [
         {
@@ -25,7 +31,11 @@ const nextConfig = {
             { key: 'Access-Control-Allow-Origin', value: '*' },
             { key: 'Access-Control-Allow-Methods', value: 'GET, HEAD, OPTIONS' },
             { key: 'Access-Control-Allow-Headers', value: 'Range' },
-            { key: 'Access-Control-Expose-Headers', value: 'Accept-Ranges, Content-Range, Content-Length, Content-Type' }
+            { key: 'Access-Control-Expose-Headers', value: 'Accept-Ranges, Content-Range, Content-Length, Content-Type' },
+            // Security headers
+            { key: 'X-Frame-Options', value: 'DENY' },
+            { key: 'X-Content-Type-Options', value: 'nosniff' },
+            { key: 'X-XSS-Protection', value: '1; mode=block' }
           ],
         }
       ];

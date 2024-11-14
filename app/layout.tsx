@@ -10,6 +10,9 @@ import { AnalyticsProvider } from "@/components/providers/analytics-provider";
 import { EdgeStoreProvider } from "@/lib/edgestore";
 import Script from "next/script";
 
+// Add this line to prevent static generation
+export const dynamic = 'force-dynamic';
+
 const inter = Inter({ subsets: ["latin"] });
 
 // Use environment variable for GA ID
