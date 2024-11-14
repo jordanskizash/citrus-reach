@@ -5,10 +5,15 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { ConvexClientProvider } from "@/components/providers/convex-provider";
 import { ModalProvider } from "@/components/providers/modal-provider";
+import { AnalyticsProvider } from "@/components/providers/analytics-provider";
 
 import { EdgeStoreProvider } from "@/lib/edgestore";
+import Script from "next/script";
 
 const inter = Inter({ subsets: ["latin"] });
+
+// Use environment variable for GA ID
+const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
 export const metadata: Metadata = {
   title: "Citrus Reach - Microsites That Convert",
@@ -58,6 +63,28 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* Google Analytics Scripts */}
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+          strategy="afterInteractive"
+        />
+        <Script 
+          id="google-analytics" 
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', '${GA_MEASUREMENT_ID}', {
+                page_path: window.location.pathname,
+                send_page_view: true
+              });
+            `
+          }}
+        />
+      </head>
       <body className={inter.className}>
         <ConvexClientProvider>
           <EdgeStoreProvider>
@@ -68,9 +95,11 @@ export default function RootLayout({
             disableTransitionOnChange
             storageKey="jotion-theme-2"
             >
+              <AnalyticsProvider>
               <Toaster position="bottom-center"/>
               <ModalProvider />
               {children}
+              </AnalyticsProvider>
             </ThemeProvider>
           </EdgeStoreProvider>
         </ConvexClientProvider>
