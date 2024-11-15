@@ -2,8 +2,8 @@ import React from 'react';
 
 const TermsPage = () => {
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
-      <h1 className="text-5xl font-bold mb-6">
+    <div className="max-w-3xl mx-auto px-4 py-8">
+      <h1 className="text-4xl font-bold mb-6">
         Terms of Service
       </h1>
       
@@ -32,12 +32,12 @@ const TermsPage = () => {
           <a href="https://citrusreach.com/privacy-policy" className="text-orange-600 hover:text-orange-700">
             https://citrusreach.com/privacy-policy
           </a>
-          , the "Terms of Service") fully and carefully before using{' '}
+          , the &quot;Terms of Service&quot;) fully and carefully before using{' '}
           <a href="https://citrusreach.com" className="text-orange-600 hover:text-orange-700">
             https://citrusreach.com
           </a>
-          {' '}(the "Site") and the services, features, content or applications offered by Citrus Reach 
-          ("we" or "Citrus Reach") (collectively with the Site, the "Services"). These Terms of Service 
+          {' '}(the &quot;Site&quot;) and the services, features, content or applications offered by Citrus Reach 
+          (&quot;we&quot; or &quot;Citrus Reach&quot;) (collectively with the Site, the &quot;Services&quot;). These Terms of Service 
           set forth the legally binding terms and conditions for your use of the Site and the Services.
         </p>
 
