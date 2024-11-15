@@ -11,6 +11,7 @@ import { CardFeatures } from "./_components/appfeatures";
 import { Sections } from "./_components/sections";
 import LogoCarousel from "./_components/references";
 import Catcher from "./_components/catcher";
+import WordScreen from "./_components/parallax";
 
 
 const logos = [

@@ -8,6 +8,7 @@ import { Toolbar } from "@/components/toolbar";
 import { Cover } from "@/components/cover";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import FormattingSidebar from '@/components/formatting-sidebar';
 import { BookOpen, Clock } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useMemo, useState } from "react";

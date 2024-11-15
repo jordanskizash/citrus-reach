@@ -159,7 +159,7 @@ const DocumentIdPage = ({ document }: DocumentIdPageProps) => {
             >
                 <div className="pb-40 pt-10 w-full max-w-full xs:max-w-3xl sm:max-w-3xl md:max-w-4xl lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl mx-auto bg-white">
                     <div className="flex flex-col lg:flex-row lg:space-x-8">
-                        <article className="flex-grow px-2 sm:px-2 lg:px-6">
+                        <article className="flex-grow px-4 sm:px-6 lg:px-8">
                             <div className="mb-6">
                                 <Link href="/blog" passHref>
                                     <Button variant="ghost" className="pl-0 text-primary hover:text-primary/80">
@@ -168,25 +168,27 @@ const DocumentIdPage = ({ document }: DocumentIdPageProps) => {
                                     </Button>
                                 </Link>
                             </div>
-                            <Cover preview url={document.coverImage} />
-                            <div className="mt-6 mb-6 ml-14 flex items-center space-x-2 sm:space-x-4">
-                                <Avatar className="h-8 w-8 sm:h-12 sm:w-12">
-                                    <AvatarImage src={document.authorImageUrl} alt={document.authorFullName || "Author"}/>
-                                    <AvatarFallback>{document.authorFullName?.[0] || "A"}</AvatarFallback>
-                                </Avatar>
-                                <div>
-                                    <h2 className="text-sm sm:text-xl font-semibold">{document.authorFullName}</h2>
-                                    <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-2 text-xs sm:text-sm text-gray-500">
-                                    <Clock className="hidden sm:inline h-3 w-3 sm:h-4 sm:w-4" />
-                                    <span>{formatDate(document._creationTime)}</span>
-                                    <span className="hidden sm:inline">•</span>
-                                    <BookOpen className="hidden sm:inline h-3 w-3 sm:h-4 sm:w-4" />
-                                    <span className="hidden sm:inline">{readingTime} min read</span>
-                                    </div>
-                                </div>
+                            <div className="mx-[8px] sm:mx-0"> {/* Adjusted margin for mobile */}
+                                <Cover preview url={document.coverImage} />
                             </div>
 
-                            <div className="mx-[-16px] sm:mx-0">
+                            <div className="mx-[-20px] sm:mx-0">
+                                <div className="mt-6 mb-6 ml-14 flex items-center space-x-2 sm:space-x-4">
+                                    <Avatar className="h-8 w-8 sm:h-12 sm:w-12">
+                                        <AvatarImage src={document.authorImageUrl} alt={document.authorFullName || "Author"}/>
+                                        <AvatarFallback>{document.authorFullName?.[0] || "A"}</AvatarFallback>
+                                    </Avatar>
+                                    <div>
+                                        <h2 className="text-sm sm:text-xl font-semibold">{document.authorFullName}</h2>
+                                        <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-2 text-xs sm:text-sm text-gray-500">
+                                        <Clock className="hidden sm:inline h-3 w-3 sm:h-4 sm:w-4" />
+                                        <span>{formatDate(document._creationTime)}</span>
+                                        <span className="hidden sm:inline">•</span>
+                                        <BookOpen className="hidden sm:inline h-3 w-3 sm:h-4 sm:w-4" />
+                                        <span className="hidden sm:inline">{readingTime} min read</span>
+                                        </div>
+                                    </div>
+                                </div>
                                 <Toolbar preview initialData={document} />
                                 <Editor
                                     editable={false} 

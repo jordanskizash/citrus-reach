@@ -11,7 +11,9 @@ export default authMiddleware({
     "/about",          // Adding about page
     "/preview/(.*)",
     "/homepage/(.*)",
-    "/profile/(.*)"
+    "/profile/(.*)",
+    "/terms-of-service",
+    "/privacy-policy"
   ],
   
   ignoredRoutes: [

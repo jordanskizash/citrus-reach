@@ -53,7 +53,7 @@ export const Heading = () => {
             <h1 className="text-5xl md:text-7xl lg:text-8xl xl:text-9xl font-bold tracking-tight text-left leading-tight">
               Microsites that reach
             </h1>
-            <div className="mt-4 text-5xl md:text-7xl lg:text-7xl xl:text-8xl font-bold tracking-tight text-left text-orange-500">
+            <div className="mt-4 text-5xl md:text-7xl lg:text-8xl xl:text-9xl font-bold tracking-tight text-left text-orange-500">
               <Typewriter
                 options={{
                   strings: [

@@ -50,6 +50,7 @@ export const Toolbar = ({
         }
     };
 
+
     return (
         <div className="pl-[54px] group relative">
             {isEditing && !preview ? (
@@ -64,7 +65,7 @@ export const Toolbar = ({
             ) : (
                 <h1
                     onClick={enableInput}
-                    className="pb-[11.5px] text-5xl font-bold break-words outline-none text-[#3F3F3F] dark:text-[#CFCFCF]"
+                    className="pb-[11.5px] sm:text-5xl text-3xl font-bold break-words outline-none text-[#3F3F3F] dark:text-[#CFCFCF]"
                 >
                     {initialData.title}
                 </h1>

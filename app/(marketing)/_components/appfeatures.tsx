@@ -61,11 +61,11 @@ export const CardFeatures = () => {
   return (
     <div
       className="min-h-screen w-full bg-cover bg-center py-16"
-      style={{ backgroundImage: "url('./bgfeated.svg')" }}
+      style={{ backgroundImage: "url('./bgfin.png')" }}
     >
       <div className="container mx-auto px-4">
         <div className="mb-20 text-left">
-          <h2 className="text-4xl font-bold mb-4 text-black">
+          <h2 className="text-6xl font-bold mb-4 text-black">
             How Citrus Works
           </h2>
           <p className="text-xl text-black/80">
