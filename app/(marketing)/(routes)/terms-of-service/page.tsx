@@ -1,10 +1,10 @@
 import React from 'react';
 
-const PrivacyPolicyPage = () => {
+const TermsPage = () => {
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
-      <h1 className="text-5xl font-bold mb-6">
-        Privacy Policy
+    <div className="max-w-3xl mx-auto px-4 py-8">
+      <h1 className="text-4xl font-bold mb-6">
+        Terms of Service
       </h1>
       
       <div className="flex items-center gap-2 mb-8">
@@ -22,116 +22,67 @@ const PrivacyPolicyPage = () => {
           />
         </svg>
         <p className="text-gray-600">
-          Last Updated – November 14, 2024
+          Effective Date – November 14, 2024
         </p>
       </div>
 
       <div className="prose prose-gray max-w-none prose-a:text-orange-400 prose-a:hover:text-orange-500">
         <p className="mb-8 text-gray-700">
-          Welcome to CitrusReach (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;). This Privacy Policy explains how we collect, use, 
-          disclose, and safeguard your information when you use our web service at{' '}
+          Please read these Terms of Service (collectively with the Privacy Policy at{' '}
+          <a href="https://citrusreach.com/privacy-policy" className="text-orange-600 hover:text-orange-700">
+            https://citrusreach.com/privacy-policy
+          </a>
+          , the &quot;Terms of Service&quot;) fully and carefully before using{' '}
           <a href="https://citrusreach.com" className="text-orange-600 hover:text-orange-700">
             https://citrusreach.com
           </a>
-          , which helps individuals and businesses create personalized microsites to improve outreach results.
+          {' '}(the &quot;Site&quot;) and the services, features, content or applications offered by Citrus Reach 
+          (&quot;we&quot; or &quot;Citrus Reach&quot;) (collectively with the Site, the &quot;Services&quot;). These Terms of Service 
+          set forth the legally binding terms and conditions for your use of the Site and the Services.
         </p>
 
         <h2 className="text-2xl font-bold mt-8 mb-4">
-          1. Information We Collect
+          1. Acceptance of Terms
         </h2>
 
-        <h3 className="text-xl font-bold mt-6 mb-3">Personal Data</h3>
         <p className="text-gray-700 pl-4">
-          We collect the following personal information:
-        </p>
-        <ul className="list-disc pl-8 text-gray-700">
-          <li>Name</li>
-          <li>Email address</li>
-          <li>Payment information</li>
-        </ul>
-
-        <h3 className="text-xl font-bold mt-6 mb-3">Non-Personal Data</h3>
-        <p className="text-gray-700 pl-4">
-          We use web cookies to improve your browsing experience and optimize our service functionality.
+          A. By registering for and/or using the Services in any manner, including but not limited to visiting 
+          or browsing the Site, you agree to these Terms of Service and all other operating rules, policies 
+          and procedures that may be published from time to time on the Site or through the Services by 
+          Citrus Reach, each of which is incorporated by reference and each of which may be updated by 
+          Citrus Reach from time to time without notice to you.
         </p>
 
         <h2 className="text-2xl font-bold mt-8 mb-4">
-          2. How We Use Your Information
+          2. Description of Service
         </h2>
 
         <p className="text-gray-700 pl-4">
-          We collect and process your information solely for order processing purposes, including:
-        </p>
-        <ul className="list-disc pl-8 text-gray-700">
-          <li>Managing your account</li>
-          <li>Processing your payments</li>
-          <li>Providing customer support</li>
-          <li>Improving our services</li>
-        </ul>
-
-        <h2 className="text-2xl font-bold mt-8 mb-4">
-          3. Data Sharing and Disclosure
-        </h2>
-
-        <p className="text-gray-700 pl-4">
-          We do not share your personal information with any third parties, except as required by law 
-          or with your explicit consent.
+          A. Citrus Reach provides web services for creating personalized microsites to improve outreach 
+          results. The Service is offered subject to your acceptance of these Terms and all other operating 
+          rules and policies published on the website.
         </p>
 
         <h2 className="text-2xl font-bold mt-8 mb-4">
-          4. Children&apos;s Privacy
+          3. User Accounts and Content
         </h2>
 
         <p className="text-gray-700 pl-4">
-          Our services are not directed to children under 13 years of age. We do not knowingly collect 
-          personal information from children. If we become aware that we have inadvertently collected 
-          personal information from a child under 13, we will take steps to delete such information.
+          A. To access certain features of the Service, you must provide accurate registration information, 
+          including your name and email address.
         </p>
 
-        <h2 className="text-2xl font-bold mt-8 mb-4">
-          5. Cookie Policy
-        </h2>
-
-        <p className="text-gray-700 pl-4">
-          Our website uses cookies to enhance your browsing experience. You can control cookie settings 
-          through your browser preferences.
+        <p className="text-gray-700 pl-4 mt-4">
+          B. Paid users receive ownership rights to their microsites and embedded content for 7 days from 
+          the date of package purchase. Users of free-tier services acknowledge they have no legal recourse 
+          for any loss of data used in site creation.
         </p>
 
-        <h2 className="text-2xl font-bold mt-8 mb-4">
-          6. Updates to This Privacy Policy
-        </h2>
-
-        <p className="text-gray-700 pl-4">
-          We may update this Privacy Policy from time to time. We will notify you of any changes by 
-          sending an email to the address you have provided us.
-        </p>
-
-        <h2 className="text-2xl font-bold mt-8 mb-4">
-          7. Your Rights
-        </h2>
-
-        <p className="text-gray-700 pl-4">
-          You have the right to:
-        </p>
-        <ul className="list-disc pl-8 text-gray-700">
-          <li>Access your personal data</li>
-          <li>Correct inaccurate data</li>
-          <li>Request deletion of your data</li>
-          <li>Withdraw consent at any time</li>
-        </ul>
-
-        <h2 className="text-2xl font-bold mt-8 mb-4">
-          8. Security
-        </h2>
-
-        <p className="text-gray-700 pl-4">
-          We implement appropriate technical and organizational measures to protect your personal 
-          information against unauthorized access or disclosure.
-        </p>
+        {/* Add more sections as needed */}
 
         <div className="mt-8 pt-8 border-t border-gray-200">
           <p className="text-sm text-gray-600">
-            For questions about this Privacy Policy, please contact us at{' '}
+            For questions about these Terms, please contact us at{' '}
             <a href="mailto:info@citrusreach.com" className="text-orange-400 hover:text-orange-500">
               info@citrusreach.com
             </a>
@@ -142,4 +93,4 @@ const PrivacyPolicyPage = () => {
   );
 };
 
-export default PrivacyPolicyPage;
+export default TermsPage;

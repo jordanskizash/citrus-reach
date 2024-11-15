@@ -28,7 +28,7 @@ const PrivacyPolicyPage = () => {
 
       <div className="prose prose-gray max-w-none prose-a:text-orange-400 prose-a:hover:text-orange-500">
         <p className="mb-8 text-gray-700">
-          Welcome to CitrusReach ("we," "our," or "us"). This Privacy Policy explains how we collect, use, 
+          Welcome to CitrusReach (&ldquo;we,&rdquo; &ldquo;our,&rdquo; or &ldquo;us&rdquo;). This Privacy Policy explains how we collect, use, 
           disclose, and safeguard your information when you use our web service at{' '}
           <a href="https://citrusreach.com" className="text-orange-600 hover:text-orange-700">
             https://citrusreach.com
@@ -79,7 +79,7 @@ const PrivacyPolicyPage = () => {
         </p>
 
         <h2 className="text-2xl font-bold mt-8 mb-4">
-          4. Children's Privacy
+          4. Children&rsquo;s Privacy
         </h2>
 
         <p className="text-gray-700 pl-4">
