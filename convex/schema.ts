@@ -73,30 +73,41 @@ export default defineSchema ({
         .index("by_clerk_id", ["clerkId"])
         .index("by_email", ["email"]),
 
-        events: defineTable({
-            title: v.string(),
-            description: v.string(),
-            userId: v.string(),
-            coverImage: v.optional(v.string()),
-            eventDate: v.string(),
-            eventTime: v.string(),
-            location: v.string(),
-            isArchived: v.boolean(),
-            content: v.optional(v.string()),
-            isPublished: v.boolean(),
-            speakers: v.optional(v.array(v.object({
-                name: v.string(),
-                role: v.string(),
-                imageUrl: v.optional(v.string()),
-                bio: v.optional(v.string())
-            }))),
-            registrations: v.optional(v.array(v.object({
-                name: v.string(),
-                role: v.string(),
-                company: v.string(),
-                email: v.string(),
-                timestamp: v.number()
-            })))
+    payments: defineTable({
+        userId: v.string(),
+        status: v.string(), // 'pending', 'completed', 'failed'
+        stripeId: v.optional(v.string()),
+        amount: v.number(),
+        planType: v.string(), // 'premium', 'basic', etc.
+        createdAt: v.number(),
         })
-        .index("by_user", ["userId"])
+        
+        .index("by_stripe_id", ["stripeId"]),
+
+    events: defineTable({
+        title: v.string(),
+        description: v.string(),
+        userId: v.string(),
+        coverImage: v.optional(v.string()),
+        eventDate: v.string(),
+        eventTime: v.string(),
+        location: v.string(),
+        isArchived: v.boolean(),
+        content: v.optional(v.string()),
+        isPublished: v.boolean(),
+        speakers: v.optional(v.array(v.object({
+            name: v.string(),
+            role: v.string(),
+            imageUrl: v.optional(v.string()),
+            bio: v.optional(v.string())
+        }))),
+        registrations: v.optional(v.array(v.object({
+            name: v.string(),
+            role: v.string(),
+            company: v.string(),
+            email: v.string(),
+            timestamp: v.number()
+        })))
     })
+    .index("by_user", ["userId"])
+})

@@ -44,6 +44,11 @@ export const Navigation = () => {
     const [isResetting, setIsResetting] = useState(false);
     const [isCollapsed, setIsCollapsed] = useState(false);
 
+    const [isLoading, setIsLoading] = useState(false);
+    const createCheckoutSession = useAction(api.stripe.createCheckoutSession);
+
+
+
     const navigateToAnalytics = () => {
         router.push('/analytics');  
     };
@@ -152,13 +157,32 @@ export const Navigation = () => {
         })
     }
 
-    const handleUpgrade = () => {
-        // TODO: Implement Stripe integration
-        console.log("Upgrade account clicked");
-        toast.success("Redirecting to upgrade page...");
-        // Placeholder: Replace this with actual Stripe integration
-        // window.location.href = '/upgrade';
-    };
+    const handleUpgrade = async () => {
+        try {
+          setIsLoading(true);
+          const userId = "test-user"; // Replace with actual user ID
+      
+          console.log('Starting upgrade process...'); // Debug log
+          const checkoutUrl = await createCheckoutSession({
+            userId,
+            planType: "premium"
+          });
+          
+          console.log('Checkout URL received:', checkoutUrl); // Debug log
+      
+          if (checkoutUrl) {
+            window.location.href = checkoutUrl;
+          } else {
+            console.error('No checkout URL received');
+            toast.error("Failed to create checkout session - no URL received");
+          }
+        } catch (error) {
+          console.error('Upgrade process failed:', error);
+          toast.error(error instanceof Error ? error.message : "Something went wrong");
+        } finally {
+          setIsLoading(false);
+        }
+      };
 
     const handleCreateEvent = () => {
         const promise = createEvent({ 
@@ -277,13 +301,14 @@ export const Navigation = () => {
                     className="opacity-0 group-hover/sidebar:opacity-100 transition cursor-ew-resize absolute h-full w-1 bg-primary/10 right-0 top-0"
                 />
                  <div className="mt-auto p-4">
-                    <Button
-                        onClick={handleUpgrade}
-                        className="w-full bg-orange-500 hover:bg-orange-600 text-white"
+                 <Button
+                    onClick={handleUpgrade}
+                    className="w-full bg-orange-500 hover:bg-orange-600 text-white"
+                    disabled={isLoading}
                     >
-                        <CreditCard className="mr-2 h-4 w-4" />
-                        Upgrade Account
-                    </Button>
+                    <CreditCard className="mr-2 h-4 w-4" />
+                    {isLoading ? "Loading..." : "Upgrade Account"}
+                </Button>
                 </div>
             </aside>
             <div

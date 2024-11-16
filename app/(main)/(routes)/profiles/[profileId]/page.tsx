@@ -35,6 +35,7 @@ import 'react-pdf/dist/Page/TextLayer.css';
 import * as pdfjsLib from 'pdfjs-dist';
 import 'pdfjs-dist/web/pdf_viewer.css';
 import PdfViewer from "@/app/(main)/_components/pdf-viewer";
+import LogoComparison from "@/app/(main)/_components/logo-comparison";
 
 
 
@@ -392,20 +393,25 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
         <div className="w-full flex justify-center items-center mb-8">
           <div className="flex items-center space-x-4">
             {/* Use userLogo if it exists, otherwise show placeholder */}
+            {/* <LogoComparison 
+              userLogo={userLogo}
+              clientLogo={clientLogo}
+              containerClassName="my-8"
+            /> */}
             <Image
               src={userLogo || "/placeholder.svg?height=50&width=150"}
               alt="User Company Logo"
-              width={50}
-              height={25}
+              width={150}
+              height={60}
               className="object-contain"
             />
-            <span className="text-2xl font-bold text-black" >x</span>
+            <span className="text-5xl font-bold text-black">x</span>
             {/* Client Logo */}
             <Image
               src={clientLogo || "/acme.png"}
               alt="Client Company Logo"
-              width={150}
-              height={50}
+              width={180}
+              height={60}
               className="object-contain"
             />
           </div>

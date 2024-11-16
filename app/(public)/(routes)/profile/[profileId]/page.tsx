@@ -193,8 +193,8 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
             <Image
               src={displayLogo|| "/placeholder.svg?height=60&width=180"}
               alt="User Company Logo"
-              width={60}
-              height={30}
+              width={180}
+              height={60}
               className="object-contain w-[40px] sm:w-[60px]"
             />
             <span className="text-xl sm:text-2xl font-bold">x</span>
