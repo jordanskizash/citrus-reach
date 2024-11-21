@@ -63,8 +63,9 @@ export default defineSchema ({
         image: v.optional(v.string()),
         linkedin: v.optional(v.string()),
         website: v.optional(v.string()),
-        calComUsername: v.optional(v.string()), // Added field
-        domainName: v.optional(v.string()),     // Added field
+        calComUsername: v.optional(v.string()), 
+        domainName: v.optional(v.string()),
+        credits: v.optional(v.number()),     
         logoUrl: v.optional(v.string()),
         createdAt: v.number(),
         updatedAt: v.number(),

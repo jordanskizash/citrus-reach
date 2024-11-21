@@ -69,7 +69,7 @@ export default function Dashboard() {
   const [profileViews, setProfileViews] = useState<PageViewsData>({});
   const [totalViewsData, setTotalViewsData] = useState<any[]>([]);
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
-  const pollInterval = 30000; 
+  // const pollInterval = 30000; 
   const [loading, setLoading] = useState(true);
 
   const fetchAnalytics = useCallback(async () => {
@@ -190,10 +190,11 @@ export default function Dashboard() {
     }
   }, [documents, profiles, fetchAnalytics]);
 
-  useEffect(() => {
-    const interval = setInterval(fetchAnalytics, pollInterval);
-    return () => clearInterval(interval);
-  }, [fetchAnalytics]);
+  // To add an interval that continuously fetchs analytics updates
+  // useEffect(() => {
+  //   const interval = setInterval(fetchAnalytics, pollInterval);
+  //   return () => clearInterval(interval);
+  // }, [fetchAnalytics]);
 
   return (
     <div className="container mx-auto p-4 space-y-4">

@@ -7,7 +7,7 @@ import { useParams, usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { api } from "@/convex/_generated/api";
 import { UserItem } from "./user-item";
-import { useAction, useMutation } from "convex/react";
+import { useAction, useMutation, useQuery } from "convex/react";
 import { Item } from "./item";
 import toast from "react-hot-toast";
 import { DocumentList } from "./document-list";
@@ -24,6 +24,9 @@ import { Navbar } from "./navbar";
 import { NavbarProfile } from "./navbarprof";
 import { EventList } from "./event-list";
 import { Button } from "@/components/ui/button";
+import { useUser } from "@clerk/clerk-react";
+import { Progress } from "@/components/ui/progress";
+
 
 
 
@@ -42,16 +45,65 @@ export const Navigation = () => {
     const sidebarRef = useRef<ElementRef<"aside">>(null);
     const navbarRef = useRef<ElementRef<"div">>(null);
     const [isResetting, setIsResetting] = useState(false);
-    const [isCollapsed, setIsCollapsed] = useState(false);
+    const [isCollapsed, setIsCollapsed] = useState(false); 
 
     const [isLoading, setIsLoading] = useState(false);
     const createCheckoutSession = useAction(api.stripe.createCheckoutSession);
 
+    const { user } = useUser();
+
+    const documents = useQuery(api.documents.getSidebar, {
+        parentDocument: undefined
+      });
+      
+    const profiles = useQuery(api.profiles.getSidebar, {
+        parentProfile: undefined
+      });
+      
+    const events = useQuery(api.events.getSidebar, {
+        // Assuming events has the same pattern as documents and profiles
+      });
+      
+    // Calculate total items (credits in use)
+    const creditsInUse = (documents?.length ?? 0) + 
+    (profiles?.length ?? 0) + 
+    (events?.length ?? 0);
+
+  
+  
+    // Determine color based on usage
+    const getProgressColor = (percentage: number) => {
+        if (percentage >= 90) return "bg-red-500";
+        if (percentage >= 70) return "bg-orange-300";
+        return "bg-gray-300";
+    };
+
+    const userDetails = useQuery(api.users.getUserByClerkId, {
+        clerkId: user?.id ?? ""
+      });
+
+    const credits = useQuery(api.users.getCredits, { clerkId: user?.id ?? "" }) ?? 20;
+
+    const totalCredits = userDetails?.credits ?? 10;
+    const usagePercentage = totalCredits > 0 ? (creditsInUse / totalCredits) * 100 : 0;
+
+    console.log('Current user:', user?.id);
+    console.log('User details:', userDetails);
+    console.log('Current credits:', credits);
 
 
     const navigateToAnalytics = () => {
         router.push('/analytics');  
     };
+
+    const userExists = useQuery(api.users.checkUserExists, {
+        clerkId: user?.id ?? ""
+      });
+
+    // Add this temporarily to check user status
+    useEffect(() => {
+        console.log('User status:', userExists);
+    }, [userExists]);
 
     useEffect (() => {
         if(isMobile) {
@@ -160,29 +212,47 @@ export const Navigation = () => {
     const handleUpgrade = async () => {
         try {
           setIsLoading(true);
-          const userId = "test-user"; // Replace with actual user ID
-      
-          console.log('Starting upgrade process...'); // Debug log
+          console.log('Starting purchase for user:', user?.id);
+          
+          if (!user?.id) {
+            console.error('No user ID available');
+            toast.error("Please log in to purchase credits");
+            return;
+          }
+    
+          console.log('Starting checkout with:', {
+            userId: user.id,
+            currentCredits: userDetails?.credits,
+          });
+    
           const checkoutUrl = await createCheckoutSession({
-            userId,
+            userId: user.id,
             planType: "premium"
           });
-          
-          console.log('Checkout URL received:', checkoutUrl); // Debug log
-      
+    
           if (checkoutUrl) {
+            console.log('Redirecting to:', checkoutUrl);
             window.location.href = checkoutUrl;
           } else {
             console.error('No checkout URL received');
-            toast.error("Failed to create checkout session - no URL received");
+            toast.error("Failed to create checkout session");
           }
         } catch (error) {
-          console.error('Upgrade process failed:', error);
-          toast.error(error instanceof Error ? error.message : "Something went wrong");
+          console.error('Upgrade error:', error);
+          toast.error("Something went wrong");
         } finally {
           setIsLoading(false);
         }
       };
+
+      // Log user details on every render for debugging
+    useEffect(() => {
+        console.log('Current user state:', {
+        clerkId: user?.id,
+        userDetails,
+        credits: userDetails?.credits
+        });
+    }, [user, userDetails]);
 
     const handleCreateEvent = () => {
         const promise = createEvent({ 
@@ -301,14 +371,39 @@ export const Navigation = () => {
                     className="opacity-0 group-hover/sidebar:opacity-100 transition cursor-ew-resize absolute h-full w-1 bg-primary/10 right-0 top-0"
                 />
                  <div className="mt-auto p-4">
-                 <Button
-                    onClick={handleUpgrade}
-                    className="w-full bg-orange-500 hover:bg-orange-600 text-white"
-                    disabled={isLoading}
-                    >
-                    <CreditCard className="mr-2 h-4 w-4" />
-                    {isLoading ? "Loading..." : "Upgrade Account"}
-                </Button>
+                    <div className="flex flex-col space-y-3">
+                        <div className="space-y-1">
+                        <div className="flex justify-between items-center text-sm text-muted-foreground">
+                            <span>Credits</span>
+                            <span>{creditsInUse} / {totalCredits}</span>
+                        </div>
+                        <div className="relative w-full">
+                            <Progress 
+                            value={usagePercentage} 
+                            className={cn(
+                                "h-2",
+                                getProgressColor(usagePercentage)
+                            )}
+                            />
+                        </div>
+                        
+                        </div>
+                        
+                        <Button
+                        onClick={handleUpgrade}
+                        className="w-full bg-orange-500 hover:bg-orange-600 text-white"
+                        disabled={isLoading}
+                        >
+                        <CreditCard className="mr-2 h-4 w-4" />
+                        {isLoading ? "Loading..." : "Buy 20 Credits"}
+                        </Button>
+
+                        {usagePercentage >= 90 && (
+                        <div className="text-xs text-red-500 text-center">
+                            Warning: Credits almost depleted!
+                        </div>
+                        )}
+                    </div>
                 </div>
             </aside>
             <div

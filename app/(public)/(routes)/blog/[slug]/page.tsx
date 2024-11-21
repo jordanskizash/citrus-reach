@@ -4,6 +4,8 @@ import { ConvexHttpClient } from "convex/browser";
 import { api } from "@/convex/_generated/api";
 import DocumentIdPage from './documentIdPage';
 import { notFound } from 'next/navigation';
+import { GA_MEASUREMENT_ID } from '@/lib/analytics';
+import { Script } from 'vm';
 
 
 interface PageProps {
@@ -55,6 +57,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
     return metadata;
 }
+
+
 
 export default async function Page({ params }: PageProps) {
     const document = await getDocumentBySlug(params.slug);
