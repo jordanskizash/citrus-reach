@@ -561,7 +561,7 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
             </Button>
 
             <Button 
-              className="h-10 rounded-full text-sm" 
+              className="h-12 rounded-full text-base font-medium hover:scale-105 transition-transform mx-auto w-full" 
               style={{
                 backgroundColor: profile.themeSettings?.accentColor || '#000000',
                 color: '#FFFFFF'
