@@ -24,7 +24,7 @@ const LogoComparison = ({
             alt={userAlt}
             fill
             className="object-contain"
-            sizes="96px"
+            sizes="115px"
           />
         </div>
         
@@ -36,7 +36,7 @@ const LogoComparison = ({
             alt={clientAlt}
             fill
             className="object-contain"
-            sizes="96px"
+            sizes="115px"
           />
         </div>
       </div>
