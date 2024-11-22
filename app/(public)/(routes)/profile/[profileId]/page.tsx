@@ -26,6 +26,7 @@ import Image from "next/image";
 import { ProfileDescription } from "@/app/(main)/_components/prof-description";
 import { useUser } from "@clerk/clerk-react";
 import { event } from "@/lib/analytics";
+import SmartMeetingButton from "@/app/(main)/_components/meetingButton";
 
 interface ProfileIdPageProps {
   params: {
@@ -276,7 +277,13 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
             </Button>
 
             {/* Book a Meeting Dialog */}
-            <Dialog open={isCalDialogOpen} onOpenChange={setIsCalDialogOpen}>
+            <SmartMeetingButton 
+              calComUsername={userDetails?.calComUsername}
+              meetingLink={userDetails?.meetingLink}
+              themeSettings={profile.themeSettings}
+              className="h-12 rounded-full text-base font-medium hover:scale-105 transition-transform mx-auto w-full"
+            />
+            {/* <Dialog open={isCalDialogOpen} onOpenChange={setIsCalDialogOpen}>
               <DialogTrigger asChild>
                 <Button className="h-12 rounded-full text-base font-medium hover:scale-105 transition-transform mx-auto w-full">
                   <Calendar className="mr-2 h-5 w-5" /> Book a meeting
@@ -294,7 +301,7 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
                   />
                 </div>
               </DialogContent>
-            </Dialog>
+            </Dialog> */}
 
             {/* Share Button */}
             <Button
@@ -305,16 +312,19 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
             </Button>
 
             {/* Get in Touch Button */}
-            <Button
-              className="h-12 rounded-full text-base font-medium hover:scale-105 transition-transform mx-auto w-full"
-              asChild
-            >
+            <Button 
+              className="h-10 rounded-full text-sm" 
+              style={{
+                backgroundColor: profile.themeSettings?.accentColor || '#000000',
+                color: '#FFFFFF'
+              }}
+              asChild>
               <a
-                href="https://www.linkedin.com/in/jordan-steinberg/"
+                href={userDetails?.linkedin || "#"}
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <Linkedin className="mr-2 h-5 w-5" /> Get in Touch
+                <Linkedin className="mr-2 h-4 w-4" /> Get in Touch
               </a>
             </Button>
           </div>
