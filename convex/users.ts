@@ -31,6 +31,7 @@ export const updateUserSettings = mutation({
     image: v.optional(v.string()),
     linkedin: v.optional(v.string()),
     website: v.optional(v.string()),
+    meetingLink: v.optional(v.string()),
     calComUsername: v.optional(v.string()),
     domainName: v.optional(v.string()),
     logoUrl: v.optional(v.string()),

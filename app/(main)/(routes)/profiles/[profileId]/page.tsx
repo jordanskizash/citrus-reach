@@ -36,6 +36,7 @@ import * as pdfjsLib from 'pdfjs-dist';
 import 'pdfjs-dist/web/pdf_viewer.css';
 import PdfViewer from "@/app/(main)/_components/pdf-viewer";
 import LogoComparison from "@/app/(main)/_components/logo-comparison";
+import SmartMeetingButton from "@/app/(main)/_components/meetingButton";
 
 
 
@@ -509,7 +510,14 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
               </DialogContent>
             </Dialog>
 
-            <Dialog open={isCalDialogOpen} onOpenChange={setIsCalDialogOpen}>
+            <SmartMeetingButton 
+              calComUsername={userDetails?.calComUsername}
+              meetingLink={userDetails?.meetingLink}
+              themeSettings={profile.themeSettings}
+              className="h-12 rounded-full text-base font-medium hover:scale-105 transition-transform mx-auto w-full"
+            />
+
+            {/* <Dialog open={isCalDialogOpen} onOpenChange={setIsCalDialogOpen}>
               <DialogTrigger asChild>
                 <Button 
                   className="h-10 rounded-full text-sm"
@@ -539,7 +547,7 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
                   />
                 </div>
               </DialogContent>
-            </Dialog>
+            </Dialog> */}
 
             <Button
               className="h-10 rounded-full text-sm"

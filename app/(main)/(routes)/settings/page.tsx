@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/mode-toggle";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { toast } from "react-hot-toast";
 import { cn } from "@/lib/utils";
 
 export default function SettingsPage() {
@@ -23,6 +24,7 @@ export default function SettingsPage() {
   const [linkedin, setLinkedin] = useState("");
   const [website, setWebsite] = useState("");
   const [calComUsername, setCalComUsername] = useState("");
+  const [meetingLink, setMeetingLink] = useState("");
   const [domainName, setDomainName] = useState("");
   const [logoUrl, setLogoUrl] = useState("");
 
@@ -35,6 +37,7 @@ export default function SettingsPage() {
       setEmail(userSettings.email || user?.primaryEmailAddress?.emailAddress || "");
       setLinkedin(userSettings.linkedin || "");
       setWebsite(userSettings.website || "");
+      setMeetingLink(userSettings.meetingLink || "");
       setCalComUsername(userSettings.calComUsername || "");
       setDomainName(userSettings.domainName || "");
       setLogoUrl(userSettings.logoUrl || "");
@@ -49,19 +52,37 @@ export default function SettingsPage() {
     }
   };
 
-  const handleSave = (overrides = {}) => {
+  const handleSave = async (overrides = {}) => {
     if (user?.id) {
-      updateUserSettings({
-        clerkId: user.id,
-        name: name || user.fullName || "",
-        email: email || user.primaryEmailAddress?.emailAddress || "",
-        linkedin,
-        website,
-        calComUsername,
-        domainName,
-        logoUrl,
-        ...overrides,
-      });
+      try {
+        await updateUserSettings({
+          clerkId: user.id,
+          name: name || user.fullName || "",
+          email: email || user.primaryEmailAddress?.emailAddress || "",
+          linkedin,
+          website,
+          calComUsername,
+          meetingLink,
+          domainName,
+          logoUrl,
+          ...overrides,
+        });
+        
+        toast.success("Settings saved successfully!", {
+          duration: 3000,
+          position: "top-center",
+          style: {
+            background: "#10B981", // Green background
+            color: "#FFFFFF", // White text
+            borderRadius: "8px",
+          },
+        });
+      } catch (error) {
+        toast.error("Failed to save settings. Please try again.", {
+          duration: 3000,
+          position: "bottom-right",
+        });
+      }
     }
   };
 
@@ -234,6 +255,18 @@ export default function SettingsPage() {
                     value={calComUsername}
                     onChange={(e) => setCalComUsername(e.target.value)}
                   />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="meetingLink">Meeting Link</Label>
+                  <Input
+                    id="meetingLink"
+                    value={meetingLink}
+                    onChange={(e) => setMeetingLink(e.target.value)}
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    Add a direct meeting link as an alternative to Cal.com scheduling
+                  </p>
                 </div>
 
                 <div className="space-y-2">
