@@ -31,7 +31,7 @@ export const createCheckoutSession = action({
       { userId, planType }
     ): Promise<string | null> => {
       console.log('Creating Stripe session for user:', userId);
-      const domain = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+      const domain = process.env.APP_URL ?? "http://localhost:3000";
   
       console.log('Creating checkout session for user:', userId);
   
