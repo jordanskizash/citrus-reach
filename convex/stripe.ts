@@ -7,6 +7,12 @@ import Stripe from "stripe";
 import { api, internal } from "./_generated/api";
 import { Id } from "./_generated/dataModel";
 
+// Add debugging
+console.log("Environment variables:", {
+  hasStripeKey: !!process.env.STRIPE_SECRET_KEY,
+  keyPrefix: process.env.STRIPE_SECRET_KEY?.substring(0, 7)
+});
+
 if (!process.env.STRIPE_SECRET_KEY) {
     throw new Error("STRIPE_SECRET_KEY is not set in environment variables");
   }
