@@ -49,6 +49,7 @@ export const updateUserSettings = mutation({
     } else {
       await ctx.db.insert("users", {
         ...args,
+        credits: 10,
         createdAt: Date.now(),
         updatedAt: Date.now(),
       });
@@ -64,7 +65,7 @@ export const getCredits = query({
       .withIndex("by_clerk_id", (q) => q.eq("clerkId", clerkId))
       .first();
     
-    return user?.credits ?? 0;
+    return user?.credits ?? 10;
   },
 });
 
@@ -108,7 +109,7 @@ export const updateCreditsFromWebhook = mutation({
       console.log('User not found, creating new user');
       const userId = await ctx.db.insert("users", {
         clerkId,
-        credits: 0,
+        credits: 10,
         createdAt: Date.now(),
         updatedAt: Date.now(),
         name: "", // Add any required fields
