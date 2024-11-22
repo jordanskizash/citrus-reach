@@ -27,6 +27,7 @@ import { ProfileDescription } from "@/app/(main)/_components/prof-description";
 import { useUser } from "@clerk/clerk-react";
 import { event } from "@/lib/analytics";
 import SmartMeetingButton from "@/app/(main)/_components/meetingButton";
+import LogoComparison from "@/app/(main)/_components/logo-comparison";
 
 interface ProfileIdPageProps {
   params: {
@@ -191,7 +192,12 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
         {/* Logo Section */}
         <div className="w-full flex justify-center items-center mb-4">
           <div className="flex items-center space-x-4">
-            <Image
+          <LogoComparison 
+              userLogo={userLogo}
+              clientLogo={clientLogo}
+              containerClassName="my-8"
+            />
+            {/* <Image
               src={displayLogo|| "/placeholder.svg?height=60&width=180"}
               alt="User Company Logo"
               width={180}
@@ -205,7 +211,7 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
               width={180}
               height={60}
               className="object-contain w-[120px] sm:w-[180px]"
-            />
+            /> */}
           </div>
         </div>
 

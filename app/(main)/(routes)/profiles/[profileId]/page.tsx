@@ -391,15 +391,15 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
     >
       <div className="flex flex-col items-center pb-20 pt-6 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Logo Section */}
-        <div className="w-full flex justify-center items-center mb-8">
+        <div className="w-full flex justify-center items-center mb-5">
           <div className="flex items-center space-x-4">
             {/* Use userLogo if it exists, otherwise show placeholder */}
-            {/* <LogoComparison 
+            <LogoComparison 
               userLogo={userLogo}
               clientLogo={clientLogo}
               containerClassName="my-8"
-            /> */}
-            <Image
+            />
+            {/* <Image
               src={userLogo || "/placeholder.svg?height=50&width=150"}
               alt="User Company Logo"
               width={150}
@@ -407,14 +407,14 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
               className="object-contain"
             />
             <span className="text-5xl font-bold text-black">x</span>
-            {/* Client Logo */}
+            
             <Image
               src={clientLogo || "/acme.png"}
               alt="Client Company Logo"
               width={180}
               height={60}
               className="object-contain"
-            />
+            /> */}
           </div>
         </div>
 
