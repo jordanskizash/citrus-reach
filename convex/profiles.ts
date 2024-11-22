@@ -110,32 +110,32 @@ export const create = mutation({
 
 
 export const getById = query ({
-    args: { profileId: v.id("profiles") },
-    handler: async(ctx, args) => {
-        const identity = await ctx.auth.getUserIdentity();
+  args: { profileId: v.id("profiles") },
+  handler: async(ctx, args) => {
+      const identity = await ctx.auth.getUserIdentity();
 
-        const profile = await ctx.db.get(args.profileId);
+      const profile = await ctx.db.get(args.profileId);
 
-        if(!profile) {
-            throw new Error("Not found");
-        }
+      if(!profile) {
+          throw new Error("Not found");
+      }
 
-        if (profile.isPublished && !profile.isArchived) {
-            return profile;
-        }
+      if (profile.isPublished && !profile.isArchived) {
+          return profile;
+      }
 
-        if (!identity) {
-            throw new Error("Not authenticated");
-        }
+      if (!identity) {
+          throw new Error("Not authenticated");
+      }
 
-        const userId = identity.subject;
+      const userId = identity.subject;
 
-        if (profile.userId !== userId) {
-            throw new Error("Unauthorized");
-        }
+      if (profile.userId !== userId) {
+          throw new Error("Unauthorized");
+      }
 
-        return profile;
-    }
+      return profile;
+  }
 });
 
 export const update = mutation({

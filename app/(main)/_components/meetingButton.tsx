@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -23,9 +25,25 @@ const SmartMeetingButton: React.FC<SmartMeetingButtonProps> = ({
 }) => {
   const [isCalDialogOpen, setIsCalDialogOpen] = React.useState(false);
 
-  // If there's no calComUsername and no meetingLink, disable the button
+  // Add debug logging
+  React.useEffect(() => {
+    console.log('SmartMeetingButton props:', { calComUsername, meetingLink, themeSettings });
+  }, [calComUsername, meetingLink, themeSettings]);
+
+  // If there's no calComUsername and no meetingLink, render a disabled button instead of null
   if (!calComUsername && !meetingLink) {
-    return null;
+    return (
+      <Button 
+        className={className}
+        style={{
+          backgroundColor: themeSettings?.accentColor || '#000000',
+          color: '#FFFFFF'
+        }}
+        disabled
+      >
+        <Calendar className="mr-2 h-4 w-4" /> Book a Meeting
+      </Button>
+    );
   }
 
   // If there's only a meetingLink (no calComUsername), render a simple button that redirects
@@ -50,8 +68,6 @@ const SmartMeetingButton: React.FC<SmartMeetingButtonProps> = ({
     );
   }
 
-  // We know calComUsername is defined here because of the previous conditions
-  // This satisfies TypeScript's requirement for a non-optional string
   return (
     <Dialog open={isCalDialogOpen} onOpenChange={setIsCalDialogOpen}>
       <DialogTrigger asChild>

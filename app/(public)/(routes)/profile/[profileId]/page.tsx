@@ -278,9 +278,9 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
 
             {/* Book a Meeting Dialog */}
             <SmartMeetingButton 
-              calComUsername={userDetails?.calComUsername}
-              meetingLink={userDetails?.meetingLink}
-              themeSettings={profile.themeSettings}
+              calComUsername={userDetails?.calComUsername || undefined}
+              meetingLink={userDetails?.meetingLink || undefined}
+              themeSettings={profile?.themeSettings || undefined}
               className="h-12 rounded-full text-base font-medium hover:scale-105 transition-transform mx-auto w-full"
             />
             {/* <Dialog open={isCalDialogOpen} onOpenChange={setIsCalDialogOpen}>
