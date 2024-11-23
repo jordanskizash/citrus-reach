@@ -82,7 +82,7 @@ export default function Dashboard() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          startDate: '7daysAgo',
+          startDate: '30daysAgo',
           endDate: 'today',
           pageId: '/blog/',
         }),
@@ -117,7 +117,7 @@ export default function Dashboard() {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            startDate: '7daysAgo',
+            startDate: '30daysAgo',
             endDate: 'today',
             pageId: `/profile/${profile._id}`,
           }),
