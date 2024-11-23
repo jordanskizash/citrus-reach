@@ -157,9 +157,9 @@ const DocumentIdPage = ({ document }: DocumentIdPageProps) => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
             >
-                <div className="pb-40 pt-10 w-full max-w-full xs:max-w-3xl sm:max-w-3xl md:max-w-4xl lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl mx-auto bg-white">
-                    <div className="flex flex-col lg:flex-row lg:space-x-8">
-                        <article className="flex-grow px-4 sm:px-6 lg:px-8">
+                <div className="pb-40 pt-10 w-full px-4 sm:px-6 mx-auto bg-white">
+                    <div className="max-w-full sm:max-w-3xl md:max-w-4xl lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl mx-auto">
+                        <article className="w-full">
                             <div className="mb-6">
                                 <Link href="/blog" passHref>
                                     <Button variant="ghost" className="pl-0 text-primary hover:text-primary/80">
@@ -172,7 +172,7 @@ const DocumentIdPage = ({ document }: DocumentIdPageProps) => {
                                 <Cover preview url={document.coverImage} />
                             </div>
 
-                            <div className="mx-[-20px] sm:mx-0">
+                            <div className="mx-0 w-full  sm:px-6"> 
                                 <div className="mt-6 mb-6 ml-14 flex items-center space-x-2 sm:space-x-4">
                                     <Avatar className="h-8 w-8 sm:h-12 sm:w-12">
                                         <AvatarImage src={document.authorImageUrl} alt={document.authorFullName || "Author"}/>
@@ -190,6 +190,7 @@ const DocumentIdPage = ({ document }: DocumentIdPageProps) => {
                                     </div>
                                 </div>
                                 <Toolbar preview initialData={document} />
+                                <div className="w-full">
                                 <Editor
                                     editable={false} 
                                     onChange={(content) => {
@@ -200,6 +201,7 @@ const DocumentIdPage = ({ document }: DocumentIdPageProps) => {
                                     }}
                                     initialContent={document.content}
                                 />
+                                </div>
                             </div>
                             <div>
                                 <SubscribeWidget />

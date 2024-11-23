@@ -53,7 +53,7 @@ const Editor = ({
     };
 
     return (
-        <div className="w-full max-w-full sm:max-w-4xl md:max-w-4xl lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl mx-auto editor-container">
+        <div className="w-full editor-container" style={{ maxWidth: '100%' }}>
             <BlockNoteView 
                 editable={editable}
                 editor={editor}

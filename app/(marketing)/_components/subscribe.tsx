@@ -4,7 +4,7 @@ import Link from "next/link"
 
 export default function Component() {
   return (
-    <div className="bg-orange-50 p-8 rounded-lg max-w-4xl mx-auto border-b-8 border-l-8 border-t-2 border-r-2 border-black my-8">
+    <div className="bg-orange-50 p-8 rounded-lg max-w-4xl mx-auto px-6 border-b-8 border-l-8 border-t-2 border-r-2 border-black my-8">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div className="flex flex-col justify-between">
           <div>

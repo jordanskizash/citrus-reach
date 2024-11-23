@@ -174,7 +174,43 @@
     color: #000000; /* Optional: Set the text color to contrast the selection */
 }
 
+/* Target BlockNote specific containers */
+.bn-container {
+  width: 100% !important;
+  max-width: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.bn-block-group {
+  width: 100% !important;
+  max-width: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.bn-block {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.bn-block-content {
+  width: 100% !important;
+  max-width: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.bn-inline-content {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
 .editor-container a {
+  width: 100% !important;
+  max-width: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
   text-decoration: underline;
   cursor: pointer;
   color: #ff9900;
