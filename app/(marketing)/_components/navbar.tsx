@@ -5,14 +5,18 @@ import Link from 'next/link'
 import Image from "next/image"
 import { useConvexAuth } from "convex/react"
 import { SignInButton, UserButton } from "@clerk/clerk-react"
-import { Menu, ChevronDown } from "lucide-react"
-
+import { Menu, X, ChevronDown } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Logo } from "./logo"
 import { Spinner } from "@/components/spinner"
 import { useScrollTop } from "@/hooks/use-scroll-top"
+import { Zilla_Slab } from 'next/font/google'
+
+const zilla = Zilla_Slab({
+  subsets: ['latin'],
+  weight: ['400']
+})
 
 interface NavItemsProps {
   isAuthenticated: boolean;
@@ -30,6 +34,11 @@ interface ExampleItem {
 interface ExampleSection {
   title: string
   items: ExampleItem[]
+}
+
+interface FullscreenMenuProps {
+  isOpen: boolean;
+  onClose: () => void;
 }
 
 const NavItems: React.FC<NavItemsProps> = ({ isAuthenticated, isLoading }) => (
@@ -188,77 +197,43 @@ const ExamplesDropdown = () => {
             <div className="w-full px-4 md:px-6 py-6">
               <div className="max-w-[1400px] mx-auto">
                 <div className="grid grid-cols-12 gap-8">
-                  <div className="col-span-4 -ml-4">
-                    <div className="space-y-6">
-                      <h3 className="font-semibold text-sm text-muted-foreground">{sections[0].title}</h3>
-                      <div className="grid gap-4">
-                        {sections[0].items.map((item) => (
-                          <Link
-                            key={item.title}
-                            href={item.href}
-                            className="group grid grid-cols-[auto,1fr] gap-4 p-3 rounded-lg hover:bg-muted"
-                          >
-                            <div className="relative size-10">
-                              <Image
-                                src={item.logo}
-                                alt=""
-                                className="size-full object-contain group-hover:opacity-0 transition-opacity"
-                                width={40}
-                                height={40}
-                              />
-                              <Image
-                                src={item.hoverLogo}
-                                alt=""
-                                className="absolute inset-0 size-full object-contain opacity-0 group-hover:opacity-100 transition-opacity"
-                                width={40}
-                                height={40}
-                              />
-                            </div>
-                            <div>
-                              <h4 className="font-medium text-base">{item.title}</h4>
-                              <p className="text-sm text-muted-foreground">{item.description}</p>
-                            </div>
-                          </Link>
-                        ))}
+                  {sections.map((section, index) => (
+                    <div key={section.title} className="col-span-4 -ml-4">
+                      <div className="space-y-6">
+                        <h3 className="font-semibold text-sm text-muted-foreground">{section.title}</h3>
+                        <div className="grid gap-4">
+                          {section.items.map((item) => (
+                            <Link
+                              key={item.title}
+                              href={item.href}
+                              className="group grid grid-cols-[auto,1fr] gap-4 p-3 rounded-lg hover:bg-muted"
+                            >
+                              <div className="relative size-10">
+                                <Image
+                                  src={item.logo}
+                                  alt=""
+                                  className="size-full object-contain group-hover:opacity-0 transition-opacity"
+                                  width={40}
+                                  height={40}
+                                />
+                                <Image
+                                  src={item.hoverLogo}
+                                  alt=""
+                                  className="absolute inset-0 size-full object-contain opacity-0 group-hover:opacity-100 transition-opacity"
+                                  width={40}
+                                  height={40}
+                                />
+                              </div>
+                              <div>
+                                <h4 className="font-medium text-base">{item.title}</h4>
+                                <p className="text-sm text-muted-foreground">{item.description}</p>
+                              </div>
+                            </Link>
+                          ))}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  
-                  <div className="col-span-4 -ml-4">
-                    <div className="space-y-6">
-                      <h3 className="font-semibold text-sm text-muted-foreground">{sections[1].title}</h3>
-                      <div className="grid gap-4">
-                        {sections[1].items.map((item) => (
-                          <Link
-                            key={item.title}
-                            href={item.href}
-                            className="group grid grid-cols-[auto,1fr] gap-4 p-3 rounded-lg hover:bg-muted"
-                          >
-                            <div className="relative size-10">
-                              <Image
-                                src={item.logo}
-                                alt=""
-                                className="size-full object-contain group-hover:opacity-0 transition-opacity"
-                                width={40}
-                                height={40}
-                              />
-                              <Image
-                                src={item.hoverLogo}
-                                alt=""
-                                className="absolute inset-0 size-full object-contain opacity-0 group-hover:opacity-100 transition-opacity"
-                                width={40}
-                                height={40}
-                              />
-                            </div>
-                            <div>
-                              <h4 className="font-medium text-base">{item.title}</h4>
-                              <p className="text-sm text-muted-foreground">{item.description}</p>
-                            </div>
-                          </Link>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
+                  ))}
 
                   <div className="col-span-3 border-l pl-6 -ml-6">
                     <div className="space-y-4">
@@ -294,8 +269,65 @@ const ExamplesDropdown = () => {
   )
 }
 
+const FullscreenMenu: React.FC<FullscreenMenuProps> = ({ isOpen, onClose }) => {
+  if (!isOpen) return null;
 
-const MainNav = () => (
+  return (
+    <div 
+      className={cn(
+        "fixed inset-0 bg-white z-50 flex flex-col opacity-0 transition-opacity duration-300",
+        isOpen && "opacity-100"
+      )}
+    >
+      <div className="flex px-6 pt-4">
+        <Button variant="ghost" size="icon" onClick={onClose} className="hover:bg-transparent">
+          <X className="h-8 w-8" />
+          <span className="sr-only">Close menu</span>
+        </Button>
+      </div>
+      
+      <nav className={cn(
+        "flex flex-col mt-24 pl-8",
+        zilla.className
+      )}>
+        <Link 
+          href="/about" 
+          className="text-7xl py-6 hover:text-orange-500 transition-colors transform translate-y-4 opacity-0 animate-slide-up"
+          onClick={onClose}
+        >
+          About
+        </Link>
+        <Link 
+          href="/blog" 
+          className="text-7xl py-6 hover:text-orange-500 transition-colors transform translate-y-4 opacity-0 animate-slide-up"
+          style={{ animationDelay: '0.1s' }}
+          onClick={onClose}
+        >
+          Blog
+        </Link>
+        <Link 
+          href="/pricing" 
+          className="text-7xl py-6 hover:text-orange-500 transition-colors transform translate-y-4 opacity-0 animate-slide-up"
+          style={{ animationDelay: '0.2s' }}
+          onClick={onClose}
+        >
+          Pricing
+        </Link>
+        <Link 
+          href="/examples" 
+          className="text-7xl py-6 hover:text-orange-500 transition-colors transform translate-y-4 opacity-0 animate-slide-up"
+          style={{ animationDelay: '0.3s' }}
+          onClick={onClose}
+        >
+          Examples
+        </Link>
+      </nav>
+    </div>
+  );
+};
+
+
+const MainNav: React.FC = () => (
   <nav className="hidden md:flex items-center space-x-8">
     <div className="flex items-center space-x-2">
       <Button 
@@ -325,61 +357,52 @@ const MainNav = () => (
       <ExamplesDropdown />
     </div>
   </nav>
-)
+);
 
-export const Navbar = () => {
+export const Navbar: React.FC = () => {
   const { isAuthenticated, isLoading } = useConvexAuth()
   const scrolled = useScrollTop()
   const [isOpen, setIsOpen] = useState(false)
 
   return (
-    <div className={cn(
-      "z-50 fixed top-0 w-full bg-white border-b border-black",
-      scrolled && "shadow-sm"
-    )}>
-      <div className="flex h-16 items-center px-4 md:px-6">
-        <Sheet open={isOpen} onOpenChange={setIsOpen}>
-          <SheetTrigger asChild className="md:hidden">
-            <Button variant="ghost" size="icon" className="mr-2">
-              <Menu className="h-5 w-5" />
-              <span className="sr-only">Toggle menu</span>
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="left" className="w-[300px] sm:w-[400px]">
-            <nav className="flex flex-col gap-4">
-              <Button variant="ghost" className="justify-start" asChild>
-                <Link href="/about">About</Link>
-              </Button>
-              <Button variant="ghost" className="justify-start" asChild>
-                <Link href="/blog">Blog</Link>
-              </Button>
-              <Button variant="ghost" className="justify-start" asChild>
-                <Link href="/pricing">Pricing</Link>
-              </Button>
-              <ExamplesDropdown />
-            </nav>
-          </SheetContent>
-        </Sheet>
-
-        <div className="flex items-center flex-1">
-          <Logo />
-        </div>
-
-        <div className="flex-1 flex justify-center">
-          <MainNav />
-        </div>
-
-        <div className="flex items-center justify-end flex-1">
-          <NavItems isAuthenticated={isAuthenticated} isLoading={isLoading} />
+    <>
+      <div className={cn(
+        "z-50 fixed top-0 w-full bg-white border-b border-black",
+        scrolled && "shadow-sm"
+      )}>
+        <div className="flex h-16 items-center px-4 md:px-6">
           <Button 
-            size="sm" 
-            className="hidden md:flex ml-4 bg-orange-500 hover:bg-orange-600 text-white"
+            variant="ghost" 
+            size="icon" 
+            className="md:hidden mr-2"
+            onClick={() => setIsOpen(true)}
           >
-            Book a Demo
+            <Menu className="h-5 w-5" />
+            <span className="sr-only">Toggle menu</span>
           </Button>
+
+          <div className="flex items-center flex-1">
+            <Logo />
+          </div>
+
+          <div className="flex-1 flex justify-center">
+            <MainNav />
+          </div>
+
+          <div className="flex items-center justify-end flex-1">
+            <NavItems isAuthenticated={isAuthenticated} isLoading={isLoading} />
+            <Button 
+              size="sm" 
+              className="hidden md:flex ml-4 bg-orange-500 hover:bg-orange-600 text-white"
+            >
+              Book a Demo
+            </Button>
+          </div>
         </div>
       </div>
-    </div>
+      
+      <FullscreenMenu isOpen={isOpen} onClose={() => setIsOpen(false)} />
+    </>
   )
 }
 
