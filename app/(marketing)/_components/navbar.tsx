@@ -287,19 +287,19 @@ const FullscreenMenu: React.FC<FullscreenMenuProps> = ({ isOpen, onClose }) => {
       </div>
       
       <nav className={cn(
-        "flex flex-col mt-24 pl-8",
+        "flex flex-col mt-20 pl-8",
         zilla.className
       )}>
         <Link 
           href="/about" 
-          className="text-7xl py-6 hover:text-orange-500 transition-colors transform translate-y-4 opacity-0 animate-slide-up"
+          className="text-6xl py-6 hover:text-orange-500 transition-colors transform translate-y-4 opacity-0 animate-slide-up"
           onClick={onClose}
         >
           About
         </Link>
         <Link 
           href="/blog" 
-          className="text-7xl py-6 hover:text-orange-500 transition-colors transform translate-y-4 opacity-0 animate-slide-up"
+          className="text-6xl py-6 hover:text-orange-500 transition-colors transform translate-y-4 opacity-0 animate-slide-up"
           style={{ animationDelay: '0.1s' }}
           onClick={onClose}
         >
@@ -307,7 +307,7 @@ const FullscreenMenu: React.FC<FullscreenMenuProps> = ({ isOpen, onClose }) => {
         </Link>
         <Link 
           href="/pricing" 
-          className="text-7xl py-6 hover:text-orange-500 transition-colors transform translate-y-4 opacity-0 animate-slide-up"
+          className="text-6xl py-6 hover:text-orange-500 transition-colors transform translate-y-4 opacity-0 animate-slide-up"
           style={{ animationDelay: '0.2s' }}
           onClick={onClose}
         >
@@ -315,7 +315,7 @@ const FullscreenMenu: React.FC<FullscreenMenuProps> = ({ isOpen, onClose }) => {
         </Link>
         <Link 
           href="/examples" 
-          className="text-7xl py-6 hover:text-orange-500 transition-colors transform translate-y-4 opacity-0 animate-slide-up"
+          className="text-6xl py-6 hover:text-orange-500 transition-colors transform translate-y-4 opacity-0 animate-slide-up"
           style={{ animationDelay: '0.3s' }}
           onClick={onClose}
         >
