@@ -96,6 +96,10 @@ export const Navigation = () => {
         router.push('/analytics');  
     };
 
+    const navigateToDashboard = () => {
+        router.push('/dashboard');
+    };
+
     const userExists = useQuery(api.users.checkUserExists, {
         clerkId: user?.id ?? ""
       });
@@ -293,9 +297,9 @@ export const Navigation = () => {
                 <div>
                     <UserItem />
                     <Item
-                        label="Analytics" 
+                        label="Dashboard" 
                         icon={LineChart}
-                        onClick={navigateToAnalytics}
+                        onClick={navigateToDashboard}
                     />
                     <Item
                         label="Search" 

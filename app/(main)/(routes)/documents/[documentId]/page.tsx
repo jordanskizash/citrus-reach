@@ -147,4 +147,3 @@ const DocumentIdPage = ({
 }
 
 export default DocumentIdPage;
-
