@@ -52,7 +52,7 @@ export const Toolbar = ({
 
 
     return (
-        <div className="px-11 sm:pl-[54px] group relative w-full">
+        <div className="px-4 sm:pl-[54px] group relative w-full">
             {isEditing && !preview ? (
                 <TextareaAutosize 
                     ref={inputRef}
@@ -65,7 +65,7 @@ export const Toolbar = ({
             ) : (
                 <h1
                     onClick={enableInput}
-                    className="pb-[11.5px] text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold break-words outline-none text-[#3F3F3F] dark:text-[#CFCFCF] w-full"
+                    className="pb-[11.5px] text-4xl sm:text-3xl md:text-4xl lg:text-5xl font-bold break-words outline-none text-[#3F3F3F] dark:text-[#CFCFCF] w-full"
                     style={{
                         padding: 0,
                         marginLeft: 0

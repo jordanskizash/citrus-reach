@@ -175,7 +175,7 @@
 }
 
 /* Target BlockNote specific containers */
-.bn-container {
+/* .bn-container {
   width: 100% !important;
   max-width: 100% !important;
   padding: 0 !important;
@@ -214,7 +214,7 @@
   text-decoration: underline;
   cursor: pointer;
   color: #ff9900;
-}
+} */
 
 @keyframes slideUp {
   from {
@@ -229,4 +229,90 @@
 
 .animate-slide-up {
   animation: slideUp 0.5s ease-out forwards;
+}
+
+/* Custom styles for editor container */
+.editor-container {
+  max-width: 100%;
+  margin: 0 auto;
+  overflow-x: hidden;
+}
+
+/* Mobile-first approach for editor container */
+@media (max-width: 640px) {
+  .editor-container {
+    padding: 0 8px;  /* Reduced from 16px */
+    width: 100%;
+  }
+
+  /* Reset any negative margins */
+  .editor-container {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  /* Ensure BlockNote containers have minimal padding */
+  .bn-container,
+  .bn-editor,
+  .bn-content,
+  [class*="bn-"] {
+    max-width: 100% !important;
+    width: 100% !important;
+    padding-left: 4px !important;  /* Reduced from 8px */
+    padding-right: 4px !important;  /* Reduced from 8px */
+    box-sizing: border-box !important;
+  }
+
+  /* Adjust author section layout with reduced margins */
+  .editor-container .mt-6.mb-6.ml-14 {
+    margin: 1.5rem 4px !important;  /* Reduced side margins */
+    padding: 0 4px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.75rem !important;
+  }
+
+  /* Content blocks with minimal padding */
+  .bn-block-content {
+    width: 100% !important;
+    padding: 0 1px !important;  /* Reduced from 8px */
+    margin: 0 !important;
+    box-sizing: border-box !important;
+  }
+}
+
+/* Very small screens */
+@media (max-width: 480px) {
+  .editor-container {
+    padding: 0 4px;  /* Further reduced from 12px */
+  }
+
+  /* Minimal padding for BlockNote containers */
+  .bn-container,
+  .bn-editor,
+  .bn-content,
+  [class*="bn-"] {
+    padding-left: 2px !important;  /* Minimal padding */
+    padding-right: 2px !important;  /* Minimal padding */
+  }
+
+  /* Refined author section layout */
+  .editor-container .mt-6.mb-6.ml-14 {
+    margin: 1rem 2px !important;
+    padding: 0 2px !important;
+    gap: 0.5rem !important;
+  }
+
+  /* Ensure content maintains readability with minimal margins */
+  .bn-block-content {
+    padding: 0 2px !important;
+  }
+}
+
+/* Adjust BlockNote spacing variables */
+.bn-container.light {
+  --bn-spacing-xs: 4px !important;  /* Reduced from 8px */
+  --bn-spacing-s: 4px !important;   /* Reduced from 8px */
+  --bn-spacing-m: 4px !important;   /* Reduced from 8px */
+  --bn-spacing-l: 4px !important;   /* Reduced from 8px */
 }

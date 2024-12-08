@@ -172,7 +172,7 @@ const DocumentIdPage = ({ document }: DocumentIdPageProps) => {
                                 <Cover preview url={document.coverImage} />
                             </div>
 
-                            <div className="mx-0 w-full  sm:px-6"> 
+                            <div className="px-4 w-full sm:px-6 editor-container"> 
                                 <div className="mt-6 mb-6 ml-14 flex items-center space-x-2 sm:space-x-4">
                                     <Avatar className="h-8 w-8 sm:h-12 sm:w-12">
                                         <AvatarImage src={document.authorImageUrl} alt={document.authorFullName || "Author"}/>
@@ -189,8 +189,9 @@ const DocumentIdPage = ({ document }: DocumentIdPageProps) => {
                                         </div>
                                     </div>
                                 </div>
+                                
                                 <Toolbar preview initialData={document} />
-                                <div className="w-full">
+                                <div className="w-full mt-4 overflow-x-hidden">
                                 <Editor
                                     editable={false} 
                                     onChange={(content) => {
@@ -201,8 +202,8 @@ const DocumentIdPage = ({ document }: DocumentIdPageProps) => {
                                     }}
                                     initialContent={document.content}
                                 />
-                                </div>
                             </div>
+                        </div>
                             <div>
                                 <SubscribeWidget />
                                 <h2 className="flex items-center justify-center text-md">
