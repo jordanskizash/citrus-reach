@@ -17,6 +17,7 @@ import SubscribeWidget from "@/app/(marketing)/_components/subscribe";
 import ShareButtons from "@/app/(marketing)/_components/sharebuttons";
 import Link from "next/link";
 import { LogoOnly } from "@/app/(marketing)/_components/logojust";
+import { useUser } from "@clerk/clerk-react";
 
 const AUTHOR_NAME = 'Citrus Team';
 const AUTHOR_IMAGE = '/logo.svg'; // Replace with the actual author image path
@@ -30,6 +31,73 @@ interface Heading {
   id: string;
   text: string;
   level: number;
+}
+
+function LikeButton({ documentId }: { documentId: Id<"documents"> }) {
+    const [isLiked, setIsLiked] = useState(false);
+    const [likeCount, setLikeCount] = useState(0);
+
+    const likeStatus = useQuery(api.documents.getLikeCount, { 
+        documentId 
+    });
+
+    const toggleLike = useMutation(api.documents.togglePublicLike);
+
+    // Check local storage for like status on mount
+    useEffect(() => {
+        const likedPosts = JSON.parse(localStorage.getItem('likedPosts') || '{}');
+        setIsLiked(!!likedPosts[documentId]);
+    }, [documentId]);
+
+    // Update like count when data changes
+    useEffect(() => {
+        if (likeStatus !== undefined) {
+            setLikeCount(likeStatus);
+        }
+    }, [likeStatus]);
+
+    const handleLikeClick = async () => {
+        try {
+            // Toggle like in local storage
+            const likedPosts = JSON.parse(localStorage.getItem('likedPosts') || '{}');
+            const newLikeStatus = !likedPosts[documentId];
+            
+            likedPosts[documentId] = newLikeStatus;
+            localStorage.setItem('likedPosts', JSON.stringify(likedPosts));
+
+            // Update UI immediately for better UX
+            setIsLiked(newLikeStatus);
+            setLikeCount(prev => newLikeStatus ? prev + 1 : Math.max(0, prev - 1));
+
+            // Update server
+            await toggleLike({ 
+                documentId,
+                action: newLikeStatus ? 'increment' : 'decrement'
+            });
+        } catch (error) {
+            console.error("Error toggling like:", error);
+            // Revert local storage on error
+            const likedPosts = JSON.parse(localStorage.getItem('likedPosts') || '{}');
+            delete likedPosts[documentId];
+            localStorage.setItem('likedPosts', JSON.stringify(likedPosts));
+            setIsLiked(false);
+        }
+    };
+
+    return (
+        <button 
+            onClick={handleLikeClick}
+            className="flex items-center gap-1.5 text-gray-600 hover:text-gray-900 transition-colors"
+            title={isLiked ? "Remove like" : "Like this article"}
+        >
+            <Heart 
+                className={`w-5 h-5 transition-all duration-200 ease-in-out
+                    ${isLiked ? 'fill-current text-black' : 'text-gray-500'}
+                    hover:scale-110`}
+            />
+            <span className="text-sm font-medium">{likeCount}</span>
+        </button>
+    );
 }
 
 const DocumentIdPage = ({ document }: DocumentIdPageProps) => {
@@ -173,20 +241,25 @@ const DocumentIdPage = ({ document }: DocumentIdPageProps) => {
                             </div>
 
                             <div className="px-4 w-full sm:px-6 editor-container"> 
-                                <div className="mt-6 mb-6 ml-14 flex items-center space-x-2 sm:space-x-4">
-                                    <Avatar className="h-8 w-8 sm:h-12 sm:w-12">
-                                        <AvatarImage src={document.authorImageUrl} alt={document.authorFullName || "Author"}/>
-                                        <AvatarFallback>{document.authorFullName?.[0] || "A"}</AvatarFallback>
-                                    </Avatar>
-                                    <div>
-                                        <h2 className="text-sm sm:text-xl font-semibold">{document.authorFullName}</h2>
-                                        <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-2 text-xs sm:text-sm text-gray-500">
-                                        <Clock className="hidden sm:inline h-3 w-3 sm:h-4 sm:w-4" />
-                                        <span>{formatDate(document._creationTime)}</span>
-                                        <span className="hidden sm:inline">•</span>
-                                        <BookOpen className="hidden sm:inline h-3 w-3 sm:h-4 sm:w-4" />
-                                        <span className="hidden sm:inline">{readingTime} min read</span>
+                                <div className="mt-6 mb-6 flex justify-between items-center">
+                                    <div className="flex items-center space-x-2 sm:space-x-4">
+                                        <Avatar className="h-8 w-8 sm:h-12 sm:w-12">
+                                            <AvatarImage src={document.authorImageUrl} alt={document.authorFullName || "Author"}/>
+                                            <AvatarFallback>{document.authorFullName?.[0] || "A"}</AvatarFallback>
+                                        </Avatar>
+                                        <div>
+                                            <h2 className="text-sm sm:text-xl font-semibold">{document.authorFullName}</h2>
+                                            <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-2 text-xs sm:text-sm text-gray-500">
+                                                <Clock className="hidden sm:inline h-3 w-3 sm:h-4 sm:w-4" />
+                                                <span>{formatDate(document._creationTime)}</span>
+                                                <span className="hidden sm:inline">•</span>
+                                                <BookOpen className="hidden sm:inline h-3 w-3 sm:h-4 sm:w-4" />
+                                                <span className="hidden sm:inline">{readingTime} min read</span>
+                                            </div>
                                         </div>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <LikeButton documentId={document._id} />
                                     </div>
                                 </div>
                                 

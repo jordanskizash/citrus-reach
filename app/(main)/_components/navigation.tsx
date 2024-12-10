@@ -185,9 +185,15 @@ export const Navigation = () => {
     }
 
     const handlecreateProfile = async () => {
+        // Check if user has available credits
+        if (creditsInUse >= totalCredits) {
+            toast.error("Out of credits - Buy More");
+            return;
+        }
+    
         const promise = createProf({
             displayName: "Untitled",
-            authorFullName: "Untitled" // Instead of handle
+            authorFullName: "Untitled"
         });
         
         toast
@@ -203,15 +209,21 @@ export const Navigation = () => {
 
 
     const handleCreate = () => {
+        // Check if user has available credits
+        if (creditsInUse >= totalCredits) {
+            toast.error("Out of credits - Buy More");
+            return;
+        }
+    
         const promise = create({ title: "Untitled" })
             .then((documentId) => router.push(`/documents/${documentId}`))
-
+    
         toast.promise(promise, {
             loading: "Creating a new blog",
             success: "New Blog Created!",
             error: "Failed to create a new blog",
-        })
-    }
+        });
+    };
 
     const handleUpgrade = async () => {
         try {

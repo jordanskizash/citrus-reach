@@ -71,6 +71,100 @@ export const updateSlug = mutation({
     },
   });
 
+  export const toggleLike = mutation({
+    args: { documentId: v.id("documents") },
+    handler: async (ctx, args) => {
+      const identity = await ctx.auth.getUserIdentity();
+      
+      if (!identity) {
+        throw new Error("Not authenticated");
+      }
+  
+      const userId = identity.subject;
+      const document = await ctx.db.get(args.documentId);
+  
+      if (!document) {
+        throw new Error("Document not found");
+      }
+  
+      const currentLikedBy = document.likedBy || [];
+      const currentLikeCount = document.likeCount || 0;
+  
+      const hasLiked = currentLikedBy.includes(userId);
+  
+      if (hasLiked) {
+        // Remove like
+        await ctx.db.patch(args.documentId, {
+          likedBy: currentLikedBy.filter(id => id !== userId),
+          likeCount: Math.max(0, currentLikeCount - 1)
+        });
+        return false; // Returns false to indicate unliked
+      } else {
+        // Add like
+        await ctx.db.patch(args.documentId, {
+          likedBy: [...currentLikedBy, userId],
+          likeCount: currentLikeCount + 1
+        });
+        return true; // Returns true to indicate liked
+      }
+    },
+  });
+  
+  export const checkLikeStatus = query({
+    args: { documentId: v.id("documents") },
+    handler: async (ctx, args) => {
+      const identity = await ctx.auth.getUserIdentity();
+      
+      if (!identity) {
+        return { isLiked: false, likeCount: 0 };
+      }
+  
+      const document = await ctx.db.get(args.documentId);
+      
+      if (!document) {
+        return { isLiked: false, likeCount: 0 };
+      }
+  
+      return {
+        isLiked: document.likedBy?.includes(identity.subject) || false,
+        likeCount: document.likeCount || 0
+      };
+    },
+  });
+
+  export const getLikeCount = query({
+    args: { documentId: v.id("documents") },
+    handler: async (ctx, args) => {
+        const document = await ctx.db.get(args.documentId);
+        return document?.likeCount || 0;
+    },
+});
+
+export const togglePublicLike = mutation({
+  args: { 
+      documentId: v.id("documents"),
+      action: v.string() // 'increment' or 'decrement'
+  },
+  handler: async (ctx, args) => {
+      const document = await ctx.db.get(args.documentId);
+      
+      if (!document) {
+          throw new Error("Document not found");
+      }
+
+      const currentLikes = document.likeCount || 0;
+      const newLikeCount = args.action === 'increment' 
+          ? currentLikes + 1 
+          : Math.max(0, currentLikes - 1);
+
+      await ctx.db.patch(args.documentId, {
+          likeCount: newLikeCount
+      });
+
+      return newLikeCount;
+  },
+});
+
 
 export const archive = mutation({
     args: { id: v.id("documents") },
@@ -921,3 +1015,4 @@ export const migrateExistingDocumentsToSlugs = action({
       return { message: "Migration completed" };
     },
   });
+

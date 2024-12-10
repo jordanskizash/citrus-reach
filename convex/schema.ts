@@ -14,6 +14,8 @@ export default defineSchema ({
         coverImage: v.optional(v.string()),
         icon: v.optional(v.string()),
         isPublished: v.boolean(),
+        likedBy: v.optional(v.array(v.string())),
+        likeCount: v.optional(v.number()), 
     })
     .index("by_user", ["userId"])
     .index("by_slug", ["slug"])

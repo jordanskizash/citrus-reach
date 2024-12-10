@@ -39,11 +39,29 @@ export default function BlogPage() {
     );
   }
 
-  // Helper function to get the post URL
   const getPostUrl = (post: Doc<'documents'>) => {
-    // If slug is available, use it; otherwise, fallback to ID
     return `/blog/${post.slug ?? post._id}`;
   };
+
+  const PostCard = ({ post }: { post: Doc<'documents'> }) => (
+    <MotionLink 
+      href={getPostUrl(post)}
+      className="flex flex-col"
+      whileHover={{ y: -5 }}
+      transition={{ type: "spring", stiffness: 300 }}
+    >
+      <Image 
+        src={post.coverImage || "/placeholder.svg?height=300&width=400"}
+        alt={post.title}
+        width={400}
+        height={300}
+        className="rounded-lg object-cover w-full h-[200px] mb-4"
+      />
+      <p className="text-gray-500 text-sm mb-1">{new Date(post._creationTime).toLocaleDateString()}</p>
+      <h3 className="text-xl font-semibold mb-1">{post.title}</h3>
+      <p className="text-gray-600">By {post.authorFullName || AUTHOR_NAME}</p>
+    </MotionLink>
+  );
 
   return (
     <>
@@ -59,54 +77,12 @@ export default function BlogPage() {
       <div className="max-w-7xl mx-auto px-8 sm:px-16 py-8">
         <h1 className="text-4xl font-bold mb-8">Latest from {AUTHOR_NAME}</h1>
         
-        <div className="space-y-12">
-        {pinnedPost && (
-          <MotionLink 
-            href={getPostUrl(pinnedPost)} // Updated to use slug
-            className="flex flex-col md:flex-row gap-6 mb-12 p-6 rounded-lg"
-            whileHover={{ scale: 1.02 }}
-            transition={{ type: "spring", stiffness: 300 }}
-          >
-            <div className="md:w-1/2">
-              <Image 
-                src={pinnedPost.coverImage || "/placeholder.svg?height=400&width=600"}
-                alt={pinnedPost.title}
-                width={600}
-                height={400}
-                className="rounded-lg object-cover w-full h-[250px] md:h-[300px]"
-              />
-            </div>
-            <div className="md:w-1/2 flex flex-col justify-center p-6">
-              <h2 className="text-2xl font-bold mb-2">{pinnedPost.title}</h2>
-              <p className="text-gray-600 mb-2">By {pinnedPost.authorFullName || AUTHOR_NAME}</p>
-              <p className="text-gray-500">{new Date(pinnedPost._creationTime).toLocaleDateString()}</p>
-            </div>
-          </MotionLink>
-        )}
-        
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {pinnedPost && <PostCard post={pinnedPost} />}
           {otherPosts.map((post) => (
-            <MotionLink 
-              key={post._id}
-              href={getPostUrl(post)} // Updated to use slug
-              className="flex flex-col"
-              whileHover={{ y: -5 }}
-              transition={{ type: "spring", stiffness: 300 }}
-            >
-              <Image 
-                src={post.coverImage || "/placeholder.svg?height=300&width=400"}
-                alt={post.title}
-                width={400}
-                height={300}
-                className="rounded-lg object-cover w-full h-[200px] mb-4"
-              />
-              <p className="text-gray-500 text-sm mb-1">{new Date(post._creationTime).toLocaleDateString()}</p>
-              <h3 className="text-xl font-semibold mb-1">{post.title}</h3>
-              <p className="text-gray-600">By {post.authorFullName || AUTHOR_NAME}</p>
-            </MotionLink>
+            <PostCard key={post._id} post={post} />
           ))}
         </div>
-      </div>
       </div>
     </>
   )
