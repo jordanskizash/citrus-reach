@@ -8,11 +8,18 @@ import Link from "next/link";
 import { Inter } from "next/font/google";
 import Typewriter from 'typewriter-effect';
 import { motion } from 'framer-motion';
+import { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Calendar } from "lucide-react";
+import InlineWidget from "@calcom/embed-react";
+
 
 const MotionButton = motion(Button);
 
 export const Heading = () => {
   const { isAuthenticated, isLoading } = useConvexAuth();
+  const [isCalDialogOpen, setIsCalDialogOpen] = useState(false);
+
 
   return (
     <div className="w-full">
@@ -105,14 +112,30 @@ export const Heading = () => {
                         Try Citrus Free
                       </MotionButton>
                     </SignInButton>
-                    <MotionButton 
-                      size="sm"
-                      className="bg-orange-500 hover:bg-orange-600 text-white text-base"
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      Book a Demo
-                    </MotionButton>
+                    <Dialog open={isCalDialogOpen} onOpenChange={setIsCalDialogOpen}>
+                      <DialogTrigger asChild>
+                        <MotionButton 
+                          size="sm"
+                          className="bg-orange-500 hover:bg-orange-600 text-white text-base"
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          Book a Demo
+                        </MotionButton>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-[425px]">
+                        <DialogHeader>
+                          <DialogTitle>Book a Demo</DialogTitle>
+                        </DialogHeader>
+                        <div className="mt-4">
+                          <InlineWidget
+                            calLink="citrusreach"
+                            style={{ height: "650px", width: "100%", overflow: "scroll" }}
+                            config={{ theme: "light", layout: "month_view" }}
+                          />
+                        </div>
+                      </DialogContent>
+                    </Dialog>
                   </>
                 )}
               </div>
