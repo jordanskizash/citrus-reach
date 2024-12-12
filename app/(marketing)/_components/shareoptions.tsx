@@ -64,7 +64,7 @@ const shareOptions: ShareOption[] = [
 
 export default function ShareSites() {
   return (
-    <div className="w-full bg-gradient-to-b from-orange-100 to-white px-8 pb-8 pt-8">
+    <div className="w-full bg-gradient-to-b from-orange-100 to-white px-8 pb-8 pt-2">
       <div className="mx-auto max-w-6xl text-center">
         <h2 className="mb-4 text-4xl font-bold tracking-tight text-gray-900 lg:text-5xl">
           Share your sites with one click
