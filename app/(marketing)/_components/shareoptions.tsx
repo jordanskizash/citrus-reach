@@ -9,58 +9,63 @@ interface ShareOption {
   label: string
   icon: JSX.Element
   position: string
+  className?: string
 }
 
 const shareOptions: ShareOption[] = [
-  {
-    id: "public-link",
-    label: "Public link",
-    icon: <Link className="w-4 h-4" />,
-    position: "top-0 left-[15%]"
-  },
-  {
-    id: "user-feedback",
-    label: "#user-feedback",
-    icon: <NotebookPen className="w-4 h-4" />,
-    position: "top-[15%] left-0"
-  },
-  {
-    id: "email",
-    label: "Email / All participants",
-    icon: <Mail className="w-4 h-4" />,
-    position: "top-[40%] left-[-10%]"
-  },
-  {
-    id: "crm",
-    label: "CRM",
-    icon: <Users className="w-4 h-4" />,
-    position: "bottom-[20%] left-[15%]"
-  },
-  {
-    id: "project-updates",
-    label: "Project updates",
-    icon: <NotebookPen className="w-4 h-4" />,
-    position: "top-0 right-[15%]"
-  },
-  {
-    id: "ats-notes",
-    label: "ATS / Candidate notes",
-    icon: <Users className="w-4 h-4" />,
-    position: "top-[25%] right-0"
-  },
-  {
-    id: "one-on-one",
-    label: "1 on 1 notes",
-    icon: <NotebookPen className="w-4 h-4" />,
-    position: "bottom-[30%] right-[5%]"
-  },
-  {
-    id: "meeting-notes",
-    label: "#meeting-notes",
-    icon: <NotebookPen className="w-4 h-4" />,
-    position: "bottom-[10%] right-[20%]"
-  },
-]
+    {
+      id: "public-link",
+      label: "Public link",
+      icon: <Link className="w-4 h-4" />,
+      position: "top-0 left-[15%]"
+    },
+    {
+      id: "user-feedback",
+      label: "#user-feedback",
+      icon: <NotebookPen className="w-4 h-4" />,
+      position: "top-[15%] left-0",
+      className: "hidden md:block" // Hide on mobile
+    },
+    {
+      id: "email",
+      label: "Email / All participants",
+      icon: <Mail className="w-4 h-4" />,
+      position: "top-[40%] left-[-5%]"
+    },
+    {
+      id: "crm",
+      label: "CRM",
+      icon: <Users className="w-4 h-4" />,
+      position: "bottom-[20%] left-[15%]",
+      className: "hidden md:block" // Hide on mobile
+    },
+    {
+      id: "project-updates",
+      label: "Project updates",
+      icon: <NotebookPen className="w-4 h-4" />,
+      position: "top-0 right-[15%]"
+    },
+    {
+      id: "ats-notes",
+      label: "ATS / Candidate notes",
+      icon: <Users className="w-4 h-4" />,
+      position: "top-[25%] right-0",
+      className: "hidden md:block" // Hide on mobile
+    },
+    {
+      id: "one-on-one",
+      label: "1 on 1 notes",
+      icon: <NotebookPen className="w-4 h-4" />,
+      position: "bottom-[30%] right-[5%]",
+      className: "hidden md:block" // Hide on mobile
+    },
+    {
+      id: "meeting-notes",
+      label: "#meeting-notes",
+      icon: <NotebookPen className="w-4 h-4" />,
+      position: "bottom-[10%] right-[20%]"
+    },
+  ]
 
 export default function ShareSites() {
   return (
@@ -85,17 +90,17 @@ export default function ShareSites() {
             }
           `}</style>
           {shareOptions.map((option, index) => (
-            <div
-              key={option.id}
-              className={`absolute ${option.position} animate-float`}
-              style={{ animationDelay: `${index * 0.2}s` }}
-            >
-              <div className="flex items-center gap-2 rounded-full border bg-white px-4 py-2 shadow-lg">
-                {option.icon}
-                <span>{option.label}</span>
-              </div>
+        <div
+            key={option.id}
+            className={`absolute ${option.position} animate-float ${option.className || ''}`}
+            style={{ animationDelay: `${index * 0.2}s` }}
+        >
+            <div className="flex items-center gap-2 rounded-full border bg-white px-4 py-2 shadow-lg">
+            {option.icon}
+            <span>{option.label}</span>
             </div>
-          ))}
+        </div>
+        ))}
 
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] hidden md:block">
             <Card className="p-4 shadow-lg">
