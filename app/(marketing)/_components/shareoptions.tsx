@@ -64,7 +64,7 @@ const shareOptions: ShareOption[] = [
 
 export default function ShareSites() {
   return (
-    <div className="w-full bg-gradient-to-b from-orange-100 to-white px-8 pb-8 pt-2">
+    <div className="w-full bg-gradient-to-b from-orange-100 to-white px-8 pb-8">
       <div className="mx-auto max-w-6xl text-center">
         <h2 className="mb-4 text-4xl font-bold tracking-tight text-gray-900 lg:text-5xl">
           Share your sites with one click
@@ -97,19 +97,19 @@ export default function ShareSites() {
             </div>
           ))}
 
-          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px]">
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] hidden md:block">
             <Card className="p-4 shadow-lg">
-              <div className="space-y-3 mb-4">
+                <div className="space-y-3 mb-4">
                 <div className="h-4 bg-gray-200 rounded w-3/4" />
                 <div className="h-4 bg-gray-200 rounded w-full" />
                 <div className="h-4 bg-gray-200 rounded w-2/3" />
                 <div className="h-4 bg-gray-200 rounded w-1/2" />
-              </div>
-              <Button className="w-full bg-orange-600 hover:bg-orange-700">
+                </div>
+                <Button className="w-full bg-orange-600 hover:bg-orange-700">
                 Share site
-              </Button>
+                </Button>
             </Card>
-          </div>
+            </div>
         </div>
       </div>
     </div>
