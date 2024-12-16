@@ -298,7 +298,7 @@ export default function Dashboard() {
                           doc.slug ? blogViews[doc.slug] || 0 : 0
                         )}
                       </TableCell>
-                      <TableCell>{Math.floor(Math.random() * 50)}</TableCell>
+                      <TableCell>{doc.likeCount || 0}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>

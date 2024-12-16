@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { Link, Mail, Users, NotebookPen } from 'lucide-react'
+import { Link, Mail, Users, NotebookPen, Pointer, Share } from 'lucide-react'
 
 interface ShareOption {
   id: string
@@ -21,14 +21,14 @@ const shareOptions: ShareOption[] = [
     },
     {
       id: "user-feedback",
-      label: "#user-feedback",
+      label: "#team-channel",
       icon: <NotebookPen className="w-4 h-4" />,
       position: "top-[15%] left-0",
       className: "hidden md:block" // Hide on mobile
     },
     {
       id: "email",
-      label: "Email / All participants",
+      label: "Email Outreach",
       icon: <Mail className="w-4 h-4" />,
       position: "top-[40%] left-[-5%]"
     },
@@ -47,21 +47,21 @@ const shareOptions: ShareOption[] = [
     },
     {
       id: "ats-notes",
-      label: "ATS / Candidate notes",
+      label: "Hiring Cover Website",
       icon: <Users className="w-4 h-4" />,
       position: "top-[25%] right-0",
       className: "hidden md:block" // Hide on mobile
     },
     {
       id: "one-on-one",
-      label: "1 on 1 notes",
+      label: "Product Documentation",
       icon: <NotebookPen className="w-4 h-4" />,
       position: "bottom-[30%] right-[5%]",
       className: "hidden md:block" // Hide on mobile
     },
     {
       id: "meeting-notes",
-      label: "#meeting-notes",
+      label: "#account-notes",
       icon: <NotebookPen className="w-4 h-4" />,
       position: "bottom-[10%] right-[20%]"
     },
@@ -69,7 +69,7 @@ const shareOptions: ShareOption[] = [
 
 export default function ShareSites() {
   return (
-    <div className="w-full bg-gradient-to-b from-orange-100 to-white px-8 pb-8">
+    <div className="w-full bg-gradient-to-b from-orange-100 to-white px-8  lg:pt-2 pt-4 pb-8"> {/* adjusted padding */}
       <div className="mx-auto max-w-6xl text-center">
         <h2 className="mb-4 text-4xl font-bold tracking-tight text-gray-900 lg:text-5xl">
           Share your sites with one click
@@ -103,17 +103,12 @@ export default function ShareSites() {
         ))}
 
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] hidden md:block">
-            <Card className="p-4 shadow-lg">
-                <div className="space-y-3 mb-4">
-                <div className="h-4 bg-gray-200 rounded w-3/4" />
-                <div className="h-4 bg-gray-200 rounded w-full" />
-                <div className="h-4 bg-gray-200 rounded w-2/3" />
-                <div className="h-4 bg-gray-200 rounded w-1/2" />
-                </div>
-                <Button className="w-full bg-orange-600 hover:bg-orange-700">
+           
+                <Button className="w-full text-lg rounded-full bg-orange-600 hover:bg-orange-700">
                 Share site
+                <Share className="h-4 w-4 ml-5" />
                 </Button>
-            </Card>
+            
             </div>
         </div>
       </div>

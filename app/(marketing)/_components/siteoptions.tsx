@@ -80,14 +80,14 @@ export default function MeetingTemplates() {
   }, [])
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-b from-white via-orange-50 to-orange-100 px-8 pt-12 mt-8">
-      <div className="mx-auto max-w-6xl h-full flex flex-col lg:flex-row lg:items-center">
+    <div className="min-h-100 w-full bg-gradient-to-b from-white via-orange-50 to-orange-100 md:pb-8 lg:pb-20 px-8 pb-16 mt-8"> {/* reduced mt-8 to mt-4 */}
+      <div className="mx-auto max-w-5xl h-full flex flex-col lg:flex-row lg:items-center">
         <div className="lg:w-1/2 lg:pr-8 mb-12 lg:mb-0">
           <h1 className="mb-8 text-3xl text-left font-bold tracking-tight text-gray-900 lg:text-5xl">
-            Customizable templates for your most common meeting types
+            Customizable sites for any stage in the sales cycle
           </h1>
           <p className="mb-8 text-left text-xl text-gray-500">
-            Get notes in the exact format your team needs.
+            Create sites to support your opportunity from identification to close
           </p>
           <div className="flex flex-col gap-4">
             <div className="flex flex-wrap gap-2">
@@ -125,35 +125,37 @@ export default function MeetingTemplates() {
           </div>
         </div>
 
-        <Card className="lg:w-1/2 p-6 shadow-lg h-[600px] overflow-y-auto">
-          <div className="mb-6">
-            <h2 className="text-xl font-semibold">{templates[activeTemplate].title}</h2>
-            {templates[activeTemplate].time && (
-              <div className="flex items-center gap-2 mt-2 text-sm text-gray-500">
-                <span>{templates[activeTemplate].time}</span>
-                <span>•</span>
-                <span>{templates[activeTemplate].participants}</span>
-              </div>
-            )}
-          </div>
-
-          {templates[activeTemplate].sections.map((section, index) => (
-            <div key={index} className="mb-8 last:mb-0">
-              <h3 className="mb-3 font-medium">{section.title}</h3>
-              <div className="space-y-2">
-                {Array.from({ length: section.items }).map((_, i) => (
-                  <div
-                    key={i}
-                    className="h-4 bg-gray-200 rounded animate-pulse"
-                    style={{
-                      width: `${Math.random() * 40 + 60}%`,
-                    }}
-                  />
-                ))}
-              </div>
+        <div className="lg:w-1/2 relative">
+          <Card className="p-6 shadow-xl h-[600px] overflow-y-auto bg-white transform rotate-2 transition-transform">
+            <div className="mb-3">
+              <h2 className="text-xl font-semibold">{templates[activeTemplate].title}</h2>
+              {templates[activeTemplate].time && (
+                <div className="flex items-center gap-2 mt-2 text-sm text-gray-500">
+                  <span>{templates[activeTemplate].time}</span>
+                  <span>•</span>
+                  <span>{templates[activeTemplate].participants}</span>
+                </div>
+              )}
             </div>
-          ))}
-        </Card>
+
+            {templates[activeTemplate].sections.map((section, index) => (
+              <div key={index} className="mb-8 last:mb-0">
+                <h3 className="mb-3 font-medium">{section.title}</h3>
+                <div className="space-y-2">
+                  {Array.from({ length: section.items }).map((_, i) => (
+                    <div
+                      key={i}
+                      className="h-4 bg-gray-200 rounded animate-pulse"
+                      style={{
+                        width: `${Math.random() * 40 + 60}%`,
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
+            ))}
+          </Card>
+        </div>
       </div>
     </div>
   )

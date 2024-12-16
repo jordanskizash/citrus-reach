@@ -16,16 +16,16 @@ export default function HowItWorks() {
   const screens = [
     { content: "/profilesite.png" },
     { content: "/bloghere.png" },
-    { content: "/eventstwo.png" }
+    { content: "/EventsTwo.png" }
   ]
 
   return (
-    <div className="container mx-auto px-4 py-12" >
-      <h1 className="text-6xl md:text-6xl font-semibold text-center text-[#0B3B2D] mb-12">
+    <div className="container mx-auto px-4 py-8 mb-12" >
+      <h1 className="text-4xl md:text-5xl font-semibold text-center mb-8">
         How Citrus Works
       </h1>
       
-      <div className="grid lg:grid-cols-2 gap-12 max-w-7xl mx-auto">
+      <div className="grid lg:grid-cols-2 gap-8 max-w-5xl mx-auto"> 
         {/* First Card */}
         <Card className="p-8 shadow-lg rounded-2xl bg-gradient-to-b from-white via-orange-50 to-orange-100 overflow-hidden">
           <div className="flex flex-col h-full">
