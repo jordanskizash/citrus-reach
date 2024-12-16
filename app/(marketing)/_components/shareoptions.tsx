@@ -43,7 +43,8 @@ const shareOptions: ShareOption[] = [
       id: "project-updates",
       label: "Project updates",
       icon: <NotebookPen className="w-4 h-4" />,
-      position: "top-0 right-[15%]"
+      position: "top-0 right-[15%]",
+      className: "hidden md:block" 
     },
     {
       id: "ats-notes",
