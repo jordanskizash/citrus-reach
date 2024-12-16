@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { Link, Mail, Users, NotebookPen, Pointer, Share } from 'lucide-react'
+import { Link, Mail, Users, NotebookPen, Pointer, Share, DollarSign } from 'lucide-react'
 
 interface ShareOption {
   id: string
@@ -30,7 +30,7 @@ const shareOptions: ShareOption[] = [
       id: "email",
       label: "Email Outreach",
       icon: <Mail className="w-4 h-4" />,
-      position: "top-[40%] left-[-5%]"
+      position: "top-[40%] left-[1%]"
     },
     {
       id: "crm",
@@ -47,10 +47,9 @@ const shareOptions: ShareOption[] = [
     },
     {
       id: "ats-notes",
-      label: "Hiring Cover Website",
-      icon: <Users className="w-4 h-4" />,
-      position: "top-[25%] right-0",
-      className: "hidden md:block" // Hide on mobile
+      label: "Deal Review",
+      icon: <DollarSign className="w-4 h-4" />,
+      position: "top-[25%] right-[10%]",
     },
     {
       id: "one-on-one",
@@ -104,7 +103,7 @@ export default function ShareSites() {
 
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] hidden md:block">
            
-                <Button className="w-full text-lg rounded-full bg-orange-600 hover:bg-orange-700">
+                <Button className="w-full text-lg rounded-full border-black hover:border-l-4 hover:border-b-4 bg-orange-500 hover:bg-orange-500">
                 Share site
                 <Share className="h-4 w-4 ml-5" />
                 </Button>

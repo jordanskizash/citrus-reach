@@ -11,7 +11,7 @@ const font = Poppins({
 
 export const LogoOnly = ({ mode = "light" }) => {
     return (
-        <div className="md:flex items-center gap-x-2">
+        <div className="flex items-center gap-x-2">
             <Link href="/" passHref>
                 {mode === "dark" ? (
                     <Image 

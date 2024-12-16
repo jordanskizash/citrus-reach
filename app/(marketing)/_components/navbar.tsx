@@ -12,6 +12,7 @@ import { Logo } from "./logo"
 import { Spinner } from "@/components/spinner"
 import { useScrollTop } from "@/hooks/use-scroll-top"
 import { Zilla_Slab } from 'next/font/google'
+import { LogoOnly } from './logojust'
 
 const zilla = Zilla_Slab({
   subsets: ['latin'],
@@ -52,7 +53,7 @@ const NavItems: React.FC<NavItemsProps> = ({ isAuthenticated, isLoading }) => (
           <Button 
             variant="ghost" 
             size="sm"
-            className="text-gray-700 hover:text-gray-900"
+            className="hidden md:flex text-gray-700 hover:text-gray-900 text-sm"
           >
             Sign In
           </Button>
@@ -60,7 +61,7 @@ const NavItems: React.FC<NavItemsProps> = ({ isAuthenticated, isLoading }) => (
         <SignInButton>
           <Button 
             size="sm"
-            className="bg-orange-50 hover:bg-orange-100 text-orange-500"
+            className="bg-orange-50 hover:bg-orange-100 text-orange-500 text-xs px-3 py-1"
           >
             Try Citrus Free
           </Button>
@@ -71,9 +72,9 @@ const NavItems: React.FC<NavItemsProps> = ({ isAuthenticated, isLoading }) => (
       <>
         <Button 
           variant="ghost" 
-          size="sm" 
+          size="sm"
           asChild
-          className="text-gray-700 hover:text-gray-900"
+          className="text-gray-700 hover:text-gray-900 text-xs"
         >
           <Link href="/dashboard">
             Enter Citrus
@@ -279,27 +280,34 @@ const FullscreenMenu: React.FC<FullscreenMenuProps> = ({ isOpen, onClose }) => {
         isOpen && "opacity-100"
       )}
     >
-      <div className="flex px-6 pt-4">
-        <Button variant="ghost" size="icon" onClick={onClose} className="hover:bg-transparent">
+      {/* Close button container - right aligned */}
+      <div className="flex justify-end px-6 pt-4">
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          onClick={onClose} 
+          className="hover:bg-transparent"
+        >
           <X className="h-8 w-8" />
           <span className="sr-only">Close menu</span>
         </Button>
       </div>
       
+      {/* Navigation menu - right aligned */}
       <nav className={cn(
-        "flex flex-col mt-20 pl-8",
+        "flex flex-col mt-20 pr-8",  // Changed pl-8 to pr-8
         zilla.className
       )}>
         <Link 
           href="/about" 
-          className="text-6xl py-6 hover:text-orange-500 transition-colors transform translate-y-4 opacity-0 animate-slide-up"
+          className="text-6xl py-6 hover:text-orange-500 transition-colors transform translate-y-4 opacity-0 animate-slide-up text-right"  // Added text-right
           onClick={onClose}
         >
           About
         </Link>
         <Link 
           href="/blog" 
-          className="text-6xl py-6 hover:text-orange-500 transition-colors transform translate-y-4 opacity-0 animate-slide-up"
+          className="text-6xl py-6 hover:text-orange-500 transition-colors transform translate-y-4 opacity-0 animate-slide-up text-right"  // Added text-right
           style={{ animationDelay: '0.1s' }}
           onClick={onClose}
         >
@@ -307,7 +315,7 @@ const FullscreenMenu: React.FC<FullscreenMenuProps> = ({ isOpen, onClose }) => {
         </Link>
         <Link 
           href="/pricing" 
-          className="text-6xl py-6 hover:text-orange-500 transition-colors transform translate-y-4 opacity-0 animate-slide-up"
+          className="text-6xl py-6 hover:text-orange-500 transition-colors transform translate-y-4 opacity-0 animate-slide-up text-right"  // Added text-right
           style={{ animationDelay: '0.2s' }}
           onClick={onClose}
         >
@@ -315,7 +323,7 @@ const FullscreenMenu: React.FC<FullscreenMenuProps> = ({ isOpen, onClose }) => {
         </Link>
         <Link 
           href="/examples" 
-          className="text-6xl py-6 hover:text-orange-500 transition-colors transform translate-y-4 opacity-0 animate-slide-up"
+          className="text-6xl py-6 hover:text-orange-500 transition-colors transform translate-y-4 opacity-0 animate-slide-up text-right"  // Added text-right
           style={{ animationDelay: '0.3s' }}
           onClick={onClose}
         >
@@ -328,34 +336,33 @@ const FullscreenMenu: React.FC<FullscreenMenuProps> = ({ isOpen, onClose }) => {
 
 
 const MainNav: React.FC = () => (
-  <nav className="hidden md:flex items-center space-x-8">
-    <div className="flex items-center space-x-2">
-      <Button 
-        variant="ghost" 
-        size="sm"
-        className="text-gray-700 hover:text-gray-900"
-        asChild
-      >
-        <Link href="/about">About</Link>
-      </Button>
-      <Button 
-        variant="ghost" 
-        size="sm"
-        className="text-gray-700 hover:text-gray-900"
-        asChild
-      >
-        <Link href="/blog">Blog</Link>
-      </Button>
-      <Button 
-        variant="ghost" 
-        size="sm"
-        className="text-gray-700 hover:text-gray-900"
-        asChild
-      >
-        <Link href="/pricing">Pricing</Link>
-      </Button>
-      <ExamplesDropdown />
-    </div>
+  <nav className="hidden md:flex items-center space-x-6">
+    {/* Removed the nested div to simplify structure and improve centering */}
+    <Button 
+      variant="ghost" 
+      size="sm"
+      className="text-gray-700 hover:text-gray-900"
+      asChild
+    >
+      <Link href="/about">About</Link>
+    </Button>
+    <Button 
+      variant="ghost" 
+      size="sm"
+      className="text-gray-700 hover:text-gray-900"
+      asChild
+    >
+      <Link href="/blog">Blog</Link>
+    </Button>
+    <Button 
+      variant="ghost" 
+      size="sm"
+      className="text-gray-700 hover:text-gray-900"
+      asChild
+    >
+      <Link href="/pricing">Pricing</Link>
+    </Button>
+    <ExamplesDropdown />
   </nav>
 );
 
@@ -364,45 +371,78 @@ export const Navbar: React.FC = () => {
   const scrolled = useScrollTop()
   const [isOpen, setIsOpen] = useState(false)
 
-  return (
-    <>
-      <div className={cn(
-        "z-50 fixed top-0 w-full bg-white border-b border-black",
-        scrolled && "shadow-sm"
-      )}>
-        <div className="flex h-16 items-center px-4 md:px-6">
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="md:hidden mr-2"
-            onClick={() => setIsOpen(true)}
-          >
-            <Menu className="h-5 w-5" />
-            <span className="sr-only">Toggle menu</span>
-          </Button>
+    return (
+      <>
+        <div className={cn(
+          "z-50 fixed top-0 w-full bg-white border-b border-black",
+          scrolled && "shadow-sm"
+        )}>
+          <div className="flex h-16 items-center justify-between px-4 md:px-6">
+            {/* Logo section - with fixed width */}
+            <div className="w-[200px] flex items-center">
+              <div className="md:hidden">
+                <LogoOnly />
+              </div>
+              <div className="hidden md:block">
+                <Logo />
+              </div>
+            </div>
 
-          <div className="flex items-center flex-1">
-            <Logo />
-          </div>
+            {/* Center nav section - smaller text */}
+            <div className="flex-1 flex justify-center">
+              <nav className="hidden md:flex items-center space-x-2 text-sm">
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  className="text-gray-700 hover:text-gray-900"
+                  asChild
+                >
+                  <Link href="/about">About</Link>
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  className="text-gray-700 hover:text-gray-900"
+                  asChild
+                >
+                  <Link href="/blog">Blog</Link>
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  className="text-gray-700 hover:text-gray-900"
+                  asChild
+                >
+                  <Link href="/pricing">Pricing</Link>
+                </Button>
+                <ExamplesDropdown />
+              </nav>
+            </div>
 
-          <div className="flex-1 flex justify-center">
-            <MainNav />
-          </div>
-
-          <div className="flex items-center justify-end flex-1">
-            <NavItems isAuthenticated={isAuthenticated} isLoading={isLoading} />
-            <Button 
-              size="sm" 
-              className="hidden md:flex ml-4 bg-orange-500 hover:bg-orange-600 text-white"
-            >
-              Book a Demo
-            </Button>
+            {/* Actions section - with fixed width to match logo section */}
+            <div className="w-[200px] flex items-center justify-end gap-2">
+              <NavItems isAuthenticated={isAuthenticated} isLoading={isLoading} />
+              <Button 
+                size="sm"
+                className="hidden md:flex bg-orange-500 hover:bg-orange-600 text-white text-xs px-3 py-1"
+              >
+                Book a Demo
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="md:hidden"
+                onClick={() => setIsOpen(true)}
+              >
+                <Menu className="h-5 w-5" />
+                <span className="sr-only">Toggle menu</span>
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
-      
-      <FullscreenMenu isOpen={isOpen} onClose={() => setIsOpen(false)} />
-    </>
+        
+        <FullscreenMenu isOpen={isOpen} onClose={() => setIsOpen(false)} />
+      </>
   )
 }
 
