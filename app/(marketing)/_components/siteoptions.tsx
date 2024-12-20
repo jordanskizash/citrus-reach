@@ -3,76 +3,77 @@
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import { Circle } from 'lucide-react'
 
 interface Template {
   id: string
   title: string
-  time?: string
-  participants?: string
   sections: {
     title: string
+    type: 'text' | 'image' | 'button' | 'circle'
     items: number
   }[]
 }
 
 const templates: Record<string, Template> = {
-  "customer-discovery": {
-    id: "customer-discovery",
-    title: "Customer discovery",
-    time: "Today 10:10 PM",
-    participants: "Alex, Sarah +3",
+  "cold-outreach": {
+    id: "cold-outreach",
+    title: "Cold Outreach",
     sections: [
-      { title: "About them", items: 3 },
-      { title: "Key takeaways", items: 2 },
-      { title: "Decision-making insights", items: 2 },
-      { title: "Budget & Timeline", items: 2 },
-      { title: "Next Steps", items: 2 },
+      { title: "Personalized Intro", type: 'text', items: 1 },
+      { title: "Company Overview", type: 'image', items: 1 },
+      { title: "Value Proposition", type: 'text', items: 1 },
+      { title: "Social Proof", type: 'text', items: 1 },
+      { title: "Schedule a Call", type: 'button', items: 1 },
     ],
   },
-  "1-on-1": {
-    id: "1-on-1",
-    title: "1 on 1",
-    time: "Tomorrow 2:00 PM",
-    participants: "John",
+  "one-pager": {
+    id: "one-pager",
+    title: "One-Pager",
     sections: [
-      { title: "Wins & Challenges", items: 2 },
-      { title: "Goals Progress", items: 3 },
-      { title: "Action Items", items: 2 },
+      { title: "Product Showcase", type: 'image', items: 1 },
+      { title: "Company Overview", type: 'text', items: 1 },
+      { title: "Key Features", type: 'text', items: 2 },
+      { title: "Contact Information", type: 'text', items: 1 },
+      { title: "Request Demo", type: 'button', items: 1 },
     ],
   },
-  "user-interview": {
-    id: "user-interview",
-    title: "User Interview",
+  "deal-room": {
+    id: "deal-room",
+    title: "Deal Room",
     sections: [
-      { title: "Background", items: 2 },
-      { title: "Pain Points", items: 3 },
-      { title: "Feature Feedback", items: 2 },
-      { title: "Next Steps", items: 1 },
+      { title: "Deal Summary", type: 'text', items: 1 },
+      { title: "Key Documents", type: 'text', items: 2 },
+      { title: "Financial Overview", type: 'image', items: 1 },
+      { title: "Discussion Thread", type: 'text', items: 1 },
+      { title: "E-Sign Agreement", type: 'button', items: 1 },
     ],
   },
-  "pitch": {
-    id: "pitch",
-    title: "Pitch",
+  "event": {
+    id: "event",
+    title: "Event",
     sections: [
-      { title: "Company Overview", items: 2 },
-      { title: "Product Demo", items: 2 },
-      { title: "Market Analysis", items: 3 },
-      { title: "Q&A Notes", items: 2 },
+      { title: "Event Heading", type: 'image', items: 1 },
+      { title: "Event Details", type: 'text', items: 1 },
+      { title: "Agenda", type: 'text', items: 2 },
+      { title: "Speakers", type: 'text', items: 4 },
+      { title: "RSVP Now", type: 'button', items: 1 },
     ],
   },
-  "standup": {
-    id: "standup",
-    title: "Standup",
+  "file-share": {
+    id: "file-share",
+    title: "File Share",
     sections: [
-      { title: "Yesterday", items: 3 },
-      { title: "Today", items: 3 },
-      { title: "Blockers", items: 2 },
+      { title: "Shared Files", type: 'text', items: 2 },
+      { title: "File Preview", type: 'image', items: 1 },
+      { title: "Access Log", type: 'text', items: 1 },
+      { title: "Get Access", type: 'button', items: 1 },
     ],
   },
 }
 
 export default function MeetingTemplates() {
-  const [activeTemplate, setActiveTemplate] = useState<string>("customer-discovery")
+  const [activeTemplate, setActiveTemplate] = useState<string>("cold-outreach")
   const [randomizedTemplates, setRandomizedTemplates] = useState<string[]>([])
 
   useEffect(() => {
@@ -80,7 +81,7 @@ export default function MeetingTemplates() {
   }, [])
 
   return (
-    <div className="min-h-100 w-full bg-gradient-to-b from-white via-orange-50 to-orange-100 md:pb-8 lg:pb-20 px-8 pb-16 mt-8"> {/* reduced mt-8 to mt-4 */}
+    <div className="min-h-100 w-full bg-gradient-to-b from-white via-orange-50 to-orange-100 md:pb-8 lg:pb-20 px-8 pb-16 mt-8">
       <div className="mx-auto max-w-5xl h-full flex flex-col lg:flex-row lg:items-center">
         <div className="lg:w-1/2 lg:pr-8 mb-12 lg:mb-0">
           <h1 className="mb-8 text-3xl text-left font-bold tracking-tight text-gray-900 lg:text-5xl">
@@ -129,28 +130,53 @@ export default function MeetingTemplates() {
           <Card className="p-6 shadow-xl h-[600px] overflow-y-auto bg-white transform rotate-2 transition-transform">
             <div className="mb-3">
               <h2 className="text-xl font-semibold">{templates[activeTemplate].title}</h2>
-              {templates[activeTemplate].time && (
-                <div className="flex items-center gap-2 mt-2 text-sm text-gray-500">
-                  <span>{templates[activeTemplate].time}</span>
-                  <span>•</span>
-                  <span>{templates[activeTemplate].participants}</span>
-                </div>
-              )}
             </div>
 
             {templates[activeTemplate].sections.map((section, index) => (
-              <div key={index} className="mb-8 last:mb-0">
-                <h3 className="mb-3 font-medium">{section.title}</h3>
-                <div className="space-y-2">
-                  {Array.from({ length: section.items }).map((_, i) => (
-                    <div
-                      key={i}
-                      className="h-4 bg-gray-200 rounded animate-pulse"
-                      style={{
-                        width: `${Math.random() * 40 + 60}%`,
-                      }}
-                    />
-                  ))}
+              <div key={index} className="mb-4 last:mb-0">
+                <h3 className="mb-2 font-medium">{section.title}</h3>
+                <div className="space-y-1">
+                  {Array.from({ length: section.items }).map((_, i) => {
+                    switch (section.type) {
+                      case 'text':
+                        return (
+                          <div
+                            key={i}
+                            className="h-4 bg-gray-200 rounded animate-pulse"
+                            style={{
+                              width: `${Math.random() * 30 + 70}%`,
+                            }}
+                          />
+                        )
+                      case 'image':
+                        return (
+                          <div
+                            key={i}
+                            className="bg-gray-300 rounded animate-pulse"
+                            style={{
+                              height: section.title === "File Preview" ? "180px" : "120px",
+                            }}
+                          />
+                        )
+                      case 'circle':
+                        return (
+                          <div key={i} className="inline-block mr-2 mb-2">
+                            <Circle className="w-8 h-8 text-gray-300" fill="currentColor" />
+                          </div>
+                        )
+                      case 'button':
+                        return (
+                          <button
+                            key={i}
+                            className="px-6 py-2 bg-orange-100 text-orange-500 rounded-full hover:bg-orange-200 transition-colors"
+                          >
+                            {section.title}
+                          </button>
+                        )
+                      default:
+                        return null
+                    }
+                  })}
                 </div>
               </div>
             ))}
