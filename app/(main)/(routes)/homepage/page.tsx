@@ -7,80 +7,86 @@ import { useQuery } from 'convex/react'
 import { api } from '@/convex/_generated/api'
 import { useUser } from '@clerk/clerk-react'
 import { Doc } from '@/convex/_generated/dataModel'
-import { useState, useEffect } from 'react'
+import { Mail, Phone, Linkedin, Calendar } from 'lucide-react'
 
 const MotionLink = motion(Link)
 
 export default function BlogHomepage() {
   const { user } = useUser();
   const documents = useQuery(api.documents.getPublishedDocuments)
-  const [pinnedPost, setPinnedPost] = useState<Doc<'documents'> | null>(null)
-  const [otherPosts, setOtherPosts] = useState<Doc<'documents'>[]>([])
+  const userSettings = useQuery(api.users.getUserSettings, { 
+    clerkId: user?.id || "" 
+  })
 
-  useEffect(() => {
-    if (documents) {
-      const published = documents.filter(doc => doc.isPublished)
-      if (published.length > 0) {
-        setPinnedPost(published[0])
-        setOtherPosts(published.slice(1))
-      }
-    }
-  }, [documents])
-
-  if (!documents) return <div>Loading...</div>
+  if (!documents || !userSettings) return <div>Loading...</div>
 
   return (
     <div className="max-w-7xl mx-auto px-8 sm:px-16 py-8">
-      <h1 className="text-4xl font-bold mb-8">Latest from {user?.fullName}</h1>
-      
-      <div className="space-y-12">
-      {pinnedPost && (
-        <MotionLink 
-          href={`/blog/${pinnedPost._id}`}
-          className="flex flex-col md:flex-row gap-6 mb-12 p-6 rounded-lg"
-          whileHover={{ scale: 1.02 }}
-          transition={{ type: "spring", stiffness: 300 }}
-        >
-          <div className="md:w-1/2">
-            <Image 
-              src={pinnedPost.coverImage || "/placeholder.svg?height=400&width=600"}
-              alt={pinnedPost.title}
-              width={600}
-              height={400}
-              className="rounded-lg object-cover w-full h-[250px] md:h-[300px]"
-            />
-          </div>
-          <div className="md:w-1/2 flex flex-col justify-center p-6">
-            <h2 className="text-2xl font-bold mb-2">{pinnedPost.title}</h2>
-            <p className="text-gray-600 mb-2">By {user?.fullName || 'Unknown Author'}</p>
-            <p className="text-gray-500">{new Date(pinnedPost._creationTime).toLocaleDateString()}</p>
-          </div>
-        </MotionLink>
-      )}
-      
+      {/* Profile Section */}
+      <div className="flex flex-col items-center text-center mb-16">
+        <Image 
+          src={userSettings?.logoUrl || "/placeholder.svg"} 
+          alt={userSettings?.name || "Profile"}
+          width={120}
+          height={120}
+          className="rounded-full mb-4"
+        />
+        <h1 className="text-4xl font-bold mb-4">{userSettings?.name}</h1>
+        <p className="text-gray-600 max-w-2xl mb-8">{userSettings?.description || "No description available"}</p>
+        
+        {/* Contact Links */}
+        <div className="flex gap-6 justify-center mb-8">
+          {userSettings?.email && (
+            <Link href={`mailto:${userSettings.email}`} className="flex items-center gap-2 text-gray-600 hover:text-gray-900">
+              <Mail className="w-5 h-5" />
+              <span>{userSettings.email}</span>
+            </Link>
+          )}
+          {userSettings?.phoneNumber && (
+            <Link href={`tel:${userSettings.phoneNumber}`} className="flex items-center gap-2 text-gray-600 hover:text-gray-900">
+              <Phone className="w-5 h-5" />
+              <span>{userSettings.phoneNumber}</span>
+            </Link>
+          )}
+          {userSettings?.linkedin && (
+            <Link href={userSettings.linkedin} className="flex items-center gap-2 text-gray-600 hover:text-gray-900">
+              <Linkedin className="w-5 h-5" />
+              <span>LinkedIn</span>
+            </Link>
+          )}
+          {userSettings?.calComUsername && (
+            <Link href={`https://cal.com/${userSettings.calComUsername}`} className="flex items-center gap-2 text-gray-600 hover:text-gray-900">
+              <Calendar className="w-5 h-5" />
+              <span>Schedule a call</span>
+            </Link>
+          )}
+        </div>
+      </div>
+
+      {/* Blog Posts Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {otherPosts.map((post) => (
+        {documents.map((post) => (
           <MotionLink 
             key={post._id}
             href={`/blog/${post._id}`}
-            className="flex flex-col"
+            className="group relative"
             whileHover={{ y: -5 }}
             transition={{ type: "spring", stiffness: 300 }}
           >
-            <Image 
-              src={post.coverImage || "/placeholder.svg?height=300&width=400"}
-              alt={post.title}
-              width={400}
-              height={300}
-              className="rounded-lg object-cover w-full h-[200px] mb-4"
-            />
-            <p className="text-gray-500 text-sm mb-1">{new Date(post._creationTime).toLocaleDateString()}</p>
-            <h3 className="text-xl font-semibold mb-1">{post.title}</h3>
-            <p className="text-gray-600">By {user?.fullName || 'Unknown Author'}</p>
+            <div className="relative h-48 mb-4">
+              <Image 
+                src={post.coverImage || "/placeholder.svg"}
+                alt={post.title}
+                fill
+                className="rounded-lg object-cover"
+              />
+            </div>
+            <p className="text-gray-500 text-sm mb-2">{new Date(post._creationTime).toLocaleDateString()}</p>
+            <h3 className="text-xl font-semibold mb-2">{post.title}</h3>
+            <p className="text-gray-600">By {userSettings?.name || 'Unknown Author'}</p>
           </MotionLink>
         ))}
       </div>
-    </div>
     </div>
   )
 }

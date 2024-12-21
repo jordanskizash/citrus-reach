@@ -27,6 +27,7 @@ export default function SettingsPage() {
   const [meetingLink, setMeetingLink] = useState("");
   const [domainName, setDomainName] = useState("");
   const [logoUrl, setLogoUrl] = useState("");
+  const [description, setDescription] = useState("");
 
   const userSettings = useQuery(api.users.getUserSettings, { clerkId: user?.id ?? "" });
   const updateUserSettings = useMutation(api.users.updateUserSettings);
@@ -41,6 +42,7 @@ export default function SettingsPage() {
       setCalComUsername(userSettings.calComUsername || "");
       setDomainName(userSettings.domainName || "");
       setLogoUrl(userSettings.logoUrl || "");
+      setDescription(userSettings.description || "");
     }
   }, [userSettings, user]);
 
@@ -65,6 +67,7 @@ export default function SettingsPage() {
           meetingLink,
           domainName,
           logoUrl,
+          description,
           ...overrides,
         });
         
@@ -115,13 +118,13 @@ export default function SettingsPage() {
               My account
             </TabsTrigger>
             <TabsTrigger
-              value="push-notifications"
+              value="my-content"
               className={cn(
                 "pb-4 rounded-none border-b-2 border-transparent data-[state=active]:border-orange-500 data-[state=active]:text-orange-500",
                 "focus-visible:ring-0 focus-visible:ring-offset-0"
               )}
             >
-              Push notifications
+              Content
             </TabsTrigger>
             <TabsTrigger
               value="integrations"
@@ -149,9 +152,11 @@ export default function SettingsPage() {
               <h2 className="text-xl font-semibold">Name and photos</h2>
               <p className="text-sm text-muted-foreground">
                 Changing your name below will update your name on your profile.{" "}
-                <Button variant="link" className="text-orange-500 p-0 h-auto font-normal">
-                  View your profile
-                </Button>
+                <a href="/homepage">
+                  <Button variant="link" className="text-orange-500 p-0 h-auto font-normal">
+                    View your profile
+                  </Button>
+                </a>
               </p>
               
               <div className="flex items-center gap-4">
@@ -200,6 +205,24 @@ export default function SettingsPage() {
                     />
                   </div>
                 </div>
+              </div>
+            </div>
+
+             {/* Description Section */}
+             <div className="space-y-4">
+              <h2 className="text-xl font-semibold">Description</h2>
+              <p className="text-sm text-muted-foreground">
+                Add a brief description about yourself that will appear on your profile.
+              </p>
+              <div className="space-y-2 max-w-md">
+                <Label htmlFor="description">About me</Label>
+                <textarea
+                  id="description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  className="flex min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  placeholder="Tell others about yourself..."
+                />
               </div>
             </div>
 
@@ -298,9 +321,9 @@ export default function SettingsPage() {
             </div>
           </TabsContent>
 
-          <TabsContent value="push-notifications">
+          <TabsContent value="my-content">
             <div className="space-y-4">
-              <h2 className="text-xl font-semibold">Push Notifications</h2>
+              <h2 className="text-xl font-semibold">My Content</h2>
               <p className="text-sm text-muted-foreground">
                 Configure how you receive notifications.
               </p>

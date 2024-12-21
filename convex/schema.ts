@@ -70,6 +70,8 @@ export default defineSchema ({
         domainName: v.optional(v.string()),
         credits: v.optional(v.number()),     
         logoUrl: v.optional(v.string()),
+        description: v.optional(v.string()), 
+        phoneNumber: v.optional(v.string()), 
         createdAt: v.number(),
         updatedAt: v.number(),
       })

@@ -23,40 +23,42 @@ export const getUserByClerkId = query({
     },
   });
 
-export const updateUserSettings = mutation({
-  args: {
-    clerkId: v.string(),
-    name: v.string(),
-    email: v.string(),
-    image: v.optional(v.string()),
-    linkedin: v.optional(v.string()),
-    website: v.optional(v.string()),
-    meetingLink: v.optional(v.string()),
-    calComUsername: v.optional(v.string()),
-    domainName: v.optional(v.string()),
-    logoUrl: v.optional(v.string()),
-  },
-  handler: async (ctx, args) => {
-    const user = await ctx.db
-      .query("users")
-      .filter((q) => q.eq(q.field("clerkId"), args.clerkId))
-      .first();
-
-    if (user) {
-      await ctx.db.patch(user._id, {
-        ...args,
-        updatedAt: Date.now(),
-      });
-    } else {
-      await ctx.db.insert("users", {
-        ...args,
-        credits: 10,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-      });
-    }
-  },
-});
+  export const updateUserSettings = mutation({
+    args: {
+      clerkId: v.string(),
+      name: v.string(),
+      email: v.string(),
+      image: v.optional(v.string()),
+      linkedin: v.optional(v.string()),
+      website: v.optional(v.string()),
+      meetingLink: v.optional(v.string()),
+      calComUsername: v.optional(v.string()),
+      domainName: v.optional(v.string()),
+      logoUrl: v.optional(v.string()),
+      description: v.optional(v.string()), // Add this
+      phoneNumber: v.optional(v.string()), // Add this
+    },
+    handler: async (ctx, args) => {
+      const user = await ctx.db
+        .query("users")
+        .filter((q) => q.eq(q.field("clerkId"), args.clerkId))
+        .first();
+  
+      if (user) {
+        await ctx.db.patch(user._id, {
+          ...args,
+          updatedAt: Date.now(),
+        });
+      } else {
+        await ctx.db.insert("users", {
+          ...args,
+          credits: 10,
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+        });
+      }
+    },
+  });
 
 export const getCredits = query({
   args: { clerkId: v.string() },
