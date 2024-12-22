@@ -96,22 +96,22 @@ const ExamplesDropdown = () => {
       title: "ANY FORMAT",
       items: [
         {
-          title: "Blog Pages",
-          description: "Create engaging face-to-face experiences",
+          title: "Blogs",
+          description: "Stunning blogs for your personal brand or business",
           logo: "/bloggray.png",
           hoverLogo: "/blogorange.png",
-          href: "#"
+          href: "https://citrusreach.com/homepage/citrus-team"
         },
         {
           title: "Video Sites",
-          description: "Host immersive online gatherings",
+          description: "Personalized Video Websites for Your Prospects",
           logo: "/cameragray.png",
           hoverLogo: "/cameraorange.png",
           href: "#"
         },
         {
           title: "Hybrid Events",
-          description: "Blend physical and digital experiences",
+          description: "Sleek and scalable event pages",
           logo: "/calendargray.png",
           hoverLogo: "/calendarorange.png",
           href: "#"
