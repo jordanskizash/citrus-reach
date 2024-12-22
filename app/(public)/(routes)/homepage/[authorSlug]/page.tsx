@@ -8,6 +8,7 @@ import { api } from '@/convex/_generated/api'
 import { Doc } from '@/convex/_generated/dataModel'
 import { useState, useEffect } from 'react'
 import { Mail, Phone, Linkedin, Calendar } from 'lucide-react'
+import { Spinner } from '@/components/spinner'
 
 const MotionLink = motion(Link)
 
@@ -35,7 +36,13 @@ export default function BlogHomepage({ params }: HomepageProps) {
     profile ? { clerkId: profile.userId } : "skip"
   );
   
-  if (!documents || !profile || !userSettings) return <div>Loading...</div>
+  if (!documents || !profile || !userSettings) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Spinner />
+      </div>
+    );
+  }
 
   const authorFullName = profile.authorFullName || "Unknown Author";
 
