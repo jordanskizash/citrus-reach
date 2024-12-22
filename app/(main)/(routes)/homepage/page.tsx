@@ -25,7 +25,7 @@ export default function BlogHomepage() {
       {/* Profile Section */}
       <div className="flex flex-col items-center text-center mb-16">
         <Image 
-          src={userSettings?.logoUrl || "/placeholder.svg"} 
+          src={userSettings?.image || "/placeholder.svg"} 
           alt={userSettings?.name || "Profile"}
           width={120}
           height={120}
@@ -51,13 +51,17 @@ export default function BlogHomepage() {
           {userSettings?.linkedin && (
             <Link href={userSettings.linkedin} className="flex items-center gap-2 text-gray-600 hover:text-gray-900">
               <Linkedin className="w-5 h-5" />
-              <span>LinkedIn</span>
             </Link>
           )}
           {userSettings?.calComUsername && (
             <Link href={`https://cal.com/${userSettings.calComUsername}`} className="flex items-center gap-2 text-gray-600 hover:text-gray-900">
               <Calendar className="w-5 h-5" />
               <span>Schedule a call</span>
+            </Link>
+          )}
+          {userSettings?.meetingLink && (
+            <Link href={`${userSettings.meetingLink}`} className="flex items-center gap-2 text-gray-600 hover:text-gray-900">
+              <Calendar className="w-5 h-5" />
             </Link>
           )}
         </div>

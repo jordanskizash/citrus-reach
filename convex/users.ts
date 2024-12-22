@@ -12,6 +12,17 @@ export const getUserSettings = query({
   },
 });
 
+export const getUserSettingsByClerkId = query({
+  args: { clerkId: v.string() },
+  handler: async (ctx, args) => {
+    const user = await ctx.db
+      .query("users")
+      .filter((q) => q.eq(q.field("clerkId"), args.clerkId))
+      .first();
+    return user;
+  },
+});
+
 export const getUserByClerkId = query({
     args: { clerkId: v.string() },
     handler: async (ctx, args) => {
@@ -35,8 +46,11 @@ export const getUserByClerkId = query({
       calComUsername: v.optional(v.string()),
       domainName: v.optional(v.string()),
       logoUrl: v.optional(v.string()),
-      description: v.optional(v.string()), // Add this
-      phoneNumber: v.optional(v.string()), // Add this
+      description: v.optional(v.string()), 
+      phoneNumber: v.optional(v.string()), 
+      companyName: v.optional(v.string()), 
+      companyWebsite: v.optional(v.string()),
+      companyDescription: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
       const user = await ctx.db

@@ -72,6 +72,9 @@ export default defineSchema ({
         logoUrl: v.optional(v.string()),
         description: v.optional(v.string()), 
         phoneNumber: v.optional(v.string()), 
+        companyName: v.optional(v.string()),
+        companyWebsite: v.optional(v.string()),
+        companyDescription: v.optional(v.string()),
         createdAt: v.number(),
         updatedAt: v.number(),
       })

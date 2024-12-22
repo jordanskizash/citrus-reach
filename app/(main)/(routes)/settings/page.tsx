@@ -28,6 +28,11 @@ export default function SettingsPage() {
   const [domainName, setDomainName] = useState("");
   const [logoUrl, setLogoUrl] = useState("");
   const [description, setDescription] = useState("");
+  const [companyName, setCompanyName] = useState("");
+  const [companyWebsite, setCompanyWebsite] = useState("");
+  const [companyDescription, setCompanyDescription] = useState("");
+  const [image, setImage] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
 
   const userSettings = useQuery(api.users.getUserSettings, { clerkId: user?.id ?? "" });
   const updateUserSettings = useMutation(api.users.updateUserSettings);
@@ -36,15 +41,28 @@ export default function SettingsPage() {
     if (userSettings) {
       setName(userSettings.name || user?.fullName || "");
       setEmail(userSettings.email || user?.primaryEmailAddress?.emailAddress || "");
+      setPhoneNumber(userSettings.phoneNumber || "");
       setLinkedin(userSettings.linkedin || "");
       setWebsite(userSettings.website || "");
       setMeetingLink(userSettings.meetingLink || "");
       setCalComUsername(userSettings.calComUsername || "");
       setDomainName(userSettings.domainName || "");
       setLogoUrl(userSettings.logoUrl || "");
+      setImage(userSettings.image || "");
       setDescription(userSettings.description || "");
+      setCompanyName(userSettings.companyName || "");
+      setCompanyWebsite(userSettings.companyWebsite || "");
+      setCompanyDescription(userSettings.companyDescription || "");
     }
   }, [userSettings, user]);
+
+  const handleImageUpload = async (file: File) => {
+    if (file) {
+      const response = await edgestore.publicFiles.upload({ file });
+      setImage(response.url);
+      handleSave({ image: response.url });
+    }
+  };
 
   const handleLogoUpload = async (file: File) => {
     if (file) {
@@ -61,6 +79,7 @@ export default function SettingsPage() {
           clerkId: user.id,
           name: name || user.fullName || "",
           email: email || user.primaryEmailAddress?.emailAddress || "",
+          phoneNumber,
           linkedin,
           website,
           calComUsername,
@@ -68,6 +87,9 @@ export default function SettingsPage() {
           domainName,
           logoUrl,
           description,
+          companyName,
+          companyWebsite,
+          companyDescription,
           ...overrides,
         });
         
@@ -118,13 +140,13 @@ export default function SettingsPage() {
               My account
             </TabsTrigger>
             <TabsTrigger
-              value="my-content"
+              value="my-company"
               className={cn(
                 "pb-4 rounded-none border-b-2 border-transparent data-[state=active]:border-orange-500 data-[state=active]:text-orange-500",
                 "focus-visible:ring-0 focus-visible:ring-offset-0"
               )}
             >
-              Content
+              Company Information
             </TabsTrigger>
             <TabsTrigger
               value="integrations"
@@ -159,10 +181,10 @@ export default function SettingsPage() {
                 </a>
               </p>
               
-              <div className="flex items-center gap-4">
+              <div className="flex items-start gap-8">
                 <div className="relative">
                   <Avatar className="h-20 w-20">
-                    <AvatarImage src={logoUrl} />
+                    <AvatarImage src={image} />
                     <AvatarFallback>{name?.charAt(0) || "U"}</AvatarFallback>
                   </Avatar>
                   <div className="absolute -right-2 -bottom-2">
@@ -170,17 +192,17 @@ export default function SettingsPage() {
                       size="icon"
                       variant="secondary"
                       className="rounded-full h-8 w-8"
-                      onClick={() => document.getElementById("logo-upload")?.click()}
+                      onClick={() => document.getElementById("profile-upload")?.click()}
                     >
                       <Camera className="h-4 w-4" />
                     </Button>
                     <Input
-                      id="logo-upload"
+                      id="profile-upload"
                       type="file"
                       className="hidden"
                       onChange={(e) => {
                         if (e.target.files?.[0]) {
-                          handleLogoUpload(e.target.files[0]);
+                          handleImageUpload(e.target.files[0]);
                         }
                       }}
                     />
@@ -244,21 +266,13 @@ export default function SettingsPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Connected accounts</Label>
-                  <div className="space-y-2">
-                    <Button variant="outline" className="w-full justify-start gap-2">
-                      <svg className="h-4 w-4" viewBox="0 0 16 16" fill="currentColor">
-                        <path d="M7.9 7v2.4H12c-.2 1-1.2 3-4 3-2.4 0-4.3-2-4.3-4.4 0-2.4 2-4.4 4.3-4.4 1.4 0 2.3.6 2.8 1.1l1.9-1.8C11.5 1.7 9.9 1 8 1 4.1 1 1 4.1 1 8s3.1 7 7 7c4 0 6.7-2.8 6.7-6.8 0-.5 0-.8-.1-1.2H7.9z" />
-                      </svg>
-                      Connect with Google
-                    </Button>
-                    <Button variant="outline" className="w-full justify-start gap-2">
-                      <svg className="h-4 w-4" viewBox="0 0 16 16" fill="currentColor">
-                        <path d="M13.5 1.5h-11C1.7 1.5 1 2.2 1 3v10c0 .8.7 1.5 1.5 1.5h11c.8 0 1.5-.7 1.5-1.5V3c0-.8-.7-1.5-1.5-1.5zm-11 1h11c.3 0 .5.2.5.5v2h-12v-2c0-.3.2-.5.5-.5zm11 9h-11c-.3 0-.5-.2-.5-.5V6h12v5c0 .3-.2.5-.5.5z" />
-                      </svg>
-                      Connect with Slack
-                    </Button>
-                  </div>
+                  <Label htmlFor="phoneNumber">Phone Number</Label>
+                  <Input 
+                    id="phoneNumber" 
+                    value={phoneNumber} 
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    placeholder="+1 (555) 000-0000"
+                  />
                 </div>
 
                 <div className="space-y-2">
@@ -321,13 +335,69 @@ export default function SettingsPage() {
             </div>
           </TabsContent>
 
-          <TabsContent value="my-content">
+          <TabsContent value="my-company">
+            {/* Company Information Section */}
             <div className="space-y-4">
-              <h2 className="text-xl font-semibold">My Content</h2>
+              <h2 className="text-xl font-semibold">Company Information</h2>
               <p className="text-sm text-muted-foreground">
-                Configure how you receive notifications.
+                Add your company details that will appear on your profile.
               </p>
+              
+              <div className="flex items-start gap-8">
+                <div className="relative">
+                  <Avatar className="h-20 w-20">
+                    <AvatarImage src={logoUrl} />
+                    <AvatarFallback>C</AvatarFallback>
+                  </Avatar>
+                  <div className="absolute -right-2 -bottom-2">
+                    <Button
+                      size="icon"
+                      variant="secondary"
+                      className="rounded-full h-8 w-8"
+                      onClick={() => document.getElementById("company-logo-upload")?.click()}
+                    >
+                      <Camera className="h-4 w-4" />
+                    </Button>
+                    <Input
+                      id="company-logo-upload"
+                      type="file"
+                      className="hidden"
+                      onChange={(e) => {
+                        if (e.target.files?.[0]) {
+                          handleLogoUpload(e.target.files[0]);
+                        }
+                      }}
+                    />
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-8 flex-1">
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="companyName">Company name</Label>
+                      <Input
+                        id="companyName"
+                        value={companyName}
+                        onChange={(e) => setCompanyName(e.target.value)}
+                        placeholder="Enter company name"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="companyWebsite">Company website</Label>
+                      <Input
+                        id="companyWebsite"
+                        value={companyWebsite}
+                        onChange={(e) => setCompanyWebsite(e.target.value)}
+                        placeholder="https://"
+                      />
+                    </div>
+                  </div>
+
+                  
+                </div>
+              </div>
             </div>
+
           </TabsContent>
 
           <TabsContent value="integrations">
@@ -337,6 +407,24 @@ export default function SettingsPage() {
                 Manage your connected applications and services.
               </p>
             </div>
+
+            <div className="space-y-2 mt-4 w-1/3">
+            <Label>Connected accounts</Label>
+            <div className="space-y-2">
+              <Button variant="outline" className="w-full justify-start gap-2">
+                <svg className="h-4 w-4" viewBox="0 0 16 16" fill="currentColor">
+                  <path d="M7.9 7v2.4H12c-.2 1-1.2 3-4 3-2.4 0-4.3-2-4.3-4.4 0-2.4 2-4.4 4.3-4.4 1.4 0 2.3.6 2.8 1.1l1.9-1.8C11.5 1.7 9.9 1 8 1 4.1 1 1 4.1 1 8s3.1 7 7 7c4 0 6.7-2.8 6.7-6.8 0-.5 0-.8-.1-1.2H7.9z" />
+                </svg>
+                Connect with Google
+              </Button>
+              <Button variant="outline" className="w-full justify-start gap-2">
+                <svg className="h-4 w-4" viewBox="0 0 16 16" fill="currentColor">
+                  <path d="M13.5 1.5h-11C1.7 1.5 1 2.2 1 3v10c0 .8.7 1.5 1.5 1.5h11c.8 0 1.5-.7 1.5-1.5V3c0-.8-.7-1.5-1.5-1.5zm-11 1h11c.3 0 .5.2.5.5v2h-12v-2c0-.3.2-.5.5-.5zm11 9h-11c-.3 0-.5-.2-.5-.5V6h12v5c0 .3-.2.5-.5.5z" />
+                </svg>
+                Connect with Slack
+              </Button>
+            </div>
+          </div>
           </TabsContent>
 
           <TabsContent value="quick-record">
