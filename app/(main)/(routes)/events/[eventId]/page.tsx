@@ -37,7 +37,7 @@ interface Host {
   role: string
 }
 
-export default function EventPage() {
+export default function EventPage(): JSX.Element {
   const params = useParams()
   const eventId = params.eventId as Id<"events">
   
