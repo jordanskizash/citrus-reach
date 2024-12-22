@@ -4,7 +4,7 @@ import { useQuery, useMutation } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import { useParams } from "next/navigation"
 import { useState } from "react"
-import { CalendarIcon, Check, ClockIcon, MapPinIcon, PencilIcon, X } from "lucide-react"
+import { CalendarIcon, Check, ClockIcon, MapPinIcon, PencilIcon, PlusCircle, X } from "lucide-react"
 import { format } from "date-fns"
 import { Id } from "@/convex/_generated/dataModel"
 
@@ -29,6 +29,12 @@ interface EditableField {
   date: boolean
   time: boolean
   location: boolean
+  description: boolean
+}
+
+interface Host {
+  name: string
+  role: string
 }
 
 export default function EventPage() {
@@ -47,15 +53,38 @@ export default function EventPage() {
     title: false, 
     date: false,
     time: false,
-    location: false
+    location: false,
+    description: false
   })
 
   const [editValues, setEditValues] = useState({
     title: "",
     date: "",
     time: "",
-    location: ""
+    location: "",
+    description: ""
   })
+
+  // Add hosts state
+  const [hosts, setHosts] = useState<Host[]>([
+    { name: "Host Name", role: "Title" }
+  ])
+
+  const [editingHost, setEditingHost] = useState<number | null>(null)
+
+  // Host editing functions
+  const handleEditHost = (index: number) => {
+    setEditingHost(index)
+  }
+
+  const handleSaveHost = async (index: number) => {
+    setEditingHost(null)
+    // Here you would add the mutation to save host changes to your database
+  }
+
+  const handleAddHost = () => {
+    setHosts(prev => [...prev, { name: "New Host", role: "New Position" }])
+  }
 
   const event = useQuery(api.events.getEvent, { eventId })
   const submitRegistration = useMutation(api.events.submitRegistration)
@@ -212,10 +241,137 @@ export default function EventPage() {
     )
   }
 
+  // Add to your existing renderEditableTag function
+  const renderEditableDescription = () => {
+    if (isEditing.description) {
+      return (
+        <div className="flex items-start gap-2">
+          <textarea
+            value={editValues.description}
+            onChange={(e) => setEditValues(prev => ({
+              ...prev,
+              description: e.target.value
+            }))}
+            className="w-2/3 p-2 text-xl leading-relaxed rounded-md border"
+            rows={4}
+          />
+          <div className="flex flex-col gap-2">
+            <Button
+              onClick={() => handleSave('description')}
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+            >
+              <Check className="h-4 w-4" />
+            </Button>
+            <Button
+              onClick={() => handleCancel('description')}
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      )
+    }
+
+    return (
+      <div className="group relative max-w-2xl">
+        <div className="flex justify-between items-start gap-2 mb-4">
+          <h3 className="text-lg font-medium mt-3">Description</h3>
+          <Button
+            onClick={() => handleEdit('description')}
+            variant="ghost"
+            size="icon"
+            className="opacity-0 group-hover:opacity-100 transition-opacity"
+          >
+            <PencilIcon className="h-4 w-4" />
+          </Button>
+        </div>
+        <p className="text-xl leading-relaxed">
+          {event.description || "Welcome to our event! This is a placeholder description that you can edit to provide details about your event, its agenda, and what attendees can expect."}
+        </p>
+      </div>
+    )
+  }
+
+  const renderHosts = () => {
+    return (
+      <div className="container mx-auto px-4 py-12 mt-20">
+        <div className="flex items-center justify-between mb-8">
+          <h2 className="text-4xl font-bold">Hosts</h2>
+          <Button
+            onClick={handleAddHost}
+            variant="ghost"
+            className="flex items-center gap-2"
+          >
+            <PlusCircle className="h-4 w-4" />
+            Add Host
+          </Button>
+        </div>
+        
+        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-3">
+          {hosts.map((host, index) => (
+            <div key={index} className="flex flex-col items-center space-y-4">
+              <div className="aspect-square w-full max-w-[300px] overflow-hidden rounded-lg bg-muted" />
+              {editingHost === index ? (
+                <div className="space-y-2 w-full">
+                  <Input
+                    value={host.name}
+                    onChange={(e) => {
+                      const newHosts = [...hosts]
+                      newHosts[index].name = e.target.value
+                      setHosts(newHosts)
+                    }}
+                    className="text-center"
+                    placeholder="Host Name"
+                  />
+                  <Input
+                    value={host.role}
+                    onChange={(e) => {
+                      const newHosts = [...hosts]
+                      newHosts[index].role = e.target.value
+                      setHosts(newHosts)
+                    }}
+                    className="text-center"
+                    placeholder="Position"
+                  />
+                  <Button
+                    onClick={() => handleSaveHost(index)}
+                    variant="ghost"
+                    size="sm"
+                    className="w-full"
+                  >
+                    Save
+                  </Button>
+                </div>
+              ) : (
+                <div className="text-center group relative">
+                  <h3 className="text-xl font-semibold">{host.name}</h3>
+                  <p className="text-muted-foreground">{host.role}</p>
+                  <Button
+                    onClick={() => handleEditHost(index)}
+                    variant="ghost"
+                    size="icon"
+                    className="absolute -right-10 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <PencilIcon className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
 
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="h-full bg-background overflow-y-auto overflow-x-hidden">
       {/* Hero Section with Cover */}
       <div className="relative">
         {/* Cover Background */}
@@ -229,7 +385,7 @@ export default function EventPage() {
               {/* Event Details */}
               <div className="max-w-2xl pt-16">
                 {renderEditableTitle()}
-                <div className="space-y-4 mt-6">
+                <div className="space-y-2 mt-2">
                   {renderEditableTag('date', event.eventDate, <CalendarIcon className="mr-2 h-4 w-4" />)}
                   <div className="space-y-2">
                     {renderEditableTag('time', event.eventTime, <ClockIcon className="mr-2 h-4 w-4" />)}
@@ -345,17 +501,15 @@ export default function EventPage() {
             <p>EPISODE-002 / OCT-31-2024</p>
             <p>8:30AM PT / 11:30AM ET / 4:30PM CET</p>
           </div>
-          <p className="text-xl leading-relaxed max-w-3xl mt-10">
-            We&apos;re back with our second episode of Release Notes—a look at all the latest Figma updates to help you make your greatest work yet. Join us live as we drop brand new features and recap everything we shipped in October [CYMK].
-          </p>
-          
+          {renderEditableDescription()}
         </div>
       </div>
 
       {/* Hosts Section */}
       <div className="container mx-auto px-4 py-12 mt-32">
-        <h2 className="mb-8 text-4xl font-bold">Hosts</h2>
-        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-3">
+      {renderHosts()}
+        {/* <h2 className="mb-8 text-4xl font-bold">Hosts</h2> */}
+        {/* <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-3">
           {[1, 2, 3].map((_, index) => (
             <div key={index} className="flex flex-col items-center space-y-4">
               <div className="aspect-square w-full max-w-[300px] overflow-hidden rounded-lg bg-muted" />
@@ -363,7 +517,7 @@ export default function EventPage() {
               <p className="text-muted-foreground">Position at Figma</p>
             </div>
           ))}
-        </div>
+        </div> */}
       </div>
     </div>
   )

@@ -104,7 +104,7 @@ export default defineSchema ({
         isArchived: v.boolean(),
         content: v.optional(v.string()),
         isPublished: v.boolean(),
-        speakers: v.optional(v.array(v.object({
+        hosts: v.optional(v.array(v.object({
             name: v.string(),
             role: v.string(),
             imageUrl: v.optional(v.string()),

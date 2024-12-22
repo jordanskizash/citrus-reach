@@ -21,12 +21,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 interface MenuProps {
   documentId?: Id<"documents">;
   profileId?: Id<"profiles">;
+  eventId?: Id<"events">;
   coverImageUrl?: string;
 }
 
 export const Menu = ({
   documentId,
   profileId,
+  eventId,
   coverImageUrl,
 }: MenuProps) => {
   const router = useRouter();
@@ -34,6 +36,7 @@ export const Menu = ({
 
   const archiveDocument = useMutation(api.documents.archive);
   const archiveProfile = useMutation(api.profiles.archive);
+  const archiveEvent = useMutation(api.events.archive);
 
   const onArchive = () => {
     if (documentId) {
@@ -52,6 +55,14 @@ export const Menu = ({
         error: "Failed to archive profile.",
       });
       router.push("/profiles");
+    } else if (eventId) {
+      const promise = archiveEvent({ id: eventId });
+      toast.promise(promise, {
+        loading: "Moving event to trash...",
+        success: "Event moved to trash!",
+        error: "Failed to archive event.",
+      });
+      router.push("/events");
     }
   };
 

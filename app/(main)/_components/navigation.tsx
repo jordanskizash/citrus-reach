@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronsLeft, CirclePlusIcon, CreditCard, LineChart, MenuIcon, Plus, PlusCircle, Search, Settings, Trash } from "lucide-react";
+import { ChevronsLeft, CirclePlusIcon, CreditCard, LineChart, MenuIcon, Plus, PlusCircle, Search, Settings, Trash } from 'lucide-react';
 import { ElementRef, useRef, useState, useEffect } from "react";
 import { useMediaQuery } from "usehooks-ts";
 import { useParams, usePathname, useRouter } from "next/navigation";
@@ -26,6 +26,7 @@ import { EventList } from "./event-list";
 import { Button } from "@/components/ui/button";
 import { useUser } from "@clerk/clerk-react";
 import { Progress } from "@/components/ui/progress";
+import NavbarEvents from "./navbarevent";
 
 
 
@@ -435,12 +436,17 @@ export const Navigation = () => {
                         isCollapsed={isCollapsed}
                         onResetWidth={resetWidth}
                     />
-                ): !!params.profileId ? (
+                ) : !!params.profileId ? (
                     <NavbarProfile
-                      isCollapsed={isCollapsed}
-                      onResetWidth={resetWidth}
+                        isCollapsed={isCollapsed}
+                        onResetWidth={resetWidth}
                     />
-                  ) : (
+                ) : !!params.eventId ? (
+                    <NavbarEvents
+                        isCollapsed={isCollapsed}
+                        onResetWidth={resetWidth}
+                    />
+                ) : (
                 <nav className="bg-transparent px-3 py-2 w-full">
                     {isCollapsed && <MenuIcon onClick={resetWidth} role="button" className="h-6 w-6 text-mutued-foreground" />}
                 </nav>
@@ -449,4 +455,4 @@ export const Navigation = () => {
         </>
      );
 }
- 
+

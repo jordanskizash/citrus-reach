@@ -12,18 +12,22 @@ import { toast } from "react-hot-toast";
 interface BannerProps {
     documentId?: Id<"documents">;
     profileId?: Id<"profiles">;
+    eventId?: Id<"events">;
 };
 
 export const Banner = ({
     documentId,
-    profileId
+    profileId,
+    eventId
 }: BannerProps) => {
     const router = useRouter();
 
     const removeDocument = useMutation(api.documents.remove);
     const removeProfile = useMutation(api.profiles.remove);
+    const removeEvent = useMutation(api.events.remove);
     const restoreDocument = useMutation(api.documents.restore);
     const restoreProfile = useMutation(api.profiles.restore);
+    const restoreEvent = useMutation(api.events.restore);
 
     const onRemove = () => {
         if (documentId) {
@@ -42,6 +46,14 @@ export const Banner = ({
                 error: "Failed to delete profile."
             });
             router.push("/profiles");
+        } else if (eventId) {
+            const promise = removeEvent({ id: eventId });
+            toast.promise(promise, {
+                loading: "Deleting event...",
+                success: "Event deleted!",
+                error: "Failed to delete event."
+            });
+            router.push("/events");
         }
     };
 
@@ -59,6 +71,13 @@ export const Banner = ({
                 loading: "Restoring profile...",
                 success: "Profile restored!",
                 error: "Failed to restore profile."
+            });
+        } else if (eventId) {
+            const promise = restoreEvent({ id: eventId });
+            toast.promise(promise, {
+                loading: "Restoring event...",
+                success: "Event restored!",
+                error: "Failed to restore event."
             });
         }
     };

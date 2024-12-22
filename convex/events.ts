@@ -141,37 +141,125 @@ export const archive = mutation({
 // Update in your convex/events.ts file
 
 export const update = mutation({
-    args: {
-      id: v.id("events"),
-      title: v.optional(v.string()),
-      eventDate: v.optional(v.string()),
-      eventTime: v.optional(v.string()),
-      location: v.optional(v.string()),
-    },
-    handler: async (ctx, args) => {
+  args: {
+    id: v.id("events"),
+    title: v.optional(v.string()),
+    eventDate: v.optional(v.string()),
+    eventTime: v.optional(v.string()),
+    location: v.optional(v.string()),
+    description: v.optional(v.string()),  // Added description
+    isPublished: v.optional(v.boolean()),
+    isArchived: v.optional(v.boolean()),
+    icon: v.optional(v.string()),
+    hosts: v.optional(v.array(v.object({  // Added hosts
+      name: v.string(),
+      role: v.string()
+    })))
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+
+    if (!identity) {
+      throw new Error("Not authenticated");
+    }
+
+    const event = await ctx.db.get(args.id);
+
+    if (!event) {
+      throw new Error("Event not found");
+    }
+
+    if (event.userId !== identity.subject) {
+      throw new Error("Not authorized");
+    }
+
+    const updateData: Record<string, any> = {};
+
+    if (args.title !== undefined) updateData.title = args.title;
+    if (args.eventDate !== undefined) updateData.eventDate = args.eventDate;
+    if (args.eventTime !== undefined) updateData.eventTime = args.eventTime;
+    if (args.location !== undefined) updateData.location = args.location;
+    if (args.description !== undefined) updateData.description = args.description;
+    if (args.isPublished !== undefined) updateData.isPublished = args.isPublished;
+    if (args.isArchived !== undefined) updateData.isArchived = args.isArchived;
+    if (args.icon !== undefined) updateData.icon = args.icon;
+    if (args.hosts !== undefined) updateData.hosts = args.hosts;
+
+    await ctx.db.patch(args.id, updateData);
+    
+    return await ctx.db.get(args.id);
+  },
+});
+
+export const getById = query({
+  args: { eventId: v.id("events") },
+  handler: async (ctx, args) => {
+    const event = await ctx.db.get(args.eventId);
+
+    if (!event) {
+      throw new Error("Event not found");
+    }
+
+    const identity = await ctx.auth.getUserIdentity();
+
+    if (!event.isPublished && (!identity || event.userId !== identity.subject)) {
+      throw new Error("Not authorized");
+    }
+
+    return event;
+  },
+});
+
+export const remove = mutation({
+  args: { id: v.id("events") },
+  handler: async (ctx, args) => {
       const identity = await ctx.auth.getUserIdentity();
-  
+
       if (!identity) {
-        throw new Error("Not authenticated");
+          throw new Error("Not authenticated");
       }
-  
+
       const event = await ctx.db.get(args.id);
-  
+
       if (!event) {
-        throw new Error("Event not found");
+          throw new Error("Not found");
       }
-  
+
       if (event.userId !== identity.subject) {
-        throw new Error("Not authorized");
+          throw new Error("Not authorized");
       }
-  
-      const updateData: Record<string, any> = {};
-  
-      if (args.title !== undefined) updateData.title = args.title;
-      if (args.eventDate !== undefined) updateData.eventDate = args.eventDate;
-      if (args.eventTime !== undefined) updateData.eventTime = args.eventTime;
-      if (args.location !== undefined) updateData.location = args.location;
-  
-      await ctx.db.patch(args.id, updateData);
-    },
-  });
+
+      await ctx.db.delete(args.id);
+  },
+});
+
+export const restore = mutation({
+  args: { id: v.id("events") },
+  handler: async (ctx, args) => {
+      const identity = await ctx.auth.getUserIdentity();
+
+      if (!identity) {
+          throw new Error("Not authenticated");
+      }
+
+      const userId = identity.subject;
+
+      const existingEvent = await ctx.db.get(args.id);
+
+      if (!existingEvent) {
+          throw new Error("Not found");
+      }
+
+      if (existingEvent.userId !== userId) {
+          throw new Error("Unauthorized");
+      }
+
+      const options: Partial<Doc<"events">> = {
+          isArchived: false,
+      };
+
+      const event = await ctx.db.patch(args.id, options);
+
+      return event;
+  }
+});
