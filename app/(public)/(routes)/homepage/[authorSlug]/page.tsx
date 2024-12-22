@@ -104,7 +104,7 @@ export default function BlogHomepage({ params }: HomepageProps) {
         {documents.map((post) => (
           <MotionLink 
             key={post._id}
-            href={`/preview/${post.slug ?? post._id}`}
+            href={`/blog/${post.slug ?? post._id}`}
             className="group relative"
             whileHover={{ y: -5 }}
             transition={{ type: "spring", stiffness: 300 }}
