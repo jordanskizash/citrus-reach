@@ -11,7 +11,6 @@ import NavbarEvents from "@/app/(main)/_components/navbarevent";
 
 interface EventsLayoutProps {
   children: ReactNode;
-  isCollapsed: boolean;
 }
 
 export default function EventsLayout({
