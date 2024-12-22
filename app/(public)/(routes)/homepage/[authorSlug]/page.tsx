@@ -30,7 +30,6 @@ export default function BlogHomepage({ params }: HomepageProps) {
     profile ? { userId: profile.userId } : "skip"
   );
 
-  // Get user settings for additional information
   const userSettings = useQuery(
     api.users.getUserSettingsByClerkId,
     profile ? { clerkId: profile.userId } : "skip"
@@ -47,7 +46,7 @@ export default function BlogHomepage({ params }: HomepageProps) {
   const authorFullName = profile.authorFullName || "Unknown Author";
 
   return (
-    <div className="max-w-7xl mx-auto px-8 sm:px-16 py-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-16 py-8">
       {/* Profile Section */}
       <div className="flex flex-col items-center text-center mb-16">
         <Image 
@@ -61,37 +60,37 @@ export default function BlogHomepage({ params }: HomepageProps) {
         <p className="text-gray-600 max-w-2xl mb-8">{userSettings.description || "No description available"}</p>
         
         {/* Contact Links */}
-        <div className="flex gap-6 justify-center mb-8">
+        <div className="flex flex-wrap gap-4 justify-center mb-8 max-w-full px-4">
         {profile && (
             <>
               {userSettings?.email && (
                 <Link href={`mailto:${userSettings.email}`} className="flex items-center gap-2 text-gray-600 hover:text-gray-900">
                   <Mail className="w-5 h-5" />
-                  <span>{userSettings.email}</span>
+                  <span className="hidden sm:inline">{userSettings.email}</span>
                 </Link>
               )}
               {userSettings?.phoneNumber && (
                 <Link href={`tel:${userSettings.phoneNumber}`} className="flex items-center gap-2 text-gray-600 hover:text-gray-900">
                   <Phone className="w-5 h-5" />
-                  <span>{userSettings.phoneNumber}</span>
+                  <span className="hidden sm:inline">{userSettings.phoneNumber}</span>
                 </Link>
               )}
               {userSettings?.linkedin && (
                 <Link href={userSettings.linkedin} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-gray-600 hover:text-gray-900">
                   <Linkedin className="w-5 h-5" />
-                  <span>LinkedIn</span>
+                  <span className="hidden sm:inline">LinkedIn</span>
                 </Link>
               )}
               {userSettings?.calComUsername && (
                 <Link href={`https://cal.com/${userSettings.calComUsername}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-gray-600 hover:text-gray-900">
                   <Calendar className="w-5 h-5" />
-                  <span>Schedule a call</span>
+                  <span className="hidden sm:inline">Schedule a call</span>
                 </Link>
               )}
               {userSettings?.meetingLink && (
                 <Link href={`${userSettings.meetingLink}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-gray-600 hover:text-gray-900">
                   <Calendar className="w-5 h-5" />
-                  <span>Schedule a call</span>
+                  <span className="hidden sm:inline">Schedule a call</span>
                 </Link>
               )}
             </>
