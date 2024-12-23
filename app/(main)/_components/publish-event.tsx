@@ -27,7 +27,7 @@ export const PublishEvent = ({
     const [copied, setCopied] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const url = `${origin}/events/${initialData._id}`;
+    const url = `${origin}/event/${initialData._id}`;
 
     const onPublish = () => {
         setIsSubmitting(true);

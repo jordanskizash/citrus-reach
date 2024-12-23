@@ -75,13 +75,13 @@ export const NavbarEvents = ({
   return (
     <div className="w-full fixed top-0 z-50">
       <nav className={cn(
-        "px-3 py-2 w-full flex items-center",
+        "px-3 py-2 w-full md:w-5/6 flex items-center",
         "bg-background dark:bg-[#1F1F1F]",
         "transition-opacity duration-300 ease-in-out",
         isTransparent ? 'opacity-0 pointer-events-none' : 'opacity-100'
       )}>
-        <div className="flex items-center justify-between w-full gap-x-4">
-          <div className="flex items-center gap-x-4 min-w-0 overflow-hidden">
+        <div className="flex items-center justify-between w-full">
+          <div className="flex items-center gap-x-4 min-w-0 overflow-hidden flex-grow">
             {isCollapsed && (
               <MenuIcon
                 role="button"
@@ -89,12 +89,14 @@ export const NavbarEvents = ({
                 className="h-6 w-6 text-muted-foreground flex-shrink-0 cursor-pointer"
               />
             )}
-            <div className="truncate">
+            <div className="truncate flex-grow min-w-0">
               <EventTitle initialData={event} />
             </div>
           </div>
-          <div className="flex items-center gap-x-2 flex-shrink-0 mr-2">
-            <PublishEvent initialData={event} />
+          <div className="flex items-center gap-x-2 flex-shrink-0">
+            <div className="flex-shrink-0 min-w-0">
+              <PublishEvent initialData={event} />
+            </div>
             <Menu eventId={event._id} />
           </div>
         </div>

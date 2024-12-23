@@ -13,7 +13,8 @@ export default authMiddleware({
     "/homepage/(.*)",
     "/profile/(.*)",
     "/terms-of-service",
-    "/privacy-policy"
+    "/privacy-policy",
+    "/event/(.*)"
   ],
   
   ignoredRoutes: [
