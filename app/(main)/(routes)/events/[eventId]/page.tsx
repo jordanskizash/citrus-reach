@@ -152,7 +152,8 @@ export default function EventPage(): JSX.Element {
         id: eventId,
         [field === 'title' ? 'title' :
          field === 'date' ? 'eventDate' : 
-         field === 'time' ? 'eventTime' : 'location']: editValues[field]
+         field === 'time' ? 'eventTime' :
+         field === 'description' ? 'description' : 'location']: editValues[field]
       })
       
       setIsEditing(prev => ({ ...prev, [field]: false }))
@@ -465,7 +466,7 @@ export default function EventPage(): JSX.Element {
                           email: e.target.value
                         }))}
                         required
-                        placeholder="you@your.email"
+                        placeholder="you@email.com"
                       />
                     </div>
                     <div className="space-y-2">
@@ -495,7 +496,7 @@ export default function EventPage(): JSX.Element {
                     <div className="space-y-4">
                       <div className="space-y-2">
                         <Label>
-                          I&apos;d like to learn more about the Figma Organization or Enterprise plan. <span className="text-red-500">*</span>
+                          I&apos;d like to learn more about your organization. <span className="text-red-500">*</span>
                         </Label>
                         <RadioGroup defaultValue="no" className="space-y-2">
                           <div className="flex items-center space-x-2">

@@ -46,7 +46,7 @@ export const Menu = ({
         success: "Document moved to trash!",
         error: "Failed to archive document.",
       });
-      router.push("/documents");
+      router.push("/dashboard");
     } else if (profileId) {
       const promise = archiveProfile({ id: profileId });
       toast.promise(promise, {

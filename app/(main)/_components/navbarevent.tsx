@@ -80,7 +80,7 @@ export const NavbarEvents = ({
         "transition-opacity duration-300 ease-in-out",
         isTransparent ? 'opacity-0 pointer-events-none' : 'opacity-100'
       )}>
-        <div className="flex items-center justify-between w-full">
+        <div className="flex items-center justify-between w-full position-fixed">
           <div className="flex items-center gap-x-4 min-w-0 overflow-hidden flex-grow">
             {isCollapsed && (
               <MenuIcon

@@ -8,7 +8,6 @@ interface ReadOnlyVideoProps {
 export default function ReadOnlyVideo({ videoUrl, onThumbnailGenerated }: ReadOnlyVideoProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -37,30 +36,14 @@ export default function ReadOnlyVideo({ videoUrl, onThumbnailGenerated }: ReadOn
 
       const handleCanPlay = () => {
         setIsLoading(false);
-        if (!isPlaying && !thumbnailUrl) {
+        if (!thumbnailUrl) {
           generateThumbnail();
         }
       };
 
       const handleLoadedMetadata = () => {
-        if (!isPlaying) {
-          // Set a small timeout to ensure the video has loaded enough frames
-          setTimeout(() => {
-            videoElement.currentTime = 0.1;
-          }, 100);
-        }
-      };
-
-      const handlePlay = () => {
-        setIsPlaying(true);
-      };
-
-      const handlePause = () => {
-        setIsPlaying(false);
-      };
-
-      const handleEnded = () => {
-        setIsPlaying(false);
+        // Set initial time to generate thumbnail
+        videoElement.currentTime = 0.1;
       };
 
       const handleError = (e: Event) => {
@@ -71,22 +54,16 @@ export default function ReadOnlyVideo({ videoUrl, onThumbnailGenerated }: ReadOn
       // Add event listeners
       videoElement.addEventListener("canplay", handleCanPlay);
       videoElement.addEventListener("loadedmetadata", handleLoadedMetadata);
-      videoElement.addEventListener("play", handlePlay);
-      videoElement.addEventListener("pause", handlePause);
-      videoElement.addEventListener("ended", handleEnded);
       videoElement.addEventListener("error", handleError);
 
       return () => {
         // Remove event listeners
         videoElement.removeEventListener("canplay", handleCanPlay);
         videoElement.removeEventListener("loadedmetadata", handleLoadedMetadata);
-        videoElement.removeEventListener("play", handlePlay);
-        videoElement.removeEventListener("pause", handlePause);
-        videoElement.removeEventListener("ended", handleEnded);
         videoElement.removeEventListener("error", handleError);
       };
     }
-  }, [videoUrl, onThumbnailGenerated, isPlaying, thumbnailUrl]);
+  }, [videoUrl, onThumbnailGenerated, thumbnailUrl]);
 
   if (!videoUrl) {
     return (
@@ -110,7 +87,7 @@ export default function ReadOnlyVideo({ videoUrl, onThumbnailGenerated }: ReadOn
         playsInline
         preload="auto"
         controlsList="nodownload"
-        poster={!isPlaying ? thumbnailUrl || undefined : undefined}
+        poster={thumbnailUrl || undefined}
       >
         <source src={videoUrl} type="video/mp4" />
         Your browser does not support the video tag.
