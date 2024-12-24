@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/table"
 import { Checkbox } from "@/components/ui/checkbox"
 import { useCallback, useEffect, useState } from "react"
+import { useUser } from "@clerk/clerk-react"
 
 type Site = {
   date: string | number | Date
@@ -52,6 +53,7 @@ export default function Dashboard() {
   const [totalMeetings, setTotalMeetings] = useState(0)
   const [totalOpportunities, setTotalOpportunities] = useState(0)
   const itemsPerPage = 6
+  const { user } = useUser();
   
   // Fetch data from Convex
   const documents = useQuery(api.documents.getPublishedDocuments) || []
@@ -319,7 +321,7 @@ export default function Dashboard() {
 
   return (
     <div className="container mx-auto p-4 space-y-4">
-      <h1 className="text-3xl font-bold mb-4">Dashboard</h1>
+      <h1 className="text-3xl font-bold">{user?.fullName}&apos;s Dashboard</h1>
 
       {/* Stats Section */}
       <div className="grid grid-cols-4 gap-4 mb-6">
