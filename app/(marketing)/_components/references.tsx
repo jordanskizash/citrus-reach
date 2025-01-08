@@ -19,31 +19,37 @@ export default function LogoCarousel({ logos = [] }: { logos?: Logo[] }) {
   const extendedLogos = [...logos, ...logos]
 
   return (
-    <div className="w-full overflow-hidden mt-10 bg-white py-4">
+    <div className="w-4/5 overflow-hidden mt-10 bg-white py-4 relative">
+      {/* Left blur gradient */}
+      <div className="absolute left-0 top-0 w-24 h-full bg-gradient-to-r from-white to-transparent z-10" />
+      
       <div className="relative">
         <div
           className="flex animate-scroll"
           style={{
-            width: `${logos.length * 300}px`, // Increased spacing between logos
-            animation: isClient ? `scroll ${logos.length * 5}s linear infinite` : 'none', // Reduced time for faster animation
+            width: `${logos.length * 300}px`,
+            animation: isClient ? `scroll ${logos.length * 5}s linear infinite` : 'none',
           }}
         >
           {extendedLogos.map((logo, index) => (
             <div
               key={index}
-              className="w-[300px] flex items-center justify-center px-8" // Increased width and padding
+              className="w-[300px] flex items-center justify-center px-8"
             >
               <Image
                 src={logo.src}
                 alt={logo.alt}
-                width={100} // Reduced from 150
-                height={50} // Reduced from 75
-                className="max-w-[100px] max-h-[50px] object-contain" // Reduced max dimensions
+                width={100}
+                height={50}
+                className="max-w-[100px] max-h-[50px] object-contain"
               />
             </div>
           ))}
         </div>
       </div>
+
+      {/* Right blur gradient */}
+      <div className="absolute right-0 top-0 w-24 h-full bg-gradient-to-l from-white to-transparent z-10" />
     </div>
   )
 }
