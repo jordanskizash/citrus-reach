@@ -18,6 +18,7 @@
     "@clerk/nextjs": "^4.31.6",
     "@edgestore/react": "^0.2.0",
     "@edgestore/server": "^0.2.0",
+    "@ffmpeg/ffmpeg": "^0.12.15",
     "@next/font": "^14.2.5",
     "@radix-ui/react-accordion": "^1.2.0",
     "@radix-ui/react-alert-dialog": "^1.1.1",

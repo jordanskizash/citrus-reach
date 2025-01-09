@@ -7,7 +7,7 @@ import { Id } from "@/convex/_generated/dataModel"
 import dynamic from "next/dynamic"
 import { useEdgeStore } from "@/lib/edgestore"
 import { Button } from "@/components/ui/button"
-import { Camera, Upload } from "lucide-react"
+import { Camera, Upload } from 'lucide-react'
 
 // Add TypeScript interfaces for MediaRecorder events
 interface MediaRecorderDataAvailableEvent extends Event {
@@ -38,71 +38,37 @@ export default function VideoRecorder({ profileId, videoUrl, onVideoUpload }: Vi
   const updateProfileVideoUrl = useMutation(api.profiles.updateVideoUrl)
   const { edgestore } = useEdgeStore()
 
-  // Function to convert video to MP4 format
-  const convertToMP4 = async (blob: Blob): Promise<Blob> => {
-    return new Promise((resolve, reject) => {
-      try {
-        // Create video element to check format
-        const video = document.createElement('video')
-        video.preload = 'metadata'
-        
-        video.onloadedmetadata = () => {
-          // If video is already MP4, return as is
-          if (blob.type === 'video/mp4') {
-            resolve(blob)
-            return
-          }
+  // Function to convert video to Safari-compatible MP4
+  const convertToSafariCompatibleMP4 = async (blob: Blob): Promise<Blob> => {
+    const FFmpeg = (await import('@ffmpeg/ffmpeg')).FFmpeg;
+    const ffmpeg = new FFmpeg();
+    await ffmpeg.load();
 
-          // Create canvas and MediaRecorder for conversion
-          const canvas = document.createElement('canvas')
-          const ctx = canvas.getContext('2d')
-          if (!ctx) {
-            reject(new Error('Failed to get canvas context'))
-            return
-          }
+    const inputName = 'input.webm';
+    const outputName = 'output.mp4';
 
-          canvas.width = video.videoWidth
-          canvas.height = video.videoHeight
+    const arrayBuffer = await blob.arrayBuffer();
+    await ffmpeg.writeFile(inputName, new Uint8Array(arrayBuffer));
 
-          const stream = canvas.captureStream()
-          
-          // Use the Web MediaRecorder API directly with proper type
-          const recorder = new window.MediaRecorder(stream, {
-            mimeType: 'video/mp4; codecs="avc1.42E01E,mp4a.40.2"'
-          })
+    await ffmpeg.exec([
+      '-i', inputName,
+      '-c:v', 'libx264',
+      '-preset', 'fast',
+      '-crf', '22',
+      '-c:a', 'aac',
+      '-b:a', '128k',
+      outputName
+    ]);
 
-          const chunks: Blob[] = []
-          recorder.ondataavailable = (e: MediaRecorderDataAvailableEvent) => chunks.push(e.data)
-          recorder.onstop = () => resolve(new Blob(chunks, { type: 'video/mp4' }))
-
-          video.onplay = () => {
-            const draw = () => {
-              if (video.paused || video.ended) return
-              ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
-              requestAnimationFrame(draw)
-            }
-            draw()
-            recorder.start()
-          }
-
-          video.onended = () => recorder.stop()
-          video.play()
-        }
-
-        video.src = URL.createObjectURL(blob)
-      } catch (error) {
-        console.error('Error converting video:', error)
-        // If conversion fails, return original blob
-        resolve(blob)
-      }
-    })
+    const data = await ffmpeg.readFile(outputName);
+    return new Blob([data], { type: 'video/mp4' });
   }
 
   const handleUpload = async (file: File) => {
     setIsProcessing(true);
     try {
-      // Convert video to MP4 if needed
-      const videoBlob = await convertToMP4(file);
+      // Convert video to Safari-compatible MP4
+      const videoBlob = await convertToSafariCompatibleMP4(file);
       
       // Create new File with MP4 extension
       const processedFile = new File([videoBlob], 'video.mp4', {
@@ -328,8 +294,8 @@ export default function VideoRecorder({ profileId, videoUrl, onVideoUpload }: Vi
                                     const blob = await fetch(mediaBlobUrl).then((res) =>
                                       res.blob()
                                     )
-                                    const file = new File([blob], "recorded-video.mp4", {
-                                      type: 'video/mp4'
+                                    const file = new File([blob], "recorded-video.webm", {
+                                      type: 'video/webm'
                                     })
                                     const newVideoUrl = await handleUpload(file)
                                     await updateProfileVideoUrl({
@@ -363,3 +329,4 @@ export default function VideoRecorder({ profileId, videoUrl, onVideoUpload }: Vi
     </div>
   )
 }
+

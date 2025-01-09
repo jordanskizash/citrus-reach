@@ -47,7 +47,6 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
     clerkId: user?.id ?? "skip" 
   });
 
-
   const profile = useQuery(api.profiles.getById, {
     profileId: params.profileId,
   });
@@ -65,14 +64,12 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
   // Track page view with profile owner's ID
   useEffect(() => {
     if (profile) {
-      // Log that we're attempting to track
       console.log('Tracking pageview:', {
         path: `/profile/${params.profileId}`,
         profileName: profile.displayName,
         timestamp: new Date().toISOString()
       });
   
-      // Your existing event tracking
       event({
         action: 'profile_view',
         category: 'profile',
@@ -87,7 +84,6 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
         }
       });
   
-      // Also track using GA directly for redundancy
       if (typeof window !== 'undefined' && (window as any).gtag) {
         (window as any).gtag('event', 'page_view', {
           page_title: profile.displayName,
@@ -107,17 +103,14 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
     );
   }
 
-  // Get the logo URL from either userDetails or profile
   const displayLogo = userDetails?.logoUrl || profile.logoUrl || "/placeholder.svg?height=60&width=180";
 
   const handleThumbnailGenerated = (thumbnailUrl: string) => {
-    // Store the thumbnail URL in your profile data using your update mutation
     updateProfile({
       id: params.profileId,
       videoThumbnail: thumbnailUrl
     });
   };
-
 
   const authorFullName = documents.length > 0 && documents[0].authorFullName
     ? documents[0].authorFullName
@@ -132,14 +125,13 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
     setVideoKey((prevKey) => prevKey + 1);
   };
 
-  // Track interactions with profile owner's ID
   const trackInteraction = (interactionType: string, additionalMetadata = {}) => {
     if (profile) {
       event({
         action: interactionType,
         category: 'profile_interaction',
         label: profile.displayName || 'Unknown Profile',
-        userId: profile.userId, // Profile owner's ID
+        userId: profile.userId,
         pageType: 'profile',
         metadata: {
           profileId: params.profileId,
@@ -150,7 +142,6 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
       });
     }
   };
-
 
   const handleShare = async () => {
     trackInteraction('share_profile');
@@ -182,7 +173,6 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
   };
 
   const getPostUrl = (post: Doc<'documents'>) => {
-    // If slug is available, use it; otherwise, fallback to ID
     return `/blog/${post.slug ?? post._id}`;
   };
 
@@ -192,124 +182,92 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
         {/* Logo Section */}
         <div className="w-full flex justify-center items-center mb-4">
           <div className="flex items-center space-x-4">
-          <LogoComparison 
+            <LogoComparison 
               userLogo={userLogo}
               clientLogo={clientLogo}
               containerClassName="my-8"
             />
-            {/* <Image
-              src={displayLogo|| "/placeholder.svg?height=60&width=180"}
-              alt="User Company Logo"
-              width={180}
-              height={60}
-              className="object-contain w-[40px] sm:w-[60px]"
-            />
-            <span className="text-xl sm:text-2xl font-bold">x</span>
-            <Image
-              src={clientLogo || "/acme.png"}
-              alt="Client Company Logo"
-              width={180}
-              height={60}
-              className="object-contain w-[120px] sm:w-[180px]"
-            /> */}
           </div>
-        </div>
-
-        <div className="w-full mb-4 mt-4">
-          {/* Pass a prop to ProfToolbar to handle mobile optimization */}
-          <div className="text-[1.15rem] sm:text-xl leading-relaxed">
-            <ProfToolbar initialData={profile} editable={false} />
-          </div>
-          <p className="text-lg sm:text-xl mt-4 mb-6 text-center font-light px-2 sm:px-0">{profile.bio}</p>
         </div>
 
         <div className="w-full flex flex-col md:flex-row gap-6 md:gap-8">
           <div className="w-full md:w-3/4 px-2 sm:px-0">
-            <div className="rounded-xl overflow-hidden shadow-lg">
-              <ReadOnlyVideo 
-                videoUrl={profile.videoUrl} 
-                onThumbnailGenerated={handleThumbnailGenerated} 
-              />
+            {/* Toolbar and bio moved inside video column for alignment */}
+            <div className="w-full mb-4 mt-4  md:px-0">
+              <div className="text-base sm:text-xl md:text-2xl leading-relaxed">
+                <ProfToolbar initialData={profile} editable={false} />
+              </div>
+              <p className="text-base sm:text-lg mt-4 font-light">{profile.bio}</p>
+            </div>
+            
+            <div className="px-4 md:px-0">
+              <div className="rounded-xl overflow-hidden shadow-lg">
+                <ReadOnlyVideo 
+                  videoUrl={profile.videoUrl} 
+                  onThumbnailGenerated={handleThumbnailGenerated} 
+                />
+              </div>
+              
+              {/* Mobile-optimized buttons below video */}
+              <div className="md:hidden mt-4 space-y-3">
+                <Button
+                  className="h-12 rounded-full text-base font-medium hover:scale-105 transition-transform w-full"
+                  asChild
+                >
+                  <a href={`mailto:jordan.steinberg@ibm.com`}>
+                    <Mail className="mr-2 h-5 w-5" /> Reply
+                  </a>
+                </Button>
+
+                <SmartMeetingButton 
+                  calComUsername={userDetails?.calComUsername || undefined}
+                  meetingLink={userDetails?.meetingLink || undefined}
+                  themeSettings={profile?.themeSettings || undefined}
+                  className="h-12 rounded-full text-base font-medium hover:scale-105 transition-transform w-full"
+                />
+
+                <Button
+                  className="h-12 rounded-full text-base font-medium hover:scale-105 transition-transform w-full"
+                  onClick={handleShare}
+                >
+                  <Share2 className="mr-2 h-5 w-5" /> Share
+                </Button>
+
+                <Button 
+                  className="h-12 rounded-full text-base font-medium hover:scale-105 transition-transform w-full" 
+                  style={{
+                    backgroundColor: profile.themeSettings?.accentColor || '#000000',
+                    color: '#FFFFFF'
+                  }}
+                  asChild
+                >
+                  <a href={userDetails?.linkedin || "#"} target="_blank" rel="noopener noreferrer">
+                    <Linkedin className="mr-2 h-4 w-4" /> Get in Touch
+                  </a>
+                </Button>
+              </div>
             </div>
           </div>
-          <div className="w-full md:w-1/4 flex flex-col gap-4 px-6 sm:px-0">
-            {/* Reply Dialog */}
-            {/* <Dialog open={isReplyDialogOpen} onOpenChange={setIsReplyDialogOpen}>
-              <DialogTrigger asChild>
-                <Button className="h-12 rounded-full text-base font-medium hover:scale-105 transition-transform mx-auto w-full">
-                  <MessageSquare className="mr-2 h-5 w-5" /> Reply
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                  <DialogTitle>Reply to {authorFirstName}</DialogTitle>
-                </DialogHeader>
-                <form onSubmit={(e) => e.preventDefault()} className="space-y-4 mt-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-2" htmlFor="name">
-                      Your Name
-                    </label>
-                    <Input id="name" placeholder="Full Name" required />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-2" htmlFor="email">
-                      Email Address
-                    </label>
-                    <Input id="email" type="email" placeholder="Email Address" required />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-2" htmlFor="message">
-                      Your Message
-                    </label>
-                    <Textarea id="message" placeholder="Type your message here..." rows={6} required />
-                  </div>
-                  <Button type="submit" className="w-full">
-                    Send
-                  </Button>
-                </form>
-              </DialogContent>
-            </Dialog> */}
+
+          {/* Desktop buttons column */}
+          <div className="hidden md:flex w-full md:w-1/4 flex-col gap-4 px-6 md:px-0 md:mt-[90px]">
 
             <Button
               className="h-12 rounded-full text-base font-medium hover:scale-105 transition-transform mx-auto w-full"
               asChild
             >
-              <a
-                href={`mailto:jordan.steinberg@ibm.com`}
-                className="inline-block"
-              >
+              <a href={`mailto:jordan.steinberg@ibm.com`}>
                 <Mail className="mr-2 h-5 w-5" /> Reply
               </a>
             </Button>
 
-            {/* Book a Meeting Dialog */}
             <SmartMeetingButton 
               calComUsername={userDetails?.calComUsername || undefined}
               meetingLink={userDetails?.meetingLink || undefined}
               themeSettings={profile?.themeSettings || undefined}
               className="h-12 rounded-full text-base font-medium hover:scale-105 transition-transform mx-auto w-full"
             />
-            {/* <Dialog open={isCalDialogOpen} onOpenChange={setIsCalDialogOpen}>
-              <DialogTrigger asChild>
-                <Button className="h-12 rounded-full text-base font-medium hover:scale-105 transition-transform mx-auto w-full">
-                  <Calendar className="mr-2 h-5 w-5" /> Book a meeting
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                  <DialogTitle>Book a Meeting with {authorFirstName}</DialogTitle>
-                </DialogHeader>
-                <div className="mt-4">
-                  <InlineWidget
-                    calLink="citrusreach"
-                    style={{ height: "650px", width: "100%", overflow: "scroll" }}
-                    config={{ theme: "light", layout: "month_view" }}
-                  />
-                </div>
-              </DialogContent>
-            </Dialog> */}
 
-            {/* Share Button */}
             <Button
               className="h-12 rounded-full text-base font-medium hover:scale-105 transition-transform mx-auto w-full"
               onClick={handleShare}
@@ -317,19 +275,15 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
               <Share2 className="mr-2 h-5 w-5" /> Share
             </Button>
 
-            {/* Get in Touch Button */}
             <Button 
               className="h-12 rounded-full text-base font-medium hover:scale-105 transition-transform mx-auto w-full" 
               style={{
                 backgroundColor: profile.themeSettings?.accentColor || '#000000',
                 color: '#FFFFFF'
               }}
-              asChild>
-              <a
-                href={userDetails?.linkedin || "#"}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
+              asChild
+            >
+              <a href={userDetails?.linkedin || "#"} target="_blank" rel="noopener noreferrer">
                 <Linkedin className="mr-2 h-4 w-4" /> Get in Touch
               </a>
             </Button>
@@ -354,7 +308,7 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
         {/* More from {authorFirstName} Section */}
         {latestDocuments.length > 0 && (
           <div className="mt-16 w-full">
-            <div className="flex justify-between items-center mb-8 px-2 sm:px-0">
+            <div className="flex justify-between items-center mb-8 px-4 md:px-0">
               <h2 className="text-xl sm:text-2xl font-bold">More from {authorFirstName}</h2>
               <Link 
                 href={`/homepage/${encodeURIComponent(authorFullName.toLowerCase().replace(/ /g, '-'))}`}
@@ -366,7 +320,7 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
                 </Button>
               </Link>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8 px-2 sm:px-0">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8 px-4 md:px-0">
               {latestDocuments.map((post) => (
                 <Link
                   key={post._id}
