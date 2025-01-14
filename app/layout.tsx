@@ -28,12 +28,12 @@ export const metadata: Metadata = {
     icon: [
       {
         media: "(prefers-color-scheme: light)",
-        url: "/logo.svg",
+        url: "/icon-new.svg", //prev: /logo.svg
         type: "image/svg+xml",
       },
       {
         media: "(prefers-color-scheme: dark)",
-        url: "/logo.svg",
+        url: "/icon-new.svg",
         type: "image/svg+xml",
       },
     ],
@@ -45,7 +45,7 @@ export const metadata: Metadata = {
     siteName: "Citrus Reach",
     images: [
       {
-        url: "https://citrusreach.com/og-image.png", 
+        url: "https://citrusreach.com/og-image-gradient.png", 
         width: 1200,
         height: 630,
         alt: "Citrus Reach - Build Custom Microsites",
@@ -58,7 +58,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Citrus Reach: Create High-Converting Microsites for Your Brand",
     description: "Transform your brand's online presence with Citrus Reach's powerful microsite builder. Create stunning, conversion-optimized landing pages",
-    images: ["https://citrusreach.com/og-image.png"],
+    images: ["https://citrusreach.com/og-image-gradient.png"],
     site: "@CitrusReach",
   },
   robots: {
