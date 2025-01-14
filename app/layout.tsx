@@ -28,12 +28,12 @@ export const metadata: Metadata = {
     icon: [
       {
         media: "(prefers-color-scheme: light)",
-        url: "/icon-new.svg", //prev: /logo.svg
+        url: "/icon-modern.svg", //prev: /logo.svg
         type: "image/svg+xml",
       },
       {
         media: "(prefers-color-scheme: dark)",
-        url: "/icon-new.svg",
+        url: "/icon-modern.svg",
         type: "image/svg+xml",
       },
     ],
