@@ -19,8 +19,11 @@ const inter = Inter({ subsets: ["latin"] });
 const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
 export const metadata: Metadata = {
-  title: "Citrus Reach - Microsites That Convert",
-  description: "Publish one-page websites to market your brand",
+  title: "Citrus Reach - Create High-Converting Microsites for Your Brand | Elevated Outreach",
+  description: "Transform your brand's online presence with Citrus Reach's powerful microsite builder. Create stunning, conversion-optimized landing pages with embedded videos, analytics, and customizable templates for maximum impact.",
+  alternates: {
+    canonical: 'https://citrusreach.com'
+  },
   icons: {
     icon: [
       {
@@ -36,16 +39,16 @@ export const metadata: Metadata = {
     ],
   },
   openGraph: {
-    title: "Citrus Reach - Microsites That Convert",
-    description: "Video and content powered outreach",
+    title: "Citrus Reach - Create High-Converting Microsites for Your Brand",
+    description: "Transform your brand's online presence with Citrus Reach's powerful microsite builder. Create stunning, conversion-optimized landing pages with embedded videos and analytics.",
     url: "citrusreach.com",
     siteName: "Citrus Reach",
     images: [
       {
-        url: "https://citrusreach.com/og-image.png", // Replace with the actual image URL
+        url: "https://citrusreach.com/og-image.png", 
         width: 1200,
         height: 630,
-        alt: "Citrus Reach Logo",
+        alt: "Citrus Reach - Build Custom Microsites",
       },
     ],
     locale: "en_US",
@@ -53,9 +56,21 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Citrus Reach - Microsites That Convert",
-    description: "Video and content powered outreach",
+    title: "Citrus Reach: Create High-Converting Microsites for Your Brand",
+    description: "Transform your brand's online presence with Citrus Reach's powerful microsite builder. Create stunning, conversion-optimized landing pages",
     images: ["https://citrusreach.com/og-image.png"],
+    site: "@CitrusReach",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
   },
 };
 

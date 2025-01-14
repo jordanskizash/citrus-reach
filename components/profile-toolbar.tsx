@@ -50,7 +50,15 @@ export const ProfToolbar = ({ initialData, preview, editable = true }: ToolbarPr
   const greetingText = initialData.greetingText || `Hey, ${initialData.displayName} - Check out this recording!`;
 
   return (
-    <div className="pl-[54px] group relative">
+    <div className="group relative md:text-left">
+      <style jsx>{`
+        @media (max-width: 768px) {
+          .group {
+            padding-left: 0;
+            text-align: center;
+          }
+        }
+      `}</style>
       {isEditing && !preview && editable ? (
         <TextareaAutosize
           ref={inputRef}
@@ -58,12 +66,12 @@ export const ProfToolbar = ({ initialData, preview, editable = true }: ToolbarPr
           onKeyDown={onKeyDown}
           value={value}
           onChange={(e) => onInput(e.target.value)}
-          className="text-5xl bg-transparent font-bold break-words outline-none text-[#3F3F3F] dark:text-[#3F3F3F] max-w-4xl resize-none"
+          className="text-3xl md:text-5xl bg-transparent font-bold break-words outline-none text-[#3F3F3F] dark:text-[#3F3F3F] w-full resize-none"
         />
       ) : (
         <div
           onClick={editable ? enableInput : undefined}
-          className={`pb-[11.5px] text-5xl font-bold break-words outline-none text-[#3F3F3F] dark:text-[#3F3F3F] relative group ${
+          className={`pb-[11.5px] text-4xl md:text-5xl font-bold break-words outline-none text-[#3F3F3F] dark:text-[#3F3F3F] relative group ${
             editable ? "cursor-text" : ""
           }`}
         >
@@ -73,3 +81,4 @@ export const ProfToolbar = ({ initialData, preview, editable = true }: ToolbarPr
     </div>
   );
 };
+

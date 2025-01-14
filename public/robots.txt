@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Allow: /blog/
+Allow: /about/
+
+Disallow: /api/
+Disallow: /_next/
+
+Sitemap: https://citrusreach.com/sitemap.xml

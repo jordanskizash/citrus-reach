@@ -1,8 +1,7 @@
 "use client";
 
 import { useMutation } from "convex/react";
-
-import { Doc } from "@/convex/_generated/dataModel";
+import { Doc, Id } from "@/convex/_generated/dataModel";
 import { api } from "@/convex/_generated/api";
 import { useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
@@ -10,10 +9,14 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface TitleProps {
-  initialData: Doc<"profiles">;
+  initialData: {
+    _id: Id<"profiles">;
+    displayName: string;
+  };
+  onSave?: (newValue: string) => void;
 }
 
-export const ProfTitle = ({ initialData }: TitleProps) => {
+export const ProfTitle = ({ initialData, onSave }: TitleProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const update = useMutation(api.profiles.update);
 
@@ -35,10 +38,9 @@ export const ProfTitle = ({ initialData }: TitleProps) => {
 
   const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setDisplayName(event.target.value);
-    update({
-      id: initialData._id,
-      displayName: event.target.value || "Untitled",
-    });
+    if (onSave) {
+      onSave(event.target.value || "Untitled");
+    }
   };
 
   const onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -64,7 +66,7 @@ export const ProfTitle = ({ initialData }: TitleProps) => {
           onClick={enableInput}
           variant="ghost"
           size="sm"
-          className="font-normal h-auto p-1"
+          className="font-normal h-auto p-1 text-muted-foreground"
         >
           <span className="truncate">{initialData?.displayName}</span>
         </Button>
@@ -76,3 +78,4 @@ export const ProfTitle = ({ initialData }: TitleProps) => {
 ProfTitle.Skeleton = function TitleSkeleton() {
   return <Skeleton className="h-6 w-16 rounded-md" />;
 };
+
