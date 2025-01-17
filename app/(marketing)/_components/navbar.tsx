@@ -164,7 +164,7 @@ const ExamplesDropdown = () => {
         variant="ghost" 
         size="sm"
         className={cn(
-          "text-gray-700 hover:text-gray-900 gap-2",
+          "text-gray-700 hover:text-gray-900 gap-2 !text-lg",
           isOpen && "text-orange-500"
         )}
       >
@@ -195,7 +195,7 @@ const ExamplesDropdown = () => {
               transform: 'translateX(-50%)',
             }}
           >
-            <div className="w-full px-4 md:px-6 py-6">
+            <div className="w-full px-4 md:px-6 py-8">
               <div className="max-w-[1400px] mx-auto">
                 <div className="grid grid-cols-12 gap-8">
                   {sections.map((section, index) => (
@@ -384,17 +384,17 @@ export const Navbar: React.FC = () => {
                 <LogoOnly />
               </div>
               <div className="hidden md:block">
-                <Logo />
+                <LogoOnly />
               </div>
             </div>
 
             {/* Center nav section - smaller text */}
             <div className="flex-1 flex justify-center">
-              <nav className="hidden md:flex items-center space-x-2 text-sm">
+              <nav className="hidden md:flex items-center space-x-2 !text-lg">
                 <Button 
                   variant="ghost" 
                   size="sm"
-                  className="text-gray-700 hover:text-gray-900"
+                  className="text-gray-700 hover:text-gray-900 !text-lg"
                   asChild
                 >
                   <Link href="/about">About</Link>
@@ -402,7 +402,7 @@ export const Navbar: React.FC = () => {
                 <Button 
                   variant="ghost" 
                   size="sm"
-                  className="text-gray-700 hover:text-gray-900"
+                  className="text-gray-700 hover:text-gray-900 !text-lg"
                   asChild
                 >
                   <Link href="/blog">Blog</Link>
@@ -410,7 +410,7 @@ export const Navbar: React.FC = () => {
                 <Button 
                   variant="ghost" 
                   size="sm"
-                  className="text-gray-700 hover:text-gray-900"
+                  className="text-gray-700 hover:text-gray-900 !text-lg"
                   asChild
                 >
                   <Link href="/pricing">Pricing</Link>
