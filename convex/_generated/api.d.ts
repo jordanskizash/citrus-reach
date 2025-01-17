@@ -17,6 +17,7 @@ import type {
 } from "convex/server";
 import type * as documents from "../documents.js";
 import type * as events from "../events.js";
+import type * as externalLinks from "../externalLinks.js";
 import type * as http from "../http.js";
 import type * as payments from "../payments.js";
 import type * as profiles from "../profiles.js";
@@ -34,6 +35,7 @@ import type * as users from "../users.js";
 declare const fullApi: ApiFromModules<{
   documents: typeof documents;
   events: typeof events;
+  externalLinks: typeof externalLinks;
   http: typeof http;
   payments: typeof payments;
   profiles: typeof profiles;

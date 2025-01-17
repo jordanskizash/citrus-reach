@@ -594,7 +594,7 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
         </Dialog>
 
         {/* Additional Resources Section */}
-        <PdfViewer files={pdfFiles} onDelete={handlePdfDelete} />
+        {/* <PdfViewer files={pdfFiles} onDelete={handlePdfDelete} />
         {showAdditionalResources ? (
           <div className="w-full mt-8">
             <div className="flex justify-between items-center  mb-6">
@@ -676,7 +676,7 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
           >
             Show Additional Resources
           </Button>
-        )}
+        )} */}
 
         {/* PDF Preview Dialog */}
         {selectedPdf && (

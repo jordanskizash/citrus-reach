@@ -93,6 +93,16 @@ export default defineSchema ({
         
         .index("by_stripe_id", ["stripeId"]),
 
+    externalLinks: defineTable({
+        title: v.string(),
+        url: v.string(),
+        userId: v.string(),
+        coverImage: v.optional(v.string()),
+        description: v.optional(v.string()),
+        isArchived: v.boolean(),
+    })
+    .index("by_user", ["userId"]),
+
     events: defineTable({
         title: v.string(),
         description: v.string(),

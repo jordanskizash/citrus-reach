@@ -24,6 +24,10 @@ export async function generateMetadata({ params }: ProfileParams): Promise<Metad
       };
     }
 
+    // Get the absolute URL for the videoOG.png image
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://citrusreach.com';
+    const ogImageUrl = `${baseUrl}/videoOG.png`;
+
     const metadata: Metadata = {
       title: `New Recording for ${profile.displayName}`,
       description: profile.description || profile.bio || `Check out ${profile.displayName}'s profile`,
@@ -31,10 +35,18 @@ export async function generateMetadata({ params }: ProfileParams): Promise<Metad
         title: `Recording for ${profile.displayName}`,
         description: profile.description || profile.bio || `Check out ${profile.displayName}'s profile`,
         type: 'video.other',
+        images: [
+          {
+            url: ogImageUrl,
+            width: 1200,
+            height: 630,
+            alt: `${profile.displayName}'s video preview`,
+          },
+        ],
       },
     };
 
-    // If we have a video, prioritize it in the metadata
+    // If we have a video, add video-specific metadata
     if (profile.videoUrl) {
       metadata.openGraph = {
         ...metadata.openGraph,
@@ -45,16 +57,6 @@ export async function generateMetadata({ params }: ProfileParams): Promise<Metad
             height: 720,
             type: 'video/mp4',
             secureUrl: profile.videoUrl,
-          },
-        ],
-        // Always include video thumbnail for better preview support
-        images: [
-          {
-            url: profile.videoThumbnail || profile.icon || '/acme.png',
-            width: 1280,
-            height: 720,
-            alt: `${profile.displayName}'s video preview`,
-            secureUrl: profile.videoThumbnail || profile.icon || '/acme.png',
           },
         ],
       };
@@ -69,15 +71,15 @@ export async function generateMetadata({ params }: ProfileParams): Promise<Metad
         'og:video:height': '720',
         'og:type': 'video.other',
         
-        // Enhanced video preview metadata
-        'og:image': profile.videoThumbnail || profile.icon || '/acme.png',
-        'og:image:secure_url': profile.videoThumbnail || profile.icon || '/acme.png',
-        'og:image:width': '1280',
-        'og:image:height': '720',
-        'og:image:type': 'image/jpeg',
+        // Always use videoOG.png for preview image
+        'og:image': ogImageUrl,
+        'og:image:secure_url': ogImageUrl,
+        'og:image:width': '1200',
+        'og:image:height': '630',
+        'og:image:type': 'image/png',
         
         // Video player specific metadata
-        'og:video:duration': '300', // Optional: Add actual duration if available
+        'og:video:duration': '300',
         'og:video:release_date': new Date().toISOString(),
         
         // Additional metadata for better platform support
@@ -87,42 +89,29 @@ export async function generateMetadata({ params }: ProfileParams): Promise<Metad
         'twitter:player:height': '720',
       };
 
-      // Enhanced Twitter card metadata
+      // Twitter card metadata always using videoOG.png
       metadata.twitter = {
         card: 'player',
-        site: '@YourTwitterHandle', // Replace with your actual Twitter handle
+        site: '@CitrusReach',
         title: `Custom profile for ${profile.displayName}`,
         description: profile.description || profile.bio || `Check out ${profile.displayName}'s profile`,
-        images: [profile.videoThumbnail || profile.icon || '/acme.png'],
+        images: [ogImageUrl],
         players: [
           {
             playerUrl: profile.videoUrl,
-            streamUrl: profile.videoUrl, // Added streamUrl as required by TwitterPlayerDescriptor
+            streamUrl: profile.videoUrl,
             width: 1280,
             height: 720
           }
         ]
       };
     } else {
-      // Fallback to regular image metadata if no video
-      metadata.openGraph = {
-        ...metadata.openGraph,
-        type: 'website',
-        images: [
-          {
-            url: profile.icon || '/acme.png',
-            width: 1200,
-            height: 630,
-            alt: `${profile.displayName}'s profile image`,
-          },
-        ],
-      };
-
+      // Fallback metadata still using videoOG.png
       metadata.twitter = {
         card: 'summary_large_image',
         title: `${profile.displayName}'s Profile`,
         description: profile.description || profile.bio || `Check out ${profile.displayName}'s profile`,
-        images: [profile.icon || '/acme.png'],
+        images: [ogImageUrl],
       };
     }
 

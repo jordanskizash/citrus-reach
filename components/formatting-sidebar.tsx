@@ -1,7 +1,5 @@
-'use client'
-
 import * as React from 'react'
-import { useMutation } from 'convex/react'
+import { useMutation, useQuery } from 'convex/react'
 import { api } from '@/convex/_generated/api'
 import { Doc, Id } from '@/convex/_generated/dataModel'
 import { Button } from '@/components/ui/button'
@@ -15,17 +13,26 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs"
-import { Upload, ChevronLeft, ChevronRight, X } from 'lucide-react'
+import { Upload, ChevronLeft, ChevronRight, X, Calendar, Plus } from 'lucide-react'
 import { PublishProfile } from '@/app/(main)/_components/publishprof'
 import { Menu } from '@/app/(main)/_components/menu'
 import { ProfTitle } from '@/app/(main)/_components/prof-title'
 import { useState } from 'react'
 import { useEdgeStore } from '@/lib/edgestore'
+import Link from 'next/link'
+import toast from 'react-hot-toast'
 
 interface ThemeSettings {
   backgroundColor: string
@@ -43,18 +50,18 @@ interface Profile {
   greetingText?: string
   themeSettings?: ThemeSettings
   isDarkMode?: boolean
-  themeSettings_backgroundColor?: string;
-  themeSettings_textColor?: string;
-  themeSettings_accentColor?: string;
-  bio?: string;
-  description?: string;
-  videoUrl?: string;
-  videoDescription?: string;
-  userId: string;
-  isArchived: boolean;
-  parentProfile?: Id<"profiles">;
-  content?: string;
-  organizationLogo?: string;
+  themeSettings_backgroundColor?: string
+  themeSettings_textColor?: string
+  themeSettings_accentColor?: string
+  bio?: string
+  description?: string
+  videoUrl?: string
+  videoDescription?: string
+  userId: string
+  isArchived: boolean
+  parentProfile?: Id<"profiles">
+  content?: string
+  organizationLogo?: string
 }
 
 interface FormattingModuleProps {
@@ -85,6 +92,48 @@ export default function FormattingModule({
   const [greetingText, setGreetingText] = useState(profile.greetingText || `Hey, ${profile.displayName} - Check out this recording!`)
   const [isOpen, setIsOpen] = useState(true)
   const { edgestore } = useEdgeStore()
+  const [isLinkDialogOpen, setIsLinkDialogOpen] = useState(false)
+  const [linkUrl, setLinkUrl] = useState('')
+  const [isLoadingMetadata, setIsLoadingMetadata] = useState(false)
+
+  const externalLinks = useQuery(api.externalLinks.listByUser)
+  const addExternalLink = useMutation(api.externalLinks.create)
+  
+  const publishedDocs = useQuery(api.documents.getPublishedDocuments)
+
+  const handleAddLink = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsLoadingMetadata(true)
+
+    try {
+      // You'll need to create this API endpoint to handle metadata extraction
+      const response = await fetch('/api/extract-metadata', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ url: linkUrl }),
+      })
+
+      const metadata = await response.json()
+
+      await addExternalLink({
+        url: linkUrl,
+        title: metadata.title || 'Untitled',
+        description: metadata.description,
+        coverImage: metadata.image,
+      })
+
+      setLinkUrl('')
+      setIsLinkDialogOpen(false)
+      toast.success('Link added successfully')
+    } catch (error) {
+      console.error('Error adding link:', error)
+      toast.error('Failed to add link')
+    } finally {
+      setIsLoadingMetadata(false)
+    }
+  }
 
   const handleLogoDelete = async (type: 'cover' | 'client') => {
     try {
@@ -159,6 +208,10 @@ export default function FormattingModule({
     setIsOpen(!isOpen)
   }
 
+  const getPostUrl = (post: Doc<'documents'>) => {
+    return `/blog/${post.slug ?? post._id}`
+  }
+
   return (
     <div className="relative h-full">
       <div
@@ -198,35 +251,39 @@ export default function FormattingModule({
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label className="text-sm font-medium text-muted-foreground">Display Name</Label>
-                <ProfTitle 
-                  initialData={{
-                    _id: profileId,
-                    displayName: profile.displayName
-                  }}
-                  onSave={(newValue: string) => {
-                    updateProfile({
-                      id: profileId,
-                      displayName: newValue,
-                    });
-                  }}
-                />
+                <div className="max-w-[208px] overflow-hidden">
+                  <ProfTitle 
+                    initialData={{
+                      _id: profileId,
+                      displayName: profile.displayName
+                    }}
+                    onSave={(newValue: string) => {
+                      updateProfile({
+                        id: profileId,
+                        displayName: newValue,
+                      });
+                    }}
+                  />
+                </div>
               </div>
 
               <div className="space-y-2">
                 <Label className="text-sm font-medium text-muted-foreground">Greeting Text</Label>
-                <ProfTitle 
-                  initialData={{
-                    _id: profileId,
-                    displayName: greetingText
-                  }}
-                  onSave={(newValue: string) => {
-                    setGreetingText(newValue);
-                    updateProfile({
-                      id: profileId,
-                      greetingText: newValue,
-                    });
-                  }}
-                />
+                <div className="max-w-[200px] overflow-hidden">
+                  <ProfTitle 
+                    initialData={{
+                      _id: profileId,
+                      displayName: greetingText
+                    }}
+                    onSave={(newValue: string) => {
+                      setGreetingText(newValue);
+                      updateProfile({
+                        id: profileId,
+                        greetingText: newValue,
+                      });
+                    }}
+                  />
+                </div>
               </div>
 
               <div className="space-y-2">
@@ -333,9 +390,101 @@ export default function FormattingModule({
               </div>
             </div>
           </TabsContent>
+
+          <TabsContent value="content" className="p-3">
+            <div className="space-y-4">
+              <h2 className="text-lg font-semibold">Links</h2>
+              <div className="grid grid-cols-2 gap-2">
+                {publishedDocs?.map((post) => (
+                  <Link
+                    key={post._id}
+                    href={getPostUrl(post)}
+                    className="block bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200"
+                  >
+                    <div className="relative h-20">
+                      <img
+                        src={post.coverImage || "/placeholder.svg?height=80&width=100"}
+                        alt={post.title}
+                        className="w-full h-full object-cover rounded-t-lg"
+                      />
+                    </div>
+                    <div className="p-2">
+                      <div className="flex items-center gap-1 text-xs text-gray-500">
+                        <Calendar className="h-3 w-3" />
+                        {new Date(post._creationTime).toLocaleDateString()}
+                      </div>
+                      <h3 className="text-xs font-medium line-clamp-2 mt-1">{post.title}</h3>
+                    </div>
+                  </Link>
+                ))}
+                {externalLinks?.map((link) => (
+              <a
+                key={link._id}
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200"
+              >
+                <div className="relative h-20">
+                  <img
+                    src={link.coverImage || "/placeholder.svg?height=80&width=100"}
+                    alt={link.title}
+                    className="w-full h-full object-cover rounded-t-lg"
+                  />
+                </div>
+                <div className="p-2">
+                  <div className="flex items-center gap-1 text-xs text-gray-500">
+                    <Calendar className="h-3 w-3" />
+                    {new Date(link._creationTime).toLocaleDateString()}
+                  </div>
+                  <h3 className="text-xs font-medium line-clamp-2 mt-1">{link.title}</h3>
+                </div>
+              </a>
+            ))}
+
+            <Dialog open={isLinkDialogOpen} onOpenChange={setIsLinkDialogOpen}>
+              <DialogTrigger asChild>
+                <button className="flex items-center justify-center h-full min-h-[120px] border-2 border-dashed border-gray-200 rounded-lg hover:border-gray-300 transition-colors">
+                  <Plus className="h-6 w-6 text-gray-400" />
+                </button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Add External Content</DialogTitle>
+                    </DialogHeader>
+                    <form onSubmit={handleAddLink} className="space-y-4 mt-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="url">URL</Label>
+                        <Input
+                          id="url"
+                          type="url"
+                          placeholder="Paste link here..."
+                          value={linkUrl}
+                          onChange={(e) => setLinkUrl(e.target.value)}
+                          required
+                        />
+                      </div>
+                      <Button 
+                        type="submit" 
+                        disabled={isLoadingMetadata}
+                        className="w-full"
+                      >
+                        {isLoadingMetadata ? 'Loading...' : 'Add Content'}
+                      </Button>
+                    </form>
+                  </DialogContent>
+                </Dialog>
+
+                {(!publishedDocs || publishedDocs.length === 0) && (
+                  <div className="col-span-2 text-center py-6 text-gray-500">
+                    No published blog posts yet
+                  </div>
+                )}
+              </div>
+            </div>
+          </TabsContent>
         </Tabs>
       </div>
     </div>
   )
 }
-
