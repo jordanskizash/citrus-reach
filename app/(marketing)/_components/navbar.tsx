@@ -93,7 +93,7 @@ const ExamplesDropdown = () => {
 
   const sections: ExampleSection[] = [
     {
-      title: "ANY FORMAT",
+      title: "Marketing Sites",
       items: [
         {
           title: "Blogs",
@@ -119,7 +119,7 @@ const ExamplesDropdown = () => {
       ]
     },
     {
-      title: "INTEGRATIONS",
+      title: "Integrations",
       items: [
         {
           title: "Cloud Storage",

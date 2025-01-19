@@ -359,12 +359,13 @@ export const Navigation = () => {
                 <div className="flex items-center justify-between mt-4 ml-4 mb-2">
                         <h1 className="text-sm text-muted-foreground">Events</h1>
                         <div 
-                            className="cursor-pointer group-hover:opacity-100 h-full ml-auto rounded-md hover:bg-neutral-300 dark:hover:bg-neutral-600 mr-2"
+                            // className="cursor-pointer group-hover:opacity-100 h-full ml-auto rounded-md hover:bg-neutral-300 dark:hover:bg-neutral-600 mr-2"
                         >
-                            <CirclePlusIcon className="h-5 w-5 text-muted-foreground" onClick={handleCreateEvent} />  
+                            <h2 className="text-sm text-muted-foreground mr-4">Coming soon!</h2>
+                            {/* <CirclePlusIcon className="h-5 w-5 text-muted-foreground" onClick={handleCreateEvent} />   */}
                         </div>
                     </div>
-                    <EventList />
+                    {/* <EventList /> */}
                     {/* <Item 
                         onClick={handleCreate} 
                         icon={Plus}
@@ -433,11 +434,6 @@ export const Navigation = () => {
             >
                 {!!params.documentId ? (
                     <Navbar 
-                        isCollapsed={isCollapsed}
-                        onResetWidth={resetWidth}
-                    />
-                ) : !!params.profileId ? (
-                    <NavbarProfile
                         isCollapsed={isCollapsed}
                         onResetWidth={resetWidth}
                     />

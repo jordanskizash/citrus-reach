@@ -273,6 +273,10 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
             <Button
               className="h-12 rounded-full text-base font-medium hover:scale-105 transition-transform mx-auto w-full"
               asChild
+              style={{
+                backgroundColor: profile.themeSettings?.accentColor || '#000000',
+                color: '#FFFFFF'
+              }}
             >
               <a
                 href={`mailto:jordan.steinberg@ibm.com`}
@@ -313,6 +317,10 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
             <Button
               className="h-12 rounded-full text-base font-medium hover:scale-105 transition-transform mx-auto w-full"
               onClick={handleShare}
+              style={{
+                backgroundColor: profile.themeSettings?.accentColor || '#000000',
+                color: '#FFFFFF'
+              }}
             >
               <Share2 className="mr-2 h-5 w-5" /> Share
             </Button>
@@ -385,7 +393,7 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
                   <p className="text-gray-500 text-sm mt-4 mb-1">
                     {new Date(post._creationTime).toLocaleDateString()}
                   </p>
-                  <h3 className="text-lg sm:text-xl font-semibold mb-2 group-hover:text-primary transition-colors">
+                  <h3 className="text-lg text-black sm:text-xl font-semibold mb-2 group-hover:text-primary transition-colors">
                     {post.title}
                   </h3>
                   <p className="text-gray-600 text-sm sm:text-base">By {post.authorFullName || "Unknown Author"}</p>
