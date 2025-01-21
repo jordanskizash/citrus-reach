@@ -99,7 +99,7 @@ export default function MeetingTemplates() {
                   className={`rounded-full px-6 ${
                     activeTemplate === templateId
                       ? "bg-orange-500 hover:bg-orange-500"
-                      : "hover:bg-orange-50"
+                      : "hover:bg-orange-200"
                   }`}
                   onClick={() => setActiveTemplate(templateId)}
                 >
@@ -115,7 +115,7 @@ export default function MeetingTemplates() {
                   className={`rounded-full px-6 ${
                     activeTemplate === templateId
                       ? "bg-orange-500 hover:bg-orange-500"
-                      : "hover:bg-orange-50"
+                      : "hover:bg-orange-200"
                   }`}
                   onClick={() => setActiveTemplate(templateId)}
                 >

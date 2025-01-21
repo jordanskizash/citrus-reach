@@ -7,7 +7,7 @@ const config = {
     './components/**/*.{ts,tsx}',
     './app/**/*.{ts,tsx}',
     './src/**/*.{ts,tsx}',
-	],
+  ],
   prefix: "",
   theme: {
     container: {
@@ -53,6 +53,71 @@ const config = {
           foreground: "hsl(var(--card-foreground))",
         },
       },
+      // Added typography configuration for @tailwindcss/typography plugin
+      typography: {
+        DEFAULT: {
+            css: {
+                maxWidth: 'none',
+                color: 'hsl(var(--foreground))',
+                p: {
+                    fontSize: '1.125rem',     // 18px
+                    lineHeight: '1.75',       // 28px
+                    marginTop: '1.25em',      // Adjusted spacing
+                    marginBottom: '1.25em',   // Adjusted spacing
+                },
+                h1: {
+                    fontSize: '2.25rem',      // 36px
+                    lineHeight: '1.25',       // Tighter line height for headings
+                    fontWeight: '600',        // Semibold
+                    marginTop: '0',           // Remove top margin
+                    marginBottom: '1em',      // Add bottom margin
+                },
+                h2: {
+                    fontSize: '1.875rem',     // 30px
+                    lineHeight: '1.3',
+                    fontWeight: '600',
+                    marginTop: '1.5em',
+                    marginBottom: '0.75em',
+                },
+                h3: {
+                    fontSize: '1.5rem',       // 24px
+                    lineHeight: '1.3',
+                    fontWeight: '600',
+                    marginTop: '1.5em',
+                    marginBottom: '0.75em',
+                },
+                a: {
+                    color: 'hsl(var(--primary))',
+                    textDecoration: 'none',
+                    '&:hover': {
+                        color: 'hsl(var(--primary))',
+                        textDecoration: 'underline',
+                    },
+                },
+                li: {
+                    marginTop: '0.5em',
+                    marginBottom: '0.5em',
+                    fontSize: '1.125rem',     // Match paragraph size
+                },
+                'ul, ol': {
+                    marginTop: '1.25em',
+                    marginBottom: '1.25em',
+                    paddingLeft: '1.25em',
+                },
+                img: {
+                    marginTop: '2em',
+                    marginBottom: '2em',
+                    borderRadius: '0.5rem',
+                },
+                'code::before': {
+                    content: '""',
+                },
+                'code::after': {
+                    content: '""',
+                },
+            },
+        },
+    },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
@@ -74,7 +139,10 @@ const config = {
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [
+    require("tailwindcss-animate"),
+    require("@tailwindcss/typography"), // Added typography plugin here
+  ],
 } satisfies Config
 
 export default config

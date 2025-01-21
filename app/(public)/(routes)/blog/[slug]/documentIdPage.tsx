@@ -7,7 +7,7 @@ import { Toolbar } from "@/components/toolbar";
 import { Cover } from "@/components/cover";
 import { Skeleton } from "@/components/ui/skeleton";
 import dynamic from "next/dynamic";
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useCallback } from "react";
 import ScrollIndicator from "@/app/(main)/_components/scroll";
 import { motion } from "framer-motion";
 import { ArrowLeft, BookOpen, Clock, Heart } from "lucide-react";
@@ -17,20 +17,19 @@ import SubscribeWidget from "@/app/(marketing)/_components/subscribe";
 import ShareButtons from "@/app/(marketing)/_components/sharebuttons";
 import Link from "next/link";
 import { LogoOnly } from "@/app/(marketing)/_components/logojust";
-import { useUser } from "@clerk/clerk-react";
+import _ from "lodash";
 
 const AUTHOR_NAME = 'Citrus Team';
-const AUTHOR_IMAGE = '/logo.svg'; // Replace with the actual author image path
+const AUTHOR_IMAGE = '/logo.svg';
 
 interface DocumentIdPageProps {
     document: Doc<"documents">; 
-    
 }
 
 interface Heading {
-  id: string;
-  text: string;
-  level: number;
+    id: string;
+    text: string;
+    level: number;
 }
 
 function LikeButton({ documentId }: { documentId: Id<"documents"> }) {
@@ -43,13 +42,11 @@ function LikeButton({ documentId }: { documentId: Id<"documents"> }) {
 
     const toggleLike = useMutation(api.documents.togglePublicLike);
 
-    // Check local storage for like status on mount
     useEffect(() => {
         const likedPosts = JSON.parse(localStorage.getItem('likedPosts') || '{}');
         setIsLiked(!!likedPosts[documentId]);
     }, [documentId]);
 
-    // Update like count when data changes
     useEffect(() => {
         if (likeStatus !== undefined) {
             setLikeCount(likeStatus);
@@ -58,25 +55,21 @@ function LikeButton({ documentId }: { documentId: Id<"documents"> }) {
 
     const handleLikeClick = async () => {
         try {
-            // Toggle like in local storage
             const likedPosts = JSON.parse(localStorage.getItem('likedPosts') || '{}');
             const newLikeStatus = !likedPosts[documentId];
             
             likedPosts[documentId] = newLikeStatus;
             localStorage.setItem('likedPosts', JSON.stringify(likedPosts));
 
-            // Update UI immediately for better UX
             setIsLiked(newLikeStatus);
             setLikeCount(prev => newLikeStatus ? prev + 1 : Math.max(0, prev - 1));
 
-            // Update server
             await toggleLike({ 
                 documentId,
                 action: newLikeStatus ? 'increment' : 'decrement'
             });
         } catch (error) {
             console.error("Error toggling like:", error);
-            // Revert local storage on error
             const likedPosts = JSON.parse(localStorage.getItem('likedPosts') || '{}');
             delete likedPosts[documentId];
             localStorage.setItem('likedPosts', JSON.stringify(likedPosts));
@@ -104,22 +97,50 @@ const DocumentIdPage = ({ document }: DocumentIdPageProps) => {
     const Editor = useMemo(() => dynamic(() => import("@/components/editor"), { ssr: false }), []);
     const [headings, setHeadings] = useState<Heading[]>([]);
     const [readingTime, setReadingTime] = useState<number>(0);
+    const [isUpdating, setIsUpdating] = useState(false);
 
-    // Get the latest version of the document using slug
     const latestDocument = useQuery(api.documents.getBySlug, {
-        slug: document.slug ?? '' // Add null check since slug might be optional during migration
+        slug: document.slug ?? ''
     });
 
-    // Use the latest document data if available, otherwise use the initial document
     const currentDocument = latestDocument ?? document;
-
     const update = useMutation(api.documents.update);
 
-    const onChange = (content: string) => {
+     // Optimize the onChange handler with useCallback
+     const onChange = useCallback((content: string) => {
         update({
-            id: currentDocument._id, // Use the current document's ID
+            id: currentDocument._id,
             content
         });
+    }, [currentDocument._id, update]);
+
+    // Extract headings from HTML content
+    const extractHeadingsFromHtml = (html: string): Heading[] => {
+        if (typeof window !== 'undefined') {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const headings = Array.from(doc.querySelectorAll('h1, h2, h3, h4, h5, h6'));
+            
+            return headings.map((heading, index) => ({
+                id: `heading-${index}`,
+                text: heading.textContent || '',
+                level: parseInt(heading.tagName[1])
+            }));
+        }
+        return [];
+    };
+
+    // Calculate reading time from HTML content
+    const calculateReadingTime = (html: string): number => {
+        if (typeof window !== 'undefined') {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const text = doc.body.textContent || '';
+            const wordsPerMinute = 200;
+            const wordCount = text.trim().split(/\s+/).length;
+            return Math.ceil(wordCount / wordsPerMinute);
+        }
+        return 0;
     };
 
     const formatDate = (date: number) => {
@@ -128,41 +149,6 @@ const DocumentIdPage = ({ document }: DocumentIdPageProps) => {
             month: 'long',
             day: 'numeric'
         });
-    };
-
-    const extractHeadings = (content: string): Heading[] => {
-        try {
-            const parsedContent = JSON.parse(content);
-            const extractedHeadings: Heading[] = [];
-            let headingId = 0;
-
-            const traverse = (blocks: any[]) => {
-                blocks.forEach((block) => {
-                    if (block.type === 'heading' && block.content) {
-                        extractedHeadings.push({
-                            id: `heading-${headingId++}`,
-                            text: block.content[0].text,
-                            level: block.props.level
-                        });
-                    }
-                    if (block.children) {
-                        traverse(block.children);
-                    }
-                });
-            };
-
-            traverse(parsedContent);
-            return extractedHeadings;
-        } catch (error) {
-            console.error("Error parsing content:", error);
-            return [];
-        }
-    };
-
-    const calculateReadingTime = (content: string): number => {
-        const wordsPerMinute = 200;
-        const wordCount = content.split(/\s+/).length;
-        return Math.ceil(wordCount / wordsPerMinute);
     };
 
     useEffect(() => {
@@ -188,13 +174,45 @@ const DocumentIdPage = ({ document }: DocumentIdPageProps) => {
         trackPageView();
     }, [document._id, document.title]);
 
+    // Update headings and reading time when content changes
+    // Optimize content change handler with debouncing and useCallback
+    const handleContentChange = useCallback(
+        _.debounce((htmlContent: string) => {
+            // Prevent concurrent updates
+            if (isUpdating) return;
+            
+            setIsUpdating(true);
+            
+            try {
+                const extractedHeadings = extractHeadingsFromHtml(htmlContent);
+                const calculatedReadingTime = calculateReadingTime(htmlContent);
+                
+                setHeadings(extractedHeadings);
+                setReadingTime(calculatedReadingTime);
+
+                // Only update if content has changed
+                if (currentDocument.htmlContent !== htmlContent) {
+                    update({
+                        id: currentDocument._id,
+                        content: document.content,
+                        htmlContent
+                    });
+                }
+            } catch (error) {
+                console.error('Error handling content change:', error);
+            } finally {
+                setIsUpdating(false);
+            }
+        }, 1000), // 1 second delay
+        [currentDocument._id, document.content, update, isUpdating]
+    );
+
+    // Cleanup debounced function
     useEffect(() => {
-        if (document?.content) {
-            const extractedHeadings = extractHeadings(document.content);
-            setHeadings(extractedHeadings);
-            setReadingTime(calculateReadingTime(document.content));
-        }
-    }, [document?.content]);
+        return () => {
+            handleContentChange.cancel();
+        };
+    }, [handleContentChange]);
 
     if (document === undefined) {
         return (
@@ -236,7 +254,7 @@ const DocumentIdPage = ({ document }: DocumentIdPageProps) => {
                                     </Button>
                                 </Link>
                             </div>
-                            <div className="mx-[8px] sm:mx-0"> {/* Adjusted margin for mobile */}
+                            <div className="mx-[8px] sm:mx-0">
                                 <Cover preview url={document.coverImage} />
                             </div>
 
@@ -262,28 +280,35 @@ const DocumentIdPage = ({ document }: DocumentIdPageProps) => {
                                         <LikeButton documentId={document._id} />
                                     </div>
                                 </div>
-                                
+                                {/* <div className="max-w-5xl mx-auto">  */}
                                 <Toolbar preview initialData={document} />
-                                <div className="w-full mt-4 overflow-x-hidden">
-                                <Editor
-                                    editable={false} 
-                                    onChange={(content) => {
-                                        onChange(content);
-                                        const extractedHeadings = extractHeadings(content);
-                                        setHeadings(extractedHeadings);
-                                        setReadingTime(calculateReadingTime(content));
-                                    }}
-                                    initialContent={document.content}
-                                />
+                                <div className="w-full pl-[45px] mt-4 overflow-x-hidden">
+                                
+                                    <Editor
+                                        editable={false}
+                                        onChange={onChange}
+                                        initialContent={document.content}
+                                        isPublished={true} // Force published mode for public viewing
+                                        onHTMLGenerated={(html) => {
+                                            handleContentChange(html);
+                                            // Optionally store the HTML version in your database
+                                            update({
+                                                id: currentDocument._id,
+                                                content: document.content,
+                                                htmlContent: html
+                                            });
+                                        }}
+                                    />
+                                </div>
+                                {/* </div> */}
                             </div>
-                        </div>
                             <div>
                                 <SubscribeWidget />
                                 <h2 className="flex items-center justify-center text-md">
-                                Made with 
-                                <span className="ml-2 w-6 h-6 sm:w-8 sm:h-8">
-                                    <LogoOnly />
-                                </span>
+                                    Made with 
+                                    <span className="ml-2 w-6 h-6 sm:w-8 sm:h-8">
+                                        <LogoOnly />
+                                    </span>
                                 </h2>
                             </div>
                         </article>

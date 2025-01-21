@@ -137,10 +137,12 @@ const DocumentIdPage = ({
             </div>
             <div className="mx-auto my-auto">
                 <Toolbar initialData={document} />
+                <div className="mt-2">
                 <Editor 
                     onChange={onChange}
                     initialContent={document.content}
                 />
+                </div>
             </div>
         </div>
     );

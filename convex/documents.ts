@@ -378,6 +378,7 @@ export const insertDocument = mutation({
         isPublished: false,
         slug: args.slug, // Use the provided slug
         content: "",
+        htmlContent: "",
       });
   
       return document;
@@ -672,6 +673,7 @@ export const update = mutation({
       id: v.id("documents"),
       title: v.optional(v.string()),
       content: v.optional(v.string()),
+      htmlContent: v.optional(v.string()),
       coverImage: v.optional(v.string()),
       icon: v.optional(v.string()),
       isPublished: v.optional(v.boolean()),
@@ -1016,3 +1018,44 @@ export const migrateExistingDocumentsToSlugs = action({
     },
   });
 
+
+  export const migrateDocumentsToHtmlContent = mutation({
+    args: {},
+    handler: async (ctx) => {
+        const documents = await ctx.db
+            .query("documents")
+            .filter((q) => q.eq(q.field("isPublished"), true))
+            .collect();
+
+        let migratedCount = 0;
+        let errorCount = 0;
+
+        for (const doc of documents) {
+            try {
+                if (doc.content) {
+                    // Create a temporary BlockNote editor to convert content
+                    const blocks = JSON.parse(doc.content);
+                    
+                    // Update the document with the content and htmlContent
+                    await ctx.db.patch(doc._id, {
+                        content: doc.content,
+                        htmlContent: doc.content // Store original content - will be converted to HTML on render
+                    });
+                    
+                    migratedCount++;
+                }
+            } catch (error) {
+                console.error(`Error migrating document ${doc._id}:`, error);
+                errorCount++;
+            }
+        }
+
+        return {
+            success: true,
+            message: "Migration completed",
+            migratedCount,
+            errorCount,
+            total: documents.length
+        };
+    }
+});
