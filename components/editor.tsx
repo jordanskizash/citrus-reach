@@ -13,7 +13,8 @@ import {
 import { useEdgeStore } from "@/lib/edgestore";
 import { useTheme } from "next-themes";
 import { useEffect, useState, useCallback } from "react";
-import _ from 'lodash';  // Import full lodash
+import _ from 'lodash';
+import { ContentSkeleton } from "@/components/content-skeleton";
 import "@blocknote/core/style.css";
 import "@blocknote/mantine/style.css";
 
@@ -23,6 +24,7 @@ interface EditorProps {
     editable?: boolean;
     isPublished?: boolean;
     onHTMLGenerated?: (htmlContent: string) => void;
+    onLoadingChange?: (isLoading: boolean) => void;
 };
 
 const Editor = ({
@@ -30,12 +32,14 @@ const Editor = ({
     editable,
     initialContent,
     isPublished = false,
-    onHTMLGenerated
+    onHTMLGenerated,
+    onLoadingChange
 }: EditorProps) => {
     const { resolvedTheme } = useTheme();
     const { edgestore } = useEdgeStore();
     const [htmlContent, setHtmlContent] = useState<string>("");
     const [isConverting, setIsConverting] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
     const handleUpload = async (file: File) => {
         const response = await edgestore.publicFiles.upload({
@@ -49,7 +53,7 @@ const Editor = ({
         uploadFile: handleUpload,
     });
 
-    // Debounced HTML conversion using properly typed lodash
+    // Debounced HTML conversion
     const debouncedConvertToHtml = useCallback(
         _.debounce(async (content: string) => {
             if (isConverting) return;
@@ -63,14 +67,20 @@ const Editor = ({
                 console.error("Error converting to HTML:", error);
             } finally {
                 setIsConverting(false);
+                setIsLoading(false);
             }
         }, 1000),
         [editor, onHTMLGenerated]
     );
 
+    useEffect(() => {
+        onLoadingChange?.(isLoading);
+    }, [isLoading, onLoadingChange]);
+
     // Initial conversion
     useEffect(() => {
         if (!editable && isPublished && initialContent && !htmlContent) {
+            setIsLoading(true);
             debouncedConvertToHtml(initialContent);
         }
     }, [editable, isPublished, initialContent, htmlContent, debouncedConvertToHtml]);
@@ -87,25 +97,31 @@ const Editor = ({
         onChange(jsonContent);
 
         if (!editable && isPublished) {
+            setIsLoading(true);
             debouncedConvertToHtml(jsonContent);
         }
     };
 
-    if (!editable && isPublished && htmlContent) {
+    if (!editable && isPublished) {
+        if (isLoading) {
+                return <ContentSkeleton />;
+        }
+
         return (
-            <article className="max-w-5xl mx-auto">
+            <div className="w-full min-h-screen">
                 <div 
-                    className="prose prose-gray mt-6"
+                    className="prose prose-gray"
                     style={{
                         fontSize: '1rem',
                         lineHeight: '1.75',
                         color: '#4B5563',
+                        maxWidth: 'none',
                     }}
                     dangerouslySetInnerHTML={{ 
-                        __html: htmlContent || '<p>Loading content...</p>' 
+                        __html: htmlContent
                     }} 
                 />
-            </article>
+            </div>
         );
     }
 

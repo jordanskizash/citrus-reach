@@ -98,6 +98,7 @@ const DocumentIdPage = ({ document }: DocumentIdPageProps) => {
     const [headings, setHeadings] = useState<Heading[]>([]);
     const [readingTime, setReadingTime] = useState<number>(0);
     const [isUpdating, setIsUpdating] = useState(false);
+    const [isEditorLoading, setIsEditorLoading] = useState(true);
 
     const latestDocument = useQuery(api.documents.getBySlug, {
         slug: document.slug ?? ''
@@ -282,7 +283,7 @@ const DocumentIdPage = ({ document }: DocumentIdPageProps) => {
                                 </div>
                                 {/* <div className="max-w-5xl mx-auto">  */}
                                 <Toolbar preview initialData={document} />
-                                <div className="w-full pl-[45px] mt-4 overflow-x-hidden">
+                                <div className="w-full mt-4 overflow-x-hidden px-4 sm:pl-[54px]"> 
                                 
                                     <Editor
                                         editable={false}
@@ -302,15 +303,18 @@ const DocumentIdPage = ({ document }: DocumentIdPageProps) => {
                                 </div>
                                 {/* </div> */}
                             </div>
-                            <div>
-                                <SubscribeWidget />
-                                <h2 className="flex items-center justify-center text-md">
-                                    Made with 
-                                    <span className="ml-2 w-6 h-6 sm:w-8 sm:h-8">
-                                        <LogoOnly />
-                                    </span>
-                                </h2>
-                            </div>
+                            {/* Only render SubscribeWidget when editor is done loading */}
+                            {!isEditorLoading && (
+                                <div>
+                                    <SubscribeWidget />
+                                    <h2 className="flex items-center justify-center text-md">
+                                        Made with 
+                                        <span className="ml-2 w-6 h-6 sm:w-8 sm:h-8">
+                                            <LogoOnly />
+                                        </span>
+                                    </h2>
+                                </div>
+                            )}
                         </article>
                     </div>
                 </div>
