@@ -26,7 +26,7 @@ const PricingPage = () => {
       <div className="text-center mb-16">
         <p className="text-zinc-500 mb-4">Pricing</p>
         <h1 className="text-5xl font-bold mb-6">
-          Let's Find the Right<br />Plan For Your<br />Business
+          Let&apos;s Find the Right<br />Plan For Your<br />Business
         </h1>
         <p className="text-xl text-zinc-600 max-w-2xl mx-auto">
           Unlimited Sites. Unlimited Content. Any format. No Hidden Fees. No Exceptions.
