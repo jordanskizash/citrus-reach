@@ -33,7 +33,7 @@ const MarketingLayout = ({
             </Script>
             <main className={raleway.className}>
                 <Navbar />
-                <main className="h-full pt-40">
+                <main className="h-full pt-32">
                     {children}
                 </main>
                 <Footer />

@@ -58,6 +58,7 @@ const config = {
         DEFAULT: {
             css: {
                 maxWidth: 'none',
+                width: '100%',
                 color: 'hsl(var(--foreground))',
                 p: {
                     fontSize: '1.125rem',     // 18px

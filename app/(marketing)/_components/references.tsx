@@ -19,7 +19,7 @@ export default function LogoCarousel({ logos = [] }: { logos?: Logo[] }) {
   const extendedLogos = [...logos, ...logos]
 
   return (
-    <div className="w-4/5 overflow-hidden mt-10 bg-white py-4 relative">
+    <div className="w-full max-w-6xl mx-auto overflow-hidden bg-white py-4 relative mt-10">
       {/* Left blur gradient */}
       <div className="absolute left-0 top-0 w-24 h-full bg-gradient-to-r from-white to-transparent z-10" />
       

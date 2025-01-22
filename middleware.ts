@@ -14,7 +14,8 @@ export default authMiddleware({
     "/profile/(.*)",
     "/terms-of-service",
     "/privacy-policy",
-    "/event/(.*)"
+    "/event/(.*)",
+    "/pricing"
   ],
   
   ignoredRoutes: [
