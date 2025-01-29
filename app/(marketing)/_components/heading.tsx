@@ -57,7 +57,7 @@ export const Heading = () => {
       <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-6">
         <div className="flex flex-col">
           <div className="flex-1 max-w-6xl">
-            <h1 className="text-5xl md:text-7xl lg:text-8xl xl:text-9xl font-bold tracking-tight text-left leading-tight">
+            <h1 className="text-5xl md:text-7xl lg:text-8xl xl:text-9xl font-bold tracking-tight text-left leading-tight whitespace-nowrap">
               Microsites that reach
             </h1>
             <div className="mt-4 text-5xl md:text-7xl lg:text-8xl xl:text-9xl font-bold tracking-tight text-left text-orange-500">

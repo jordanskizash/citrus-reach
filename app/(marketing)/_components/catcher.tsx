@@ -36,7 +36,7 @@ export default function Catcher() {
               Create microsites to enhance your outbound OR share with your audience and generate inbound.
             </p>
           </div>
-          <div className="mt-8">
+          <div className="mt-8 mx-auto max-w-[300px]">
             <Image
               src="/buyers.png"
               alt="Platform dashboard showing event setup interface"

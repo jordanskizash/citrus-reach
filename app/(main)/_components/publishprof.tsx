@@ -1,150 +1,121 @@
 "use client"
 
-import { Doc } from "@/convex/_generated/dataModel";
-import { 
-    PopoverTrigger,
-    Popover,
-    PopoverContent
-} from "@/components/ui/popover";
-import { useOrigin } from "@/hooks/use-origin";
-import { useMutation } from "convex/react";
-import { api } from "@/convex/_generated/api";
-import { useState } from "react";
-import toast from "react-hot-toast";
-import { Button } from "@/components/ui/button";
-import { Check, Copy, Globe } from "lucide-react";
+import type { Doc } from "@/convex/_generated/dataModel"
+import { PopoverTrigger, Popover, PopoverContent } from "@/components/ui/popover"
+import { useOrigin } from "@/hooks/use-origin"
+import { useMutation } from "convex/react"
+import { api } from "@/convex/_generated/api"
+import { useState } from "react"
+import toast from "react-hot-toast"
+import { Button } from "@/components/ui/button"
+import { Check, Copy, Globe } from "lucide-react"
+import Link from "next/link"
 
 interface PublishProfileProps {
-    initialData: Doc<"profiles">;
+  initialData: Doc<"profiles">
+  customDomain?: string
+  isCustomDomainVerified?: boolean
 }
 
-export const PublishProfile = ({
-    initialData,
-}: PublishProfileProps) => {
-    const origin = useOrigin();
-    const update = useMutation(api.profiles.update);
+export const PublishProfile = ({ initialData, customDomain, isCustomDomainVerified }: PublishProfileProps) => {
+  const origin = useOrigin()
+  const update = useMutation(api.profiles.update)
 
-    const [copied, setCopied] = useState(false);
-    const [isSubmitting, setIsSubmitting] = useState(false);
+  const [copied, setCopied] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-    const url = `${origin}/profile/${initialData._id}`;
+  const getPublishUrl = () => {
+    if (customDomain && isCustomDomainVerified) {
+      return `https://${customDomain}/profile/${initialData._id}`
+    }
+    return `${origin}/profile/${initialData._id}`
+  }
 
-    const onPublish = () => {
-        setIsSubmitting(true);
+  const url = getPublishUrl()
 
-        const promise = update({
-            id: initialData._id,
-            isPublished: true,
-        })
-            .finally(() => setIsSubmitting(false));
-        
-        toast.promise(promise, {
-            loading: "Publishing...",
-            success: "Profile published",
-            error: "Failed to publish profile.",
-        });
-    };
+  const onPublish = () => {
+    setIsSubmitting(true)
 
-    const onUnpublish = () => {
-        setIsSubmitting(true);
+    const promise = update({
+      id: initialData._id,
+      isPublished: true,
+    }).finally(() => setIsSubmitting(false))
 
-        const promise = update({
-            id: initialData._id,
-            isPublished: false,
-        })
-            .finally(() => setIsSubmitting(false));
-        
-        toast.promise(promise, {
-            loading: "Unpublishing...",
-            success: "Profile unpublished",
-            error: "Failed to unpublish profile.",
-        });
-    };
+    toast.promise(promise, {
+      loading: "Publishing...",
+      success: "Profile published",
+      error: "Failed to publish profile.",
+    })
+  }
 
-    const onCopy = () => {
-        navigator.clipboard.writeText(url);
-        setCopied(true);
+  const onUnpublish = () => {
+    setIsSubmitting(true)
 
-        setTimeout(() => {
-            setCopied(false);
-        }, 1000);
-    };
+    const promise = update({
+      id: initialData._id,
+      isPublished: false,
+    }).finally(() => setIsSubmitting(false))
 
-    return (
-        <Popover>
-            <PopoverTrigger asChild>
-                <Button size="sm" variant="ghost">
-                    Publish
-                    {initialData.isPublished && (
-                        <Globe 
-                            className="text-sky-500 w-4 h-4 ml-2"
-                        /> 
-                    )}
-                </Button>
-            </PopoverTrigger>
-            <PopoverContent 
-                className="w-72" 
-                align="end" 
-                alignOffset={8} 
-                forceMount
-            >
-                {initialData.isPublished ? (
-                    <div className="space-y-4">
-                        <div className="flex items-center gap-x-2">
-                            <Globe className="text-sky-500 animate-pulse h-4 w-4"/>
-                            <p className="text-xs font-medium text-sky-500">
-                                This profile is live on the web. 
-                            </p>
-                        </div>
-                        <div className="flex items-center">
-                            <input 
-                                className="flex-1 px-2 text-xs border rounded-l-md h-8 bg-muted truncate"
-                                value={url}
-                                disabled
-                            />
-                            <Button 
-                                onClick={onCopy}
-                                disabled={copied}
-                                className="h-8 rounded-l-none"
-                            >
-                                {copied ? (
-                                    <Check className="h-4 w-4" />
-                                ): (
-                                    <Copy className="h-4 w-4" />
-                                )}
-                            </Button>
-                        </div>
-                        <Button
-                            size="sm"
-                            className="w-full text-xs"
-                            disabled={isSubmitting}
-                            onClick={onUnpublish}
-                        >
-                            Unpublish
-                        </Button>
-                    </div>
-                ) : (
-                    <div className="flex flex-col items-center justify-center">
-                        <Globe 
-                            className="h-8 w-8 text-muted-foreground mb-2"
-                        />
-                        <p className="text-sm font-medium mb-2">
-                            Publish this profile
-                        </p>
-                        <span className="text-xs text-muted-foreground mb-4">
-                            Share your profile with others.
-                        </span>
-                        <Button
-                            disabled={isSubmitting}
-                            onClick={onPublish}
-                            className="w-full text-xs"
-                            size="sm"
-                        >
-                            Publish
-                        </Button>
-                    </div>
-                )}
-            </PopoverContent>
-        </Popover>
-    );
-};
+    toast.promise(promise, {
+      loading: "Unpublishing...",
+      success: "Profile unpublished",
+      error: "Failed to unpublish profile.",
+    })
+  }
+
+  const onCopy = () => {
+    navigator.clipboard.writeText(url)
+    setCopied(true)
+
+    setTimeout(() => {
+      setCopied(false)
+    }, 1000)
+  }
+
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button size="sm" variant="ghost">
+          Publish
+          {initialData.isPublished && <Globe className="text-sky-500 w-4 h-4 ml-2" />}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-72" align="end" alignOffset={8} forceMount>
+        {initialData.isPublished ? (
+          <div className="space-y-4">
+            <div className="flex items-center gap-x-2">
+              <Globe className="text-sky-500 animate-pulse h-4 w-4" />
+              <p className="text-xs font-medium text-sky-500">This profile is live on the web.</p>
+            </div>
+            <div className="flex items-center">
+              <input className="flex-1 px-2 text-xs border rounded-l-md h-8 bg-muted truncate" value={url} disabled />
+              <Button onClick={onCopy} disabled={copied} className="h-8 rounded-l-none">
+                {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+              </Button>
+            </div>
+            {!customDomain && (
+              <div className="mb-2">
+                <Link href="/settings" className="text-xs text-sky-500 hover:underline">
+                  Connect a custom domain
+                </Link>
+              </div>
+            )}
+            <Button size="sm" className="w-full text-xs" disabled={isSubmitting} onClick={onUnpublish}>
+              Unpublish
+            </Button>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center">
+            <Globe className="h-8 w-8 text-muted-foreground mb-2" />
+            <p className="text-sm font-medium mb-2">Publish this profile</p>
+            <span className="text-xs text-muted-foreground mb-4">Share your profile with others.</span>
+            <Button disabled={isSubmitting} onClick={onPublish} className="w-full text-xs" size="sm">
+              Publish
+            </Button>
+          </div>
+        )}
+      </PopoverContent>
+    </Popover>
+  )
+}
+
