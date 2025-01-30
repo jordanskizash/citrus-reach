@@ -31,6 +31,7 @@ import "pdfjs-dist/web/pdf_viewer.css"
 import PdfViewer from "@/app/(main)/_components/pdf-viewer"
 import LogoComparison from "@/app/(main)/_components/logo-comparison"
 import SmartMeetingButton from "@/app/(main)/_components/meetingButton"
+import ContentSelectionDialog from "@/app/(main)/_components/content-selection"
 
 interface ProfileIdPageProps {
   params: {
@@ -42,6 +43,17 @@ interface PdfPreviewProps {
   file: { name: string; url: string }
   onClose: () => void
 }
+
+type ExternalLink = {
+  _id: string;
+  title: string;
+  coverImage?: string;
+  _creationTime: number;
+  isExternalLink: true;
+  url: string;
+}
+
+type CombinedContent = Doc<"documents"> | ExternalLink;
 
 const MotionLink = motion(Link)
 
@@ -167,6 +179,8 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
   const { user } = useUser()
   const documents = useQuery(api.documents.getPublishedDocuments)
   const latestDocuments = documents ? documents.slice(0, 6) : []
+  const [allDocuments, setAllDocuments] = useState<CombinedContent[]>(latestDocuments || []);
+
 
   const Editor = useMemo(() => dynamic(() => import("@/components/editor"), { ssr: false }), [])
 
@@ -490,95 +504,63 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
 
         {/* More from {user.firstName} Section */}
         {user && latestDocuments.length > 0 && (
-          <div className="mt-12 w-full">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold" style={{ color: "#000000" }}>
-                More from {user.firstName}
-              </h2>
-              <Button variant="outline" size="sm" onClick={() => setIsEditDialogOpen(true)}>
-                <Edit2 className="h-4 w-4 mr-2" />
-                Edit
-              </Button>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-              {selectedSites.length > 0
-                ? selectedSites.map((siteId) => {
-                    const post = latestDocuments.find((doc) => doc._id === siteId)
-                    if (!post) return null
-                    return (
-                      <MotionLink
-                        key={post._id}
-                        href={getPostUrl(post)}
-                        className="flex flex-col"
-                        whileHover={{ y: -5 }}
-                        transition={{ type: "spring", stiffness: 300 }}
-                      >
-                        <img
-                          src={post.coverImage || "/placeholder.svg?height=300&width=400"}
-                          alt={post.title}
-                          className="rounded-lg object-cover w-full h-[200px] mb-4"
-                        />
-                        <p className="text-gray-500 text-sm mb-1">
-                          {new Date(post._creationTime).toLocaleDateString()}
-                        </p>
-                        <h3 className="text-xl font-semibold mb-1 text-black">{post.title}</h3>
-                        <p className="text-gray-600">By {user?.fullName || "Unknown Author"}</p>
-                      </MotionLink>
-                    )
-                  })
-                : latestDocuments.slice(0, 6).map((post) => (
-                    <MotionLink
-                      key={post._id}
-                      href={getPostUrl(post)}
-                      className="flex flex-col"
-                      whileHover={{ y: -5 }}
-                      transition={{ type: "spring", stiffness: 300 }}
-                    >
+        <div className="mt-12 w-full">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold" style={{ color: "#000000" }}>
+              More from {user.firstName}
+            </h2>
+            <Button variant="outline" size="sm" onClick={() => setIsEditDialogOpen(true)}>
+              <Edit2 className="h-4 w-4 mr-2" />
+              Edit
+            </Button>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+              {(selectedSites.length > 0 
+                ? allDocuments.filter(doc => selectedSites.includes(doc._id))
+                : allDocuments.slice(0, 6)
+              ).map((post) => {
+                const isExternal = 'isExternalLink' in post && post.isExternalLink;
+                const postUrl = isExternal ? post.url : getPostUrl(post as Doc<"documents">);
+                
+                return (
+                  <MotionLink
+                    key={post._id}
+                    href={postUrl}
+                    className="block bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200"
+                    whileHover={{ y: -5 }}
+                    transition={{ type: "spring", stiffness: 300 }}
+                    target={isExternal ? "_blank" : undefined}
+                    rel={isExternal ? "noopener noreferrer" : undefined}
+                  >
+                    <div className="relative h-48">
                       <img
                         src={post.coverImage || "/placeholder.svg?height=300&width=400"}
                         alt={post.title}
-                        className="rounded-lg object-cover w-full h-[200px] mb-4"
+                        className="w-full h-full object-cover rounded-t-lg"
                       />
-                      <p className="text-gray-500 text-sm mb-1">{new Date(post._creationTime).toLocaleDateString()}</p>
-                      <h3 className="text-xl font-semibold mb-1 text-black">{post.title}</h3>
-                      <p className="text-gray-600">By {user?.fullName || "Unknown Author"}</p>
-                    </MotionLink>
-                  ))}
+                    </div>
+                    <div className="p-4">
+                      <div className="flex items-center gap-1 text-sm text-gray-500 mb-2">
+                        <Calendar className="h-4 w-4" />
+                        {new Date(post._creationTime).toLocaleDateString()}
+                      </div>
+                      <h3 className="text-lg font-semibold mb-2 line-clamp-2">{post.title}</h3>
+                      <p className="text-gray-600 text-sm">By {user?.fullName || "Unknown Author"}</p>
+                    </div>
+                  </MotionLink>
+                );
+              })}
             </div>
+            <ContentSelectionDialog
+              isOpen={isEditDialogOpen}
+              onOpenChange={setIsEditDialogOpen}
+              documents={allDocuments}
+              selectedSites={selectedSites}
+              onSelectionChange={setSelectedSites}
+              onDocumentsChange={setAllDocuments}
+            />
           </div>
         )}
-
-        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Edit Featured Content</DialogTitle>
-            </DialogHeader>
-            <div className="mt-4 space-y-4">
-              {latestDocuments.map((doc) => (
-                <div key={doc._id} className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    id={doc._id}
-                    checked={selectedSites.includes(doc._id)}
-                    onChange={(e) => {
-                      if (e.target.checked) {
-                        setSelectedSites((prev) => [...prev, doc._id].slice(0, 6))
-                      } else {
-                        setSelectedSites((prev) => prev.filter((id) => id !== doc._id))
-                      }
-                    }}
-                  />
-                  <label htmlFor={doc._id}>{doc.title}</label>
-                </div>
-              ))}
-            </div>
-            <DialogTrigger asChild>
-              <Button className="mt-4" onClick={() => setIsEditDialogOpen(false)}>
-                Save Changes
-              </Button>
-            </DialogTrigger>
-          </DialogContent>
-        </Dialog>
       </div>
     </div>
   )
