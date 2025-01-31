@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: ProfileParams): Promise<Metad
     }
 
     const metadata: Metadata = {
-      metadataBase: new URL("https://citrusreach.com"),
+      // metadataBase: new URL("https://citrusreach.com"),
       title: `New Recording for ${profile.displayName}`,
       description: profile.description || profile.bio || `Check out ${profile.displayName}'s profile`,
       openGraph: {
