@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import type { Id } from "@/convex/_generated/dataModel"
 import { ConvexHttpClient } from "convex/browser"
 import { api } from "@/convex/_generated/api"
+import type React from "react" // Import React
 
 interface ProfileParams {
   params: {
@@ -23,23 +24,21 @@ export async function generateMetadata({ params }: ProfileParams): Promise<Metad
       }
     }
 
-    // Remove these lines:
-    // const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://citrusreach.com"
-    // const ogImageUrl = `${baseUrl}/videoOG.png`
-
-    // Replace with this single line:
+    // Ensure we're using the full URL with the .png extension
     const ogImageUrl = "https://citrusreach.com/videoOG.png"
 
     const metadata: Metadata = {
+      metadataBase: new URL("https://citrusreach.com"),
       title: `New Recording for ${profile.displayName}`,
       description: profile.description || profile.bio || `Check out ${profile.displayName}'s profile`,
       openGraph: {
         title: `Recording for ${profile.displayName}`,
         description: profile.description || profile.bio || `Check out ${profile.displayName}'s profile`,
         type: "video.other",
+        siteName: "Citrus Reach",
         images: [
           {
-            url: ogImageUrl,
+            url: "/videoOG.png", // Use relative URL since we set metadataBase
             width: 1200,
             height: 630,
             alt: `${profile.displayName}'s video preview`,
@@ -47,18 +46,18 @@ export async function generateMetadata({ params }: ProfileParams): Promise<Metad
         ],
       },
       twitter: {
-        card: "player",
+        card: "summary_large_image",
         site: "@CitrusReach",
         title: `Custom profile for ${profile.displayName}`,
         description: profile.description || profile.bio || `Check out ${profile.displayName}'s profile`,
-        images: [ogImageUrl],
+        images: ["/videoOG.png"], // Use relative URL since we set metadataBase
       },
     }
 
-    // If we have a video, add video-specific metadata
     if (profile.videoUrl) {
       metadata.openGraph = {
         ...metadata.openGraph,
+        type: "video.other",
         videos: [
           {
             url: profile.videoUrl,
