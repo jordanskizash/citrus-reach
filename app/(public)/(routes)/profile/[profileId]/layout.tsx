@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import type { Id } from "@/convex/_generated/dataModel"
 import { ConvexHttpClient } from "convex/browser"
 import { api } from "@/convex/_generated/api"
-import type React from "react" // Import React
+import type React from "react"
 
 interface ProfileParams {
   params: {
@@ -24,9 +24,6 @@ export async function generateMetadata({ params }: ProfileParams): Promise<Metad
       }
     }
 
-    // Ensure we're using the full URL with the .png extension
-    const ogImageUrl = "https://citrusreach.com/videoOG.png"
-
     const metadata: Metadata = {
       metadataBase: new URL("https://citrusreach.com"),
       title: `New Recording for ${profile.displayName}`,
@@ -38,7 +35,7 @@ export async function generateMetadata({ params }: ProfileParams): Promise<Metad
         siteName: "Citrus Reach",
         images: [
           {
-            url: "/videoOG.png", // Use relative URL since we set metadataBase
+            url: "https://citrusreach.com/videoOG.png", // Use absolute URL
             width: 1200,
             height: 630,
             alt: `${profile.displayName}'s video preview`,
@@ -50,7 +47,7 @@ export async function generateMetadata({ params }: ProfileParams): Promise<Metad
         site: "@CitrusReach",
         title: `Custom profile for ${profile.displayName}`,
         description: profile.description || profile.bio || `Check out ${profile.displayName}'s profile`,
-        images: ["/videoOG.png"], // Use relative URL since we set metadataBase
+        images: ["https://citrusreach.com/videoOG.png"], // Use absolute URL
       },
     }
 
@@ -99,4 +96,3 @@ export default function ProfileLayout({
 }) {
   return children
 }
-
