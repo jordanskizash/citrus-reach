@@ -1059,3 +1059,39 @@ export const migrateExistingDocumentsToSlugs = action({
         };
     }
 });
+
+export const createExternalLink = mutation({
+  args: {
+    title: v.string(),
+    url: v.string(),
+    coverImage: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+
+    if (!identity) {
+      throw new Error("Not authenticated");
+    }
+
+    const userId = identity.subject;
+
+    try {
+      const document = await ctx.db.insert("documents", {
+        title: args.title,
+        userId: userId,
+        isArchived: false,
+        isPublished: true,
+        coverImage: args.coverImage,
+        isExternalLink: true,
+        externalUrl: args.url,
+        content: "", // Required field
+        likeCount: 0, // Required field if in your schema
+      });
+
+      return document;
+    } catch (error) {
+      console.error("Error creating external link:", error);
+      throw error;
+    }
+  },
+});

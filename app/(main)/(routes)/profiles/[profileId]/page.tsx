@@ -45,7 +45,7 @@ interface PdfPreviewProps {
 }
 
 type ExternalLink = {
-  _id: string;
+  _id: Id<"documents">;
   title: string;
   coverImage?: string;
   _creationTime: number;
@@ -83,161 +83,91 @@ const PdfThumbnail = ({ url }: { url: string }) => {
   )
 }
 
-// const PdfPreview = ({ file, onClose }: { file: { name: string; url: string }, onClose: () => void }) => {
-//   const [pdfDocument, setPdfDocument] = useState<pdfjsLib.PDFDocumentProxy | null>(null);
-//   const [currentPage, setCurrentPage] = useState(1);
-//   const [scale, setScale] = useState(1.0);
-//   const [error, setError] = useState<string | null>(null);
-
-//   useEffect(() => {
-//     pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
-
-//     const loadPdf = async () => {
-//       try {
-//         const pdf = await pdfjsLib.getDocument(file.url).promise;
-//         setPdfDocument(pdf);
-//       } catch (error) {
-//         console.error('Error loading PDF:', error);
-//         setError('Failed to load PDF');
-//       }
-//     };
-
-//     loadPdf();
-//   }, [file.url]);
-
-//   return (
-//     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-//       <div className="bg-white p-6 rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-//         <div className="flex justify-between items-center mb-4">
-//           <h2 className="text-xl font-bold">{file.name}</h2>
-//           <div className="flex items-center gap-4">
-//             <div className="flex items-center gap-2">
-//               <button
-//                 onClick={() => setScale(prev => Math.max(0.5, prev - 0.1))}
-//                 className="px-2 py-1 bg-gray-100 rounded"
-//               >
-//                 -
-//               </button>
-//               <span className="mx-2">{Math.round(scale * 100)}%</span>
-//               <button
-//                 onClick={() => setScale(prev => Math.min(2, prev + 0.1))}
-//                 className="px-2 py-1 bg-gray-100 rounded"
-//               >
-//                 +
-//               </button>
-//             </div>
-//             <Button variant="ghost" size="sm" onClick={onClose}>
-//               <X className="h-4 w-4" />
-//             </Button>
-//           </div>
-//         </div>
-
-//         {error ? (
-//           <div className="text-red-500 text-center p-4">
-//             {error}
-//           </div>
-//         ) : (
-//           <div>
-//             {pdfDocument && (
-//               <div>
-//                 {Array.from(new Array(pdfDocument.numPages), (el, index) => (
-//                   <div key={`page_${index + 1}`} className="mb-4">
-//                     <canvas
-//                       className="w-full"
-//                       ref={(ref) => {
-//                         if (ref) {
-//                           pdfDocument.getPage(index + 1).then((page) => {
-//                             const viewport = page.getViewport({ scale });
-//                             ref.width = viewport.width;
-//                             ref.height = viewport.height;
-//                             page.render({ canvasContext: ref.getContext('2d') as CanvasRenderingContext2D, viewport });
-//                           });
-//                         }
-//                       }}
-//                     />
-//                     <p className="text-center text-sm text-gray-500 mt-2">
-//                       Page {index + 1} of {pdfDocument.numPages}
-//                     </p>
-//                   </div>
-//                 ))}
-//               </div>
-//             )}
-
-//             {!pdfDocument && (
-//               <div className="flex items-center justify-center p-12">
-//                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
-//               </div>
-//             )}
-//           </div>
-//         )}
-//       </div>
-//     </div>
-//   );
-// };
-
 export default function ProfileIdPage({ params }: ProfileIdPageProps) {
   const { user } = useUser()
-  const documents = useQuery(api.documents.getPublishedDocuments)
-  const latestDocuments = documents ? documents.slice(0, 6) : []
-  const [allDocuments, setAllDocuments] = useState<CombinedContent[]>(latestDocuments || []);
-
-
-  const Editor = useMemo(() => dynamic(() => import("@/components/editor"), { ssr: false }), [])
-
+  
+  // Queries
   const profile = useQuery(api.profiles.getById, {
     profileId: params.profileId,
   })
 
+  const documents = useQuery(api.documents.getPublishedDocuments)
   const userDetails = useQuery(api.users.getUserByClerkId, user?.id ? { clerkId: user.id } : "skip")
 
-  const getPostUrl = (post: Doc<"documents">) => {
-    // If slug is available, use it; otherwise, fallback to ID
-    return `/blog/${post.slug ?? post._id}`
+  const [allDocuments, setAllDocuments] = useState<CombinedContent[]>([]);
+
+// Add a useEffect to update allDocuments when documents changes
+useEffect(() => {
+  if (documents) {
+    const formattedDocs = documents.map(doc => ({
+      ...doc,
+      _id: doc._id,
+      isExternalLink: doc.isExternalLink || false,
+      externalUrl: doc.externalUrl || '',
+    })) as Doc<"documents">[];
+    setAllDocuments(formattedDocs);
   }
+}, [documents]);
 
-  // Retrieve user logo from user details, if available
-  const userLogo = userDetails?.logoUrl
-  const clientLogo = profile?.icon || "/acme.png"
+  // States
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [selectedSites, setSelectedSites] = useState<Id<"documents">[]>([]);
+  const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
+  const [videoKey, setVideoKey] = useState(0);
+  const [isReplyDialogOpen, setIsReplyDialogOpen] = useState(false);
+  const [isCalDialogOpen, setIsCalDialogOpen] = useState(false);
+  const [colorPreference, setColorPreference] = useState("#FFFFFF");
+  const [pdfFiles, setPdfFiles] = useState<{ name: string; url: string }[]>([]);
+  const [selectedPdf, setSelectedPdf] = useState<string | null>(null);
+  const [showAdditionalResources, setShowAdditionalResources] = useState(true);
+  const [videoDescription, setVideoDescription] = useState(profile?.description || "");
+  const [isEditingDescription, setIsEditingDescription] = useState(false);
+  const descriptionRef = useRef<HTMLTextAreaElement>(null);
 
-  const updateProfile = useMutation(api.profiles.update)
+  const { resolvedTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
+  const { edgestore } = useEdgeStore();
+  const updateProfile = useMutation(api.profiles.update);
+  const Editor = useMemo(() => dynamic(() => import("@/components/editor"), { ssr: false }), []);
 
-  const [isShareDialogOpen, setIsShareDialogOpen] = useState(false)
-  const [videoKey, setVideoKey] = useState(0)
-  const [isReplyDialogOpen, setIsReplyDialogOpen] = useState(false)
-  const [isCalDialogOpen, setIsCalDialogOpen] = useState(false)
-  const [colorPreference, setColorPreference] = useState("#FFFFFF")
-  const [pdfFiles, setPdfFiles] = useState<{ name: string; url: string }[]>([])
-  const [selectedPdf, setSelectedPdf] = useState<string | null>(null)
-  const [showAdditionalResources, setShowAdditionalResources] = useState(true)
-  const [videoDescription, setVideoDescription] = useState(profile?.description || "")
-  const [isEditingDescription, setIsEditingDescription] = useState(false)
-  const descriptionRef = useRef<HTMLTextAreaElement>(null)
-  const [selectedSites, setSelectedSites] = useState<string[]>([])
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
-
-  const { resolvedTheme } = useTheme()
-  const { edgestore } = useEdgeStore()
-
+  // Initialize selectedSites from profile's featuredContent
   useEffect(() => {
-    if (profile?.colorPreference) {
-      setColorPreference(profile.colorPreference)
+    if (profile?.featuredContent) {
+      setSelectedSites(profile.featuredContent);
     }
-    if (profile?.description) {
-      setVideoDescription(profile.description)
-    }
-  }, [profile])
+  }, [profile?.featuredContent]);
 
+  // Theme settings initialization
   const [themeSettings, setThemeSettings] = useState({
     backgroundColor: profile?.themeSettings?.backgroundColor || "#FFFFFF",
     accentColor: profile?.themeSettings?.accentColor || "#000000",
     textColor: profile?.themeSettings?.textColor || "#000000",
-  })
+  });
 
+  // Initialize theme settings from profile
   useEffect(() => {
     if (profile?.themeSettings) {
-      setThemeSettings(profile.themeSettings)
+      setThemeSettings(profile.themeSettings);
     }
-  }, [profile])
+  }, [profile]);
+
+  // Initialize color preference and description
+  useEffect(() => {
+    if (profile?.colorPreference) {
+      setColorPreference(profile.colorPreference);
+    }
+    if (profile?.description) {
+      setVideoDescription(profile.description);
+    }
+  }, [profile]);
+
+  const getPostUrl = (post: Doc<"documents">) => {
+    return `/blog/${post.slug ?? post._id}`;
+  };
+
+  // Retrieve user logo from user details, if available
+  const userLogo = userDetails?.logoUrl;
+  const clientLogo = profile?.icon || "/acme.png";
 
   const handleColorChange = (type: "background" | "accent" | "text", newColor: string) => {
     const updatedThemeSettings = {
@@ -248,7 +178,6 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
     setThemeSettings(updatedThemeSettings)
     updateProfile({
       id: params.profileId,
-      // themeSettings: updatedThemeSettings
     })
   }
 
@@ -281,8 +210,6 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
       setIsShareDialogOpen(true)
     }
   }
-
-  const { theme, setTheme } = useTheme()
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(window.location.href)
@@ -380,7 +307,6 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
         {/* Logo Section */}
         <div className="w-full flex justify-center items-center mb-5">
           <div className="flex items-center space-x-4">
-            {/* Use userLogo if it exists, otherwise show placeholder */}
             <LogoComparison userLogo={userLogo} clientLogo={clientLogo} containerClassName="my-8" />
           </div>
         </div>
@@ -389,11 +315,6 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
         <div className="w-full mb-6 flex justify-between items-center">
           <ProfToolbar initialData={profile} />
         </div>
-
-        {/* Video Description */}
-        {/* <div className="w-full mb-6">
-          <ProfileDescription initialData={profile} />
-        </div> */}
 
         <p className="text-xl mt-2 mb-6 text-center">{profile.bio}</p>
 
@@ -503,7 +424,7 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
         </Dialog>
 
         {/* More from {user.firstName} Section */}
-        {user && latestDocuments.length > 0 && (
+        {user && allDocuments.length > 0 && (
         <div className="mt-12 w-full">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold" style={{ color: "#000000" }}>
@@ -515,54 +436,56 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
             </Button>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-              {(selectedSites.length > 0 
-                ? allDocuments.filter(doc => selectedSites.includes(doc._id))
-                : allDocuments.slice(0, 6)
-              ).map((post) => {
-                const isExternal = 'isExternalLink' in post && post.isExternalLink;
-                const postUrl = isExternal ? post.url : getPostUrl(post as Doc<"documents">);
-                
-                return (
-                  <MotionLink
-                    key={post._id}
-                    href={postUrl}
-                    className="block bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200"
-                    whileHover={{ y: -5 }}
-                    transition={{ type: "spring", stiffness: 300 }}
-                    target={isExternal ? "_blank" : undefined}
-                    rel={isExternal ? "noopener noreferrer" : undefined}
-                  >
-                    <div className="relative h-48">
-                      <img
-                        src={post.coverImage || "/placeholder.svg?height=300&width=400"}
-                        alt={post.title}
-                        className="w-full h-full object-cover rounded-t-lg"
-                      />
+            {(selectedSites.length > 0 
+              ? allDocuments.filter(doc => selectedSites.includes(doc._id as Id<"documents">))
+              : allDocuments.slice(0, 6)
+            ).map((post) => {
+              const isExternal = 'isExternalLink' in post && post.isExternalLink;
+              const postUrl = isExternal && 'url' in post 
+                ? (post as ExternalLink).url 
+                : getPostUrl(post as Doc<"documents">);
+              
+              return (
+                <MotionLink
+                  key={post._id}
+                  href={postUrl}
+                  className="block bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200"
+                  whileHover={{ y: -5 }}
+                  transition={{ type: "spring", stiffness: 300 }}
+                  target={isExternal ? "_blank" : undefined}
+                  rel={isExternal ? "noopener noreferrer" : undefined}
+                >
+                  <div className="relative h-48">
+                    <img
+                      src={post.coverImage || "/placeholder.svg?height=300&width=400"}
+                      alt={post.title}
+                      className="w-full h-full object-cover rounded-t-lg"
+                    />
+                  </div>
+                  <div className="p-4">
+                    <div className="flex items-center gap-1 text-sm text-gray-500 mb-2">
+                      <Calendar className="h-4 w-4" />
+                      {new Date(post._creationTime).toLocaleDateString()}
                     </div>
-                    <div className="p-4">
-                      <div className="flex items-center gap-1 text-sm text-gray-500 mb-2">
-                        <Calendar className="h-4 w-4" />
-                        {new Date(post._creationTime).toLocaleDateString()}
-                      </div>
-                      <h3 className="text-lg font-semibold mb-2 line-clamp-2">{post.title}</h3>
-                      <p className="text-gray-600 text-sm">By {user?.fullName || "Unknown Author"}</p>
-                    </div>
-                  </MotionLink>
-                );
-              })}
-            </div>
-            <ContentSelectionDialog
-              isOpen={isEditDialogOpen}
-              onOpenChange={setIsEditDialogOpen}
-              documents={allDocuments}
-              selectedSites={selectedSites}
-              onSelectionChange={setSelectedSites}
-              onDocumentsChange={setAllDocuments}
-            />
+                    <h3 className="text-lg font-semibold mb-2 line-clamp-2">{post.title}</h3>
+                    <p className="text-gray-600 text-sm">By {user?.fullName || "Unknown Author"}</p>
+                  </div>
+                </MotionLink>
+              );
+            })}
           </div>
-        )}
-      </div>
+          <ContentSelectionDialog
+            isOpen={isEditDialogOpen}
+            onOpenChange={setIsEditDialogOpen}
+            documents={allDocuments}
+            selectedSites={selectedSites}
+            onSelectionChange={setSelectedSites}
+            onDocumentsChange={(docs) => setAllDocuments(docs)}
+            profileId={params.profileId}
+            updateProfile={updateProfile}
+          />
+        </div>
+      )}
     </div>
-  )
-}
-
+  </div>
+)}

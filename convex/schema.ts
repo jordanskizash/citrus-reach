@@ -16,7 +16,9 @@ export default defineSchema ({
         icon: v.optional(v.string()),
         isPublished: v.boolean(),
         likedBy: v.optional(v.array(v.string())),
-        likeCount: v.optional(v.number()), 
+        likeCount: v.optional(v.number()),
+        isExternalLink: v.optional(v.boolean()),
+        externalUrl: v.optional(v.string()), 
     })
     .index("by_user", ["userId"])
     .index("by_slug", ["slug"])
@@ -46,6 +48,7 @@ export default defineSchema ({
         greetingText: v.optional(v.string()),
         themeSettings_backgroundColor: v.optional(v.string()),
         themeSettings_textColor: v.optional(v.string()),
+        featuredContent: v.optional(v.array(v.id("documents"))),
         themeSettings_accentColor: v.optional(v.string()),
         themeSettings: v.optional(v.object({
             backgroundColor: v.string(),

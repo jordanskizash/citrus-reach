@@ -5,7 +5,7 @@ import { api } from "@/convex/_generated/api";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import dynamic from "next/dynamic";
 import { ProfToolbar } from "@/components/profile-toolbar";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import VideoRecorder from "@/components/videoRecorder";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -61,6 +61,20 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
     api.users.getUserByClerkId,
     profile ? { clerkId: profile.userId } : "skip"
   );
+
+  const latestDocuments = useMemo(() => {
+    if (!documents) return [];
+    
+    if (profile?.featuredContent && profile.featuredContent.length > 0) {
+      // Sort documents according to the featuredContent order
+      return profile.featuredContent
+        .map(id => documents.find(doc => doc._id === id))
+        .filter((doc): doc is Doc<"documents"> => doc !== undefined);
+    }
+    
+    // Fallback to showing the latest 6 documents
+    return documents.slice(0, 6);
+  }, [documents, profile?.featuredContent]);
 
   // Track page view with profile owner's ID
   useEffect(() => {
@@ -124,7 +138,6 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
     : profile.displayName || "Unknown Author";
 
   const authorFirstName = authorFullName.split(" ")[0];
-  const latestDocuments = documents ? documents.slice(0, 6) : [];
   const userLogo = userDetails?.logoUrl;
   const clientLogo = profile?.icon || "/acme.png";
 
@@ -181,8 +194,11 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
       : "white",
   };
 
-  const getPostUrl = (post: Doc<'documents'>) => {
-    // If slug is available, use it; otherwise, fallback to ID
+  const getPostUrl = (post: Doc<"documents">) => {
+    if (post.isExternalLink && post.externalUrl) {
+      return post.externalUrl;
+    }
+    // Default behavior for regular posts
     return `/blog/${post.slug ?? post._id}`;
   };
 
@@ -375,30 +391,32 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
               </Link>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8 px-2 sm:px-0">
-              {latestDocuments.map((post) => (
-                <Link
-                  key={post._id}
-                  href={getPostUrl(post)}
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="flex flex-col group"
-                >
-                  <div className="relative overflow-hidden rounded-xl shadow-lg">
-                    <img
-                      src={post.coverImage || "/placeholder.svg?height=300&width=400"}
-                      alt={post.title}
-                      className="w-full h-[200px] sm:h-[240px] object-cover transform group-hover:scale-105 transition-transform duration-300"
-                    />
-                  </div>
-                  <p className="text-gray-500 text-sm mt-4 mb-1">
-                    {new Date(post._creationTime).toLocaleDateString()}
-                  </p>
-                  <h3 className="text-lg text-black sm:text-xl font-semibold mb-2 group-hover:text-primary transition-colors">
-                    {post.title}
-                  </h3>
-                  <p className="text-gray-600 text-sm sm:text-base">By {post.authorFullName || "Unknown Author"}</p>
-                </Link>
-              ))}
+            {latestDocuments.map((post) => (
+              <Link
+                key={post._id}
+                href={getPostUrl(post)}
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex flex-col group"
+              >
+                <div className="relative overflow-hidden rounded-xl shadow-lg">
+                  <img
+                    src={post.coverImage || "/placeholder.svg?height=300&width=400"}
+                    alt={post.title}
+                    className="w-full h-[200px] sm:h-[240px] object-cover transform group-hover:scale-105 transition-transform duration-300"
+                  />
+                </div>
+                <p className="text-gray-500 text-sm mt-4 mb-1">
+                  {new Date(post._creationTime).toLocaleDateString()}
+                </p>
+                <h3 className="text-lg text-black sm:text-xl font-semibold mb-2 group-hover:text-primary transition-colors">
+                  {post.title}
+                </h3>
+                <p className="text-gray-600 text-sm sm:text-base">
+                  By {authorFullName}
+                </p>
+              </Link>
+            ))}
             </div>
           </div>
         )}
