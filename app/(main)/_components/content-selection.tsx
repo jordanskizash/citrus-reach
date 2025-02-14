@@ -8,15 +8,7 @@ import { Doc, Id } from "@/convex/_generated/dataModel";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 
-// Types
-type ExternalLink = {
-  _id: Id<"documents">;
-  _creationTime: number;
-  title: string;
-  userId: string;
-  isArchived: boolean;
-  isPublished: boolean;
-  coverImage?: string;
+type ExternalLink = Doc<"documents"> & {
   isExternalLink: true;
   externalUrl: string;
 };
@@ -53,9 +45,8 @@ const ContentSelectionDialog = ({
   const handleAddLink = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoadingMetadata(true);
-  
+
     try {
-      console.log('Fetching metadata for URL:', linkUrl);
       const response = await fetch('/api/extract-metadata', {
         method: 'POST',
         headers: {
@@ -63,29 +54,16 @@ const ContentSelectionDialog = ({
         },
         body: JSON.stringify({ url: linkUrl }),
       });
-  
-      if (!response.ok) {
-        throw new Error(`Metadata fetch failed: ${response.statusText}`);
-      }
-  
+
       const metadata = await response.json();
-      console.log('Received metadata:', metadata);
-  
+      
       // Create a new external link in the documents table
-      console.log('Creating external link with data:', {
-        title: metadata.title || 'Untitled',
-        url: linkUrl,
-        coverImage: metadata.image,
-      });
-  
       const documentId = await createExternalLink({
         title: metadata.title || 'Untitled',
         url: linkUrl,
         coverImage: metadata.image,
       });
-  
-      console.log('Created document with ID:', documentId);
-  
+
       // Create a new external link object
       const newExternalLink: ExternalLink = {
         _id: documentId as Id<"documents">,
@@ -97,22 +75,22 @@ const ContentSelectionDialog = ({
         isExternalLink: true,
         externalUrl: linkUrl,
         coverImage: metadata.image,
+        content: '',
+        likeCount: 0,
       };
-  
-      // Update documents array
+
       const updatedDocuments = [...documents, newExternalLink];
       onDocumentsChange(updatedDocuments);
-  
-      // Add to selection if less than 6 items are selected
+
       if (selectedSites.length < 6) {
         onSelectionChange([...selectedSites, documentId as Id<"documents">]);
       }
-  
+
       setLinkUrl('');
       setIsLinkDialogOpen(false);
       toast.success('Link added successfully');
     } catch (error) {
-      console.error('Detailed error:', error);
+      console.error('Error adding link:', error);
       toast.error('Failed to add link');
     } finally {
       setIsLoadingMetadata(false);

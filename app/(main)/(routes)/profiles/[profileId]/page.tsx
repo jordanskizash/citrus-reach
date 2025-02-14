@@ -44,14 +44,12 @@ interface PdfPreviewProps {
   onClose: () => void
 }
 
-type ExternalLink = {
-  _id: Id<"documents">;
-  title: string;
-  coverImage?: string;
-  _creationTime: number;
+type ExternalLink = Doc<"documents"> & {
   isExternalLink: true;
-  url: string;
-}
+  externalUrl: string;
+};
+
+type DocumentOrLink = Doc<"documents"> | ExternalLink;
 
 type CombinedContent = Doc<"documents"> | ExternalLink;
 
@@ -94,23 +92,24 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
   const documents = useQuery(api.documents.getPublishedDocuments)
   const userDetails = useQuery(api.users.getUserByClerkId, user?.id ? { clerkId: user.id } : "skip")
 
-  const [allDocuments, setAllDocuments] = useState<CombinedContent[]>([]);
+ 
+  
 
 // Add a useEffect to update allDocuments when documents changes
 useEffect(() => {
   if (documents) {
     const formattedDocs = documents.map(doc => ({
       ...doc,
-      _id: doc._id,
       isExternalLink: doc.isExternalLink || false,
-      externalUrl: doc.externalUrl || '',
-    })) as Doc<"documents">[];
+      externalUrl: doc.externalUrl || ''
+    })) as DocumentOrLink[];
     setAllDocuments(formattedDocs);
   }
 }, [documents]);
 
   // States
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [allDocuments, setAllDocuments] = useState<DocumentOrLink[]>([]);
   const [selectedSites, setSelectedSites] = useState<Id<"documents">[]>([]);
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
   const [videoKey, setVideoKey] = useState(0);
@@ -441,8 +440,8 @@ useEffect(() => {
               : allDocuments.slice(0, 6)
             ).map((post) => {
               const isExternal = 'isExternalLink' in post && post.isExternalLink;
-              const postUrl = isExternal && 'url' in post 
-                ? (post as ExternalLink).url 
+              const postUrl = isExternal && 'externalUrl' in post 
+                ? post.externalUrl 
                 : getPostUrl(post as Doc<"documents">);
               
               return (
@@ -480,7 +479,7 @@ useEffect(() => {
             documents={allDocuments}
             selectedSites={selectedSites}
             onSelectionChange={setSelectedSites}
-            onDocumentsChange={(docs) => setAllDocuments(docs)}
+            onDocumentsChange={(docs: DocumentOrLink[]) => setAllDocuments(docs)}
             profileId={params.profileId}
             updateProfile={updateProfile}
           />
