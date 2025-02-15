@@ -119,29 +119,27 @@ const DocumentIdPage = ({
         <div className="pb-40 py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[80vh]">
             <Status />
             <Cover url={document.coverImage} />
-            <div className="mt-6 mb-6 ml-14 flex items-center space-x-4">
-                <Avatar className="h-12 w-12">
-                    <AvatarImage src={user?.imageUrl} alt={user?.fullName || "Author"} />
-                    <AvatarFallback>{user?.fullName?.[0] || "A"}</AvatarFallback>
-                </Avatar>
-                <div>
-                    <h2 className="text-xl font-semibold">{user?.fullName}</h2>
-                    <div className="flex items-center space-x-2 text-sm text-gray-500">
-                        <Clock className="h-4 w-4" />
-                        <span>{formatDate(document._creationTime)}</span>
-                        {/* <span>•</span> */}
-                        {/* <BookOpen className="h-4 w-4" /> */}
-                        {/* <span>{readingTime} min read</span> */}
+            <div className="md:max-w-4xl lg:max-w-5xl mx-auto">
+                <div className="mt-6 mb-6 flex items-center space-x-4">
+                    <Avatar className="h-12 w-12">
+                        <AvatarImage src={user?.imageUrl} alt={user?.fullName || "Author"} />
+                        <AvatarFallback>{user?.fullName?.[0] || "A"}</AvatarFallback>
+                    </Avatar>
+                    <div>
+                        <h2 className="text-xl font-semibold">{user?.fullName}</h2>
+                        <div className="flex items-center space-x-2 text-sm text-gray-500">
+                            <Clock className="h-4 w-4" />
+                            <span>{formatDate(document._creationTime)}</span>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div className="mx-auto my-auto">
                 <Toolbar initialData={document} />
                 <div className="mt-2">
-                <Editor 
-                    onChange={onChange}
-                    initialContent={document.content}
-                />
+                    <Editor 
+                        onChange={onChange}
+                        initialContent={document.content}
+                        editable={true}
+                    />
                 </div>
             </div>
         </div>

@@ -375,9 +375,9 @@ export const getPublishedProfilesByUserId = query({
   
       return profile;
     },
-  });
+});
 
-  export const getByAuthorName = query({
+export const getByAuthorName = query({
     args: { authorFullName: v.string() },
     handler: async (ctx, args) => {
       const profile = await ctx.db
@@ -391,11 +391,9 @@ export const getPublishedProfilesByUserId = query({
   
       return profile;
     },
-  });
+});
 
-  // In your profiles.ts
- // In your profiles.ts
- export const getByAuthorSlug = query({
+export const getByAuthorSlug = query({
   args: { authorSlug: v.string() },
   handler: async (ctx, args) => {
     const documents = await ctx.db
@@ -437,15 +435,14 @@ export const getPublishedProfilesByUserId = query({
   },
 });
 
-// Add a utility function to check handle availability
 export const checkHandleAvailability = query({
-  args: { handle: v.string() },
-  handler: async (ctx, args) => {
-      const profile = await ctx.db
-          .query("profiles")
-          .filter((q) => q.eq(q.field("handle"), args.handle.toLowerCase()))
-          .first();
+    args: { handle: v.string() },
+    handler: async (ctx, args) => {
+        const profile = await ctx.db
+            .query("profiles")
+            .filter((q) => q.eq(q.field("handle"), args.handle.toLowerCase()))
+            .first();
 
-      return !profile;
-  },
+        return !profile;
+    },
 });

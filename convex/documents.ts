@@ -810,23 +810,23 @@ export const removeCoverImage = mutation({
 //   });
 
 export const getPublishedDocumentsByUserId = query({
-    args: { userId: v.string() },
-    handler: async (ctx, args) => {
-      const documents = await ctx.db
-        .query("documents")
-        .filter((q) =>
-          q.and(
-            q.eq(q.field("isPublished"), true),
-            q.eq(q.field("isArchived"), false),
-            q.eq(q.field("userId"), args.userId)
-          )
+  args: { userId: v.string() },
+  handler: async (ctx, args) => {
+    const documents = await ctx.db
+      .query("documents")
+      .filter((q) => 
+        q.and(
+          q.eq(q.field("userId"), args.userId),
+          q.eq(q.field("isPublished"), true),
+          q.eq(q.field("isArchived"), false)
         )
-        .order("desc")
-        .collect();
-  
-      return documents;
-    },
-  });
+      )
+      .collect();
+
+    console.log('Server-side documents count:', documents.length);
+    return documents;
+  },
+});
 
   export const getPublishedDocuments = query({
     handler: async (ctx) => {

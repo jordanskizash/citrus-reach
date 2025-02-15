@@ -1,14 +1,15 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import Image from 'next/image'
 import Link from 'next/link'
 import { useQuery } from 'convex/react'
 import { api } from '@/convex/_generated/api'
 import { Doc } from '@/convex/_generated/dataModel'
-import { useState, useEffect } from 'react'
 import { Mail, Phone, Linkedin, Calendar } from 'lucide-react'
 import { Spinner } from '@/components/spinner'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import InlineWidget from "@calcom/embed-react"
+import { useState } from 'react'
 
 const MotionLink = motion(Link)
 
@@ -19,10 +20,10 @@ interface HomepageProps {
 }
 
 export default function BlogHomepage({ params }: HomepageProps) {
-  const { authorSlug } = params;
+  const [isCalDialogOpen, setIsCalDialogOpen] = useState(false);
   
   const profile = useQuery(api.profiles.getByAuthorSlug, { 
-    authorSlug
+    authorSlug: params.authorSlug 
   });
   
   const documents = useQuery(
@@ -34,6 +35,13 @@ export default function BlogHomepage({ params }: HomepageProps) {
     api.users.getUserSettingsByClerkId,
     profile ? { clerkId: profile.userId } : "skip"
   );
+
+  const getPostUrl = (post: Doc<"documents">) => {
+    if (post.isExternalLink && post.externalUrl) {
+      return post.externalUrl;
+    }
+    return `/blog/${post.slug ?? post._id}`;
+  };
   
   if (!documents || !profile || !userSettings) {
     return (
@@ -44,81 +52,115 @@ export default function BlogHomepage({ params }: HomepageProps) {
   }
 
   const authorFullName = profile.authorFullName || "Unknown Author";
+  
+  // Sort documents by creation time, newest first
+  const sortedDocuments = [...documents].sort((a, b) => 
+    b._creationTime - a._creationTime
+  );
+
+  const renderCalendarIcon = () => {
+    if (!userSettings.calComUsername && !userSettings.meetingLink) return null;
+
+    if (userSettings.calComUsername) {
+      return (
+        <Dialog open={isCalDialogOpen} onOpenChange={setIsCalDialogOpen}>
+          <DialogTrigger asChild>
+            <button className="text-gray-600 hover:text-gray-900">
+              <Calendar className="w-4 h-4" />
+            </button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Book a Meeting</DialogTitle>
+            </DialogHeader>
+            <div className="mt-4">
+              <InlineWidget
+                calLink={userSettings.calComUsername}
+                style={{ height: "650px", width: "100%", overflow: "scroll" }}
+                config={{ theme: "light", layout: "month_view" }}
+              />
+            </div>
+          </DialogContent>
+        </Dialog>
+      );
+    }
+
+    if (userSettings.meetingLink) {
+      return (
+        <Link 
+          href={userSettings.meetingLink}
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="text-gray-600 hover:text-gray-900"
+        >
+          <Calendar className="w-4 h-4" />
+        </Link>
+      );
+    }
+  };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-16 py-8">
+    <div className="max-w-3xl mx-auto px-4 py-8">
       {/* Profile Section */}
-      <div className="flex flex-col items-center text-center mb-16">
-        <Image 
-          src={userSettings.image || "/placeholder.svg"} 
-          alt={authorFullName}
-          width={120}
-          height={120}
-          className="rounded-full mb-4"
-        />
-        <h1 className="text-4xl font-bold mb-4">{authorFullName}</h1>
-        <p className="text-gray-600 max-w-2xl mb-8">{userSettings.description || "No description available"}</p>
-        
-        {/* Contact Links */}
-        <div className="flex flex-wrap gap-4 justify-center mb-8 max-w-full px-4">
-        {profile && (
-            <>
+      <div className="mb-16">
+        <div className="flex flex-col gap-4 mb-8">
+          <div className="flex items-center justify-between">
+            <h1 className="text-2xl font-medium">{authorFullName}</h1>
+            <div className="flex items-center gap-4">
               {userSettings?.email && (
-                <Link href={`mailto:${userSettings.email}`} className="flex items-center gap-2 text-gray-600 hover:text-gray-900">
-                  <Mail className="w-5 h-5" />
-                  <span className="hidden sm:inline">{userSettings.email}</span>
+                <Link href={`mailto:${userSettings.email}`} className="text-gray-600 hover:text-gray-900">
+                  <Mail className="w-4 h-4" />
                 </Link>
               )}
               {userSettings?.phoneNumber && (
-                <Link href={`tel:${userSettings.phoneNumber}`} className="flex items-center gap-2 text-gray-600 hover:text-gray-900">
-                  <Phone className="w-5 h-5" />
-                  <span className="hidden sm:inline">{userSettings.phoneNumber}</span>
+                <Link href={`tel:${userSettings.phoneNumber}`} className="text-gray-600 hover:text-gray-900">
+                  <Phone className="w-4 h-4" />
                 </Link>
               )}
               {userSettings?.linkedin && (
-                <Link href={userSettings.linkedin} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-gray-600 hover:text-gray-900">
-                  <Linkedin className="w-5 h-5" />
-                  <span className="hidden sm:inline">LinkedIn</span>
+                <Link href={userSettings.linkedin} target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-gray-900">
+                  <Linkedin className="w-4 h-4" />
                 </Link>
               )}
-              {userSettings?.calComUsername && (
-                <Link href={`https://cal.com/${userSettings.calComUsername}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-gray-600 hover:text-gray-900">
-                  <Calendar className="w-5 h-5" />
-                  <span className="hidden sm:inline">Schedule a call</span>
-                </Link>
-              )}
-              {userSettings?.meetingLink && (
-                <Link href={`${userSettings.meetingLink}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-gray-600 hover:text-gray-900">
-                  <Calendar className="w-5 h-5" />
-                  <span className="hidden sm:inline">Schedule a call</span>
-                </Link>
-              )}
-            </>
+              {renderCalendarIcon()}
+            </div>
+          </div>
+          {userSettings.description && (
+            <p className="text-sm text-gray-600">{userSettings.description}</p>
           )}
         </div>
       </div>
 
-      {/* Blog Posts Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {documents.map((post) => (
+      {/* Table Header */}
+      <div className="flex items-center border-b border-gray-200 pb-2 px-1 text-sm text-gray-500">
+        <div className="w-16">date</div>
+        <div className="flex-1">title</div>
+        <div className="w-16 text-right">likes</div>
+      </div>
+
+      {/* Blog Posts List */}
+      <div className="space-y-6 mt-4">
+        {sortedDocuments.map((post) => (
           <MotionLink 
             key={post._id}
-            href={`/blog/${post.slug ?? post._id}`}
-            className="group relative"
-            whileHover={{ y: -5 }}
+            href={getPostUrl(post)}
+            className="block group"
+            whileHover={{ x: 4 }}
             transition={{ type: "spring", stiffness: 300 }}
+            target={post.isExternalLink ? "_blank" : undefined}
+            rel={post.isExternalLink ? "noopener noreferrer" : undefined}
           >
-            <div className="relative h-48 mb-4">
-              <Image 
-                src={post.coverImage || "/placeholder.svg"}
-                alt={post.title}
-                fill
-                className="rounded-lg object-cover"
-              />
+            <div className="flex items-center px-1">
+              <div className="w-16 text-gray-500 text-sm">
+                {new Date(post._creationTime).getFullYear()}
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-medium group-hover:text-gray-600">{post.title}</h3>
+              </div>
+              <div className="w-16 text-right text-gray-500 text-sm">
+                {post.likeCount || 0}
+              </div>
             </div>
-            <p className="text-gray-500 text-sm mb-2">{new Date(post._creationTime).toLocaleDateString()}</p>
-            <h3 className="text-xl font-semibold mb-2">{post.title}</h3>
-            <p className="text-gray-600">By {authorFullName}</p>
           </MotionLink>
         ))}
       </div>

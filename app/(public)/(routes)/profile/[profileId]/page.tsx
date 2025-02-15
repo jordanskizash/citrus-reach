@@ -54,7 +54,9 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
 
   const documents = useQuery(
     api.documents.getPublishedDocumentsByUserId,
-    profile ? { userId: profile.userId } : "skip"
+    profile ? { 
+      userId: profile.userId
+    } : "skip"
   );
 
   const userDetails = useQuery(
@@ -62,18 +64,68 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
     profile ? { clerkId: profile.userId } : "skip"
   );
 
+  useEffect(() => {
+    if (profile?.featuredContent && documents) {
+      console.log('All documents:', documents.map(doc => ({
+        id: doc._id,
+        title: doc.title,
+        isPublished: doc.isPublished,
+        isArchived: doc.isArchived
+      })));
+  
+      console.log('Featured Content IDs:', profile.featuredContent);
+      
+      profile.featuredContent.forEach(id => {
+        const doc = documents.find(doc => doc._id === id);
+        if (!doc) {
+          console.log(`Document ${id} not found in documents array`);
+        } else {
+          console.log(`Found document:`, {
+            id: doc._id,
+            title: doc.title,
+            isPublished: doc.isPublished,
+            isArchived: doc.isArchived
+          });
+        }
+      });
+    }
+  }, [profile?.featuredContent, documents]);
+    
+
   const latestDocuments = useMemo(() => {
     if (!documents) return [];
     
     if (profile?.featuredContent && profile.featuredContent.length > 0) {
-      // Sort documents according to the featuredContent order
-      return profile.featuredContent
-        .map(id => documents.find(doc => doc._id === id))
-        .filter((doc): doc is Doc<"documents"> => doc !== undefined);
+      console.log('Processing featured content...');
+      
+      // Get all the featured documents with logging
+      const featuredDocs = profile.featuredContent.map(id => {
+        const doc = documents.find(doc => doc._id === id);
+        if (!doc) {
+          console.log(`Missing document in featuredDocs: ${id}`);
+        }
+        return doc;
+      })
+      .filter((doc): doc is Doc<"documents"> => {
+        if (!doc) {
+          return false;
+        }
+        // Add additional checks
+        if (!doc.isPublished || doc.isArchived) {
+          console.log(`Filtered out document ${doc._id}: isPublished=${doc.isPublished}, isArchived=${doc.isArchived}`);
+          return false;
+        }
+        return true;
+      });
+  
+      // Sort by creation time, newest first
+      return featuredDocs.sort((a, b) => b._creationTime - a._creationTime);
     }
     
-    // Fallback to showing the latest 6 documents
-    return documents.slice(0, 6);
+    // If no featured content, show latest 6 documents sorted by creation time
+    return documents
+      .sort((a, b) => b._creationTime - a._creationTime)
+      .slice(0, 6);
   }, [documents, profile?.featuredContent]);
 
   // Track page view with profile owner's ID
@@ -133,8 +185,8 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
   };
 
 
-  const authorFullName = user?.fullName || "Unknown Author";
-  const authorFirstName = user?.firstName || authorFullName.split(" ")[0];
+  const authorFullName = userDetails?.name || "Unknown Author";
+  const authorFirstName = authorFullName.split(" ")[0];
 
   const userLogo = userDetails?.logoUrl;
   const clientLogo = profile?.icon || "/acme.png";
