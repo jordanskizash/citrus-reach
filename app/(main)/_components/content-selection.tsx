@@ -45,8 +45,10 @@ const ContentSelectionDialog = ({
   const handleAddLink = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoadingMetadata(true);
-
+  
     try {
+      console.log('Attempting to fetch metadata for:', linkUrl);
+      
       const response = await fetch('/api/extract-metadata', {
         method: 'POST',
         headers: {
@@ -54,8 +56,19 @@ const ContentSelectionDialog = ({
         },
         body: JSON.stringify({ url: linkUrl }),
       });
-
+  
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Metadata API error:', {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorText
+        });
+        throw new Error(`API error: ${response.status} ${response.statusText}`);
+      }
+  
       const metadata = await response.json();
+      console.log('Received metadata:', metadata);
       
       // Create a new external link in the documents table
       const documentId = await createExternalLink({
@@ -63,7 +76,7 @@ const ContentSelectionDialog = ({
         url: linkUrl,
         coverImage: metadata.image,
       });
-
+  
       // Create a new external link object
       const newExternalLink: ExternalLink = {
         _id: documentId as Id<"documents">,
@@ -78,20 +91,20 @@ const ContentSelectionDialog = ({
         content: '',
         likeCount: 0,
       };
-
+  
       const updatedDocuments = [...documents, newExternalLink];
       onDocumentsChange(updatedDocuments);
-
+  
       if (selectedSites.length < 6) {
         onSelectionChange([...selectedSites, documentId as Id<"documents">]);
       }
-
+  
       setLinkUrl('');
       setIsLinkDialogOpen(false);
       toast.success('Link added successfully');
     } catch (error) {
-      console.error('Error adding link:', error);
-      toast.error('Failed to add link');
+      console.error('Detailed error in handleAddLink:', error);
+      toast.error('Failed to add link. Please try again.');
     } finally {
       setIsLoadingMetadata(false);
     }

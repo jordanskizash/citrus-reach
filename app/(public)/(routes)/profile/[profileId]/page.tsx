@@ -133,11 +133,9 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
   };
 
 
-  const authorFullName = documents.length > 0 && documents[0].authorFullName
-    ? documents[0].authorFullName
-    : profile.displayName || "Unknown Author";
+  const authorFullName = user?.fullName || "Unknown Author";
+  const authorFirstName = user?.firstName || authorFullName.split(" ")[0];
 
-  const authorFirstName = authorFullName.split(" ")[0];
   const userLogo = userDetails?.logoUrl;
   const clientLogo = profile?.icon || "/acme.png";
 
@@ -412,9 +410,7 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
                 <h3 className="text-lg text-black sm:text-xl font-semibold mb-2 group-hover:text-primary transition-colors">
                   {post.title}
                 </h3>
-                <p className="text-gray-600 text-sm sm:text-base">
-                  By {authorFullName}
-                </p>
+                <p className="text-gray-600 text-sm sm:text-base">By {authorFullName}</p>
               </Link>
             ))}
             </div>
