@@ -25,11 +25,15 @@ export default function BlogPage() {
   useEffect(() => {
     if (documents) {
       if (documents.length > 0) {
-        setPinnedPost(documents[0])
-        setOtherPosts(documents.slice(1))
+        // Sort documents by creation time in descending order (newest first)
+        const sortedDocuments = [...documents].sort((a, b) => 
+          b._creationTime - a._creationTime
+        );
+        setPinnedPost(sortedDocuments[0]);
+        setOtherPosts(sortedDocuments.slice(1));
       }
     }
-  }, [documents])
+  }, [documents]);
 
   if (!documents) {
     return (

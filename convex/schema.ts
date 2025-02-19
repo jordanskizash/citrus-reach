@@ -33,6 +33,7 @@ export default defineSchema ({
         description: v.optional(v.string()),
         videoUrl: v.optional(v.string()),
         videoDescription: v.optional(v.string()),
+        videoName: v.optional(v.string()),
         videoThumbnail: v.optional(v.string()),
         userId: v.string(),
         isArchived: v.boolean(),
@@ -96,6 +97,18 @@ export default defineSchema ({
         })
         
         .index("by_stripe_id", ["stripeId"]),
+
+     // Add a new table for video storage tracking
+     videoStorage: defineTable({
+        profileId: v.id("profiles"),
+        userId: v.string(),
+        storageId: v.string(),
+        fileName: v.string(),
+        fileType: v.string(),
+        uploadDate: v.number(),
+    })
+    .index("by_profile", ["profileId"])
+    .index("by_user", ["userId"]),
 
     externalLinks: defineTable({
         title: v.string(),

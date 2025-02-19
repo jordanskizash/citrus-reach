@@ -20,7 +20,7 @@ const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
 export const metadata: Metadata = {
   title: "Citrus Reach - Create High-Converting Microsites for Your Brand | Elevated Outreach",
-  description: "Transform your brand's online presence with Citrus Reach's powerful microsite builder. Create stunning, conversion-optimized landing pages with embedded videos, analytics, and customizable templates for maximum impact.",
+  description: "Build powerful microsites with Citrus Reach. Create stunning landing pages with videos, analytics, and custom templates that convert.",
   alternates: {
     canonical: 'https://citrusreach.com'
   },
