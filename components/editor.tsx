@@ -27,6 +27,23 @@ interface EditorProps {
     onLoadingChange?: (isLoading: boolean) => void;
 };
 
+// Add this helper function before the Editor component
+const cleanUpHtml = (html: string): string => {
+    return html
+        // Replace BlockNote specific classes with semantic HTML
+        .replace(/class="bn-inline-content"/g, '')
+        // Add proper semantic structure
+        .replace(/<p><\/p>/g, '') // Remove empty paragraphs
+        .replace(/<h([1-6]).*?>/g, '<h$1>') // Clean up heading tags
+        // Ensure proper spacing between elements
+        .replace(/>\s+</g, '><')
+        // Wrap images in figure tags for better semantics
+        .replace(/<img(.*?)>/g, '<figure><img$1></figure>')
+        // Clean up any double spaces
+        .replace(/\s{2,}/g, ' ')
+        .trim();
+};
+
 const Editor = ({
     onChange,
     editable,
@@ -53,14 +70,18 @@ const Editor = ({
         uploadFile: handleUpload,
     });
 
-    // Debounced HTML conversion
+    // Update the debounced HTML conversion
     const debouncedConvertToHtml = useCallback(
         _.debounce(async (content: string) => {
             if (isConverting) return;
             setIsConverting(true);
             try {
                 const blocks = JSON.parse(content);
-                const html = await editor.blocksToHTMLLossy(blocks);
+                let html = await editor.blocksToHTMLLossy(blocks);
+                
+                // Add semantic structure and clean up the HTML
+                html = cleanUpHtml(`<article>${html}</article>`);
+                
                 setHtmlContent(html);
                 onHTMLGenerated?.(html);
             } catch (error) {
@@ -77,7 +98,6 @@ const Editor = ({
         onLoadingChange?.(isLoading);
     }, [isLoading, onLoadingChange]);
 
-    // Initial conversion
     useEffect(() => {
         if (!editable && isPublished && initialContent && !htmlContent) {
             setIsLoading(true);
@@ -85,7 +105,6 @@ const Editor = ({
         }
     }, [editable, isPublished, initialContent, htmlContent, debouncedConvertToHtml]);
 
-    // Cleanup
     useEffect(() => {
         return () => {
             debouncedConvertToHtml.cancel();
@@ -104,7 +123,7 @@ const Editor = ({
 
     if (!editable && isPublished) {
         if (isLoading) {
-                return <ContentSkeleton />;
+            return <ContentSkeleton />;
         }
 
         return (
