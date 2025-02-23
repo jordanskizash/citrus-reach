@@ -96,17 +96,20 @@ export default function FormattingModule({
   const [linkUrl, setLinkUrl] = useState('')
   const [isLoadingMetadata, setIsLoadingMetadata] = useState(false)
 
-  const externalLinks = useQuery(api.externalLinks.listByUser)
   const addExternalLink = useMutation(api.externalLinks.create)
   
   const publishedDocs = useQuery(api.documents.getPublishedDocuments)
 
+  const externalLinks = useQuery(
+    api.externalLinks.listByUser,
+    profile ? { userId: profile.userId } : "skip"
+  );
+
   const handleAddLink = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoadingMetadata(true)
-
+  
     try {
-      // You'll need to create this API endpoint to handle metadata extraction
       const response = await fetch('/api/extract-metadata', {
         method: 'POST',
         headers: {
@@ -114,16 +117,16 @@ export default function FormattingModule({
         },
         body: JSON.stringify({ url: linkUrl }),
       })
-
+  
       const metadata = await response.json()
-
+  
       await addExternalLink({
         url: linkUrl,
         title: metadata.title || 'Untitled',
         description: metadata.description,
         coverImage: metadata.image,
       })
-
+  
       setLinkUrl('')
       setIsLinkDialogOpen(false)
       toast.success('Link added successfully')
