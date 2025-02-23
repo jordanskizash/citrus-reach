@@ -49,8 +49,13 @@ export default defineSchema ({
         greetingText: v.optional(v.string()),
         themeSettings_backgroundColor: v.optional(v.string()),
         themeSettings_textColor: v.optional(v.string()),
-        featuredContent: v.optional(v.array(v.id("documents"))),
         themeSettings_accentColor: v.optional(v.string()),
+        featuredContent: v.optional(v.array(
+            v.object({
+                type: v.string(),
+                id: v.union(v.id("documents"), v.id("externalLinks"))
+            })
+        )),
         themeSettings: v.optional(v.object({
             backgroundColor: v.string(),
             textColor: v.string(),
@@ -117,6 +122,7 @@ export default defineSchema ({
         coverImage: v.optional(v.string()),
         description: v.optional(v.string()),
         isArchived: v.boolean(),
+        _creationTime: v.number(), // Add this to match document interface
     })
     .index("by_user", ["userId"]),
 

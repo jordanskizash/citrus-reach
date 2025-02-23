@@ -10,7 +10,6 @@ export const create = mutation({
     coverImage: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    // Get the user's identity
     const identity = await ctx.auth.getUserIdentity();
     
     if (!identity) {
@@ -19,7 +18,7 @@ export const create = mutation({
 
     const userId = identity.subject;
 
-    // Create the external link
+    // Create the external link (Convex adds _creationTime automatically)
     const externalLink = await ctx.db.insert("externalLinks", {
       url: args.url,
       title: args.title,
@@ -33,27 +32,36 @@ export const create = mutation({
   },
 });
 
-export const listByUser = query({
-  handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-
-    if (!identity) {
-      throw new Error("Not authenticated");
-    }
-
-    const userId = identity.subject;
-
-    // Get all external links for the user that aren't archived
-    const externalLinks = await ctx.db
+export const getByUserId = query({
+  args: { userId: v.string() },
+  handler: async (ctx, args) => {
+    return await ctx.db
       .query("externalLinks")
-      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .withIndex("by_user", (q) => q.eq("userId", args.userId))
       .filter((q) => q.eq(q.field("isArchived"), false))
       .order("desc")
       .collect();
-
-    return externalLinks;
   },
 });
+
+export const listByUser = query({
+  args: {
+    userId: v.optional(v.string()), // Keep userId optional
+  },
+  handler: async (ctx, args) => {
+    if (!args.userId) {
+      return []; // Return an empty array if userId is missing
+    }
+
+    return ctx.db
+      .query("externalLinks")
+      .withIndex("by_user", (q) => q.eq("userId", args.userId as string)) // Ensure it's always a string
+      .filter((q) => q.eq(q.field("isArchived"), false))
+      .order("desc")
+      .collect();
+  },
+});
+
 
 export const remove = mutation({
   args: { id: v.id("externalLinks") },
@@ -66,7 +74,6 @@ export const remove = mutation({
 
     const userId = identity.subject;
 
-    // Verify the user owns this link
     const existingLink = await ctx.db.get(args.id);
     
     if (!existingLink) {
@@ -77,7 +84,6 @@ export const remove = mutation({
       throw new Error("Not authorized");
     }
 
-    // Soft delete by setting isArchived to true
     await ctx.db.patch(args.id, {
       isArchived: true,
     });
@@ -100,7 +106,6 @@ export const update = mutation({
 
     const userId = identity.subject;
 
-    // Verify the user owns this link
     const existingLink = await ctx.db.get(args.id);
     
     if (!existingLink) {

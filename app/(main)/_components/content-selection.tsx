@@ -8,31 +8,39 @@ import { Doc, Id } from "@/convex/_generated/dataModel";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 
-type ExternalLink = Doc<"documents"> & {
-  isExternalLink: true;
-  externalUrl: string;
+type FeaturedContent = {
+  type: "document" | "external";
+  id: Id<"documents"> | Id<"externalLinks">;
 };
 
-type DocumentOrLink = Doc<"documents"> | ExternalLink;
+type ContentItem = {
+  type: "document";
+  content: Doc<"documents">;
+} | {
+  type: "external";
+  content: Doc<"externalLinks">;
+};
 
 interface ContentSelectionDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  documents: DocumentOrLink[];
-  selectedSites: Id<"documents">[];
-  onSelectionChange: (selectedIds: Id<"documents">[]) => void;
-  onDocumentsChange: (newDocuments: DocumentOrLink[]) => void;
+  documents: Doc<"documents">[];
+  externalLinks: Doc<"externalLinks">[];
+  selectedContent: FeaturedContent[];
+  onSelectionChange: (selected: FeaturedContent[]) => void;
+  onContentChange: (docs: Doc<"documents">[], links: Doc<"externalLinks">[]) => void;
   profileId: Id<"profiles">;
-  updateProfile: (args: { id: Id<"profiles">; featuredContent: Id<"documents">[] }) => Promise<any>;
+  updateProfile: (args: { id: Id<"profiles">; featuredContent: FeaturedContent[] }) => Promise<any>;
 }
 
 const ContentSelectionDialog = ({
   isOpen,
   onOpenChange,
   documents,
-  selectedSites,
+  externalLinks,
+  selectedContent,
   onSelectionChange,
-  onDocumentsChange,
+  onContentChange,
   profileId,
   updateProfile,
 }: ContentSelectionDialogProps) => {
@@ -40,7 +48,7 @@ const ContentSelectionDialog = ({
   const [linkUrl, setLinkUrl] = useState('');
   const [isLoadingMetadata, setIsLoadingMetadata] = useState(false);
   
-  const createExternalLink = useMutation(api.documents.createExternalLink);
+  const createExternalLink = useMutation(api.externalLinks.create);
 
   const handleAddLink = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,33 +78,29 @@ const ContentSelectionDialog = ({
       const metadata = await response.json();
       console.log('Received metadata:', metadata);
       
-      // Create a new external link in the documents table
-      const documentId = await createExternalLink({
+      // Create a new external link
+      const linkId = await createExternalLink({
         title: metadata.title || 'Untitled',
         url: linkUrl,
         coverImage: metadata.image,
       });
-  
-      // Create a new external link object
-      const newExternalLink: ExternalLink = {
-        _id: documentId as Id<"documents">,
+
+      // Add to the list of external links
+      const newLink: Doc<"externalLinks"> = {
+        _id: linkId,
         _creationTime: Date.now(),
         title: metadata.title || 'Untitled',
+        url: linkUrl,
         userId: '', // Will be set by server
         isArchived: false,
-        isPublished: true,
-        isExternalLink: true,
-        externalUrl: linkUrl,
         coverImage: metadata.image,
-        content: '',
-        likeCount: 0,
       };
   
-      const updatedDocuments = [...documents, newExternalLink];
-      onDocumentsChange(updatedDocuments);
+      const updatedLinks = [...externalLinks, newLink];
+      onContentChange(documents, updatedLinks);
   
-      if (selectedSites.length < 6) {
-        onSelectionChange([...selectedSites, documentId as Id<"documents">]);
+      if (selectedContent.length < 6) {
+        onSelectionChange([...selectedContent, { type: "external", id: linkId }]);
       }
   
       setLinkUrl('');
@@ -110,12 +114,16 @@ const ContentSelectionDialog = ({
     }
   };
 
-  const handleSiteSelection = (docId: Id<"documents">) => {
-    const newSelection = selectedSites.includes(docId)
-      ? selectedSites.filter(id => id !== docId)
-      : selectedSites.length < 6
-      ? [...selectedSites, docId]
-      : selectedSites;
+  const handleContentSelection = (type: "document" | "external", id: Id<"documents"> | Id<"externalLinks">) => {
+    const isSelected = selectedContent.some(item => 
+      item.type === type && item.id === id
+    );
+    
+    const newSelection = isSelected
+      ? selectedContent.filter(item => !(item.type === type && item.id === id))
+      : selectedContent.length < 6
+      ? [...selectedContent, { type, id }]
+      : selectedContent;
     
     onSelectionChange(newSelection);
   };
@@ -124,7 +132,7 @@ const ContentSelectionDialog = ({
     try {
       await updateProfile({
         id: profileId,
-        featuredContent: selectedSites
+        featuredContent: selectedContent
       });
       toast.success("Featured content updated successfully");
       onOpenChange(false);
@@ -133,6 +141,20 @@ const ContentSelectionDialog = ({
       toast.error("Failed to update featured content");
     }
   };
+
+  // Filter published documents and combine with external links
+  const publishedDocuments = documents.filter((doc: Doc<"documents">) => doc.isPublished);
+  
+  const allContent: ContentItem[] = [
+    ...publishedDocuments.map((doc: Doc<"documents">) => ({ 
+      type: "document" as const, 
+      content: doc 
+    })),
+    ...externalLinks.map((link: Doc<"externalLinks">) => ({ 
+      type: "external" as const, 
+      content: link 
+    }))
+  ].sort((a, b) => b.content._creationTime - a.content._creationTime);
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -172,36 +194,36 @@ const ContentSelectionDialog = ({
             </DialogContent>
           </Dialog>
 
-          {documents.map((doc) => (
+          {allContent.map(({ type, content }: ContentItem) => (
             <div
-              key={doc._id}
+              key={`${type}-${content._id}`}
               className={`relative rounded-lg border cursor-pointer transition-all ${
-                selectedSites.includes(doc._id)
+                selectedContent.some(item => item.type === type && item.id === content._id)
                   ? 'border-blue-500 shadow-md'
                   : 'border-gray-200 hover:border-gray-300'
               }`}
-              onClick={() => handleSiteSelection(doc._id)}
+              onClick={() => handleContentSelection(type, content._id)}
             >
               <div className="relative h-24">
                 <img
-                  src={doc.coverImage || "/placeholder.svg?height=80&width=100"}
-                  alt={doc.title}
+                  src={content.coverImage || "/placeholder.svg?height=80&width=100"}
+                  alt={content.title}
                   className="w-full h-full object-cover rounded-t-lg"
                 />
               </div>
               <div className="p-2">
                 <div className="flex items-center gap-1 text-xs text-gray-500">
                   <Calendar className="h-3 w-3" />
-                  {new Date(doc._creationTime).toLocaleDateString()}
+                  {new Date(content._creationTime).toLocaleDateString()}
                 </div>
-                <h3 className="text-xs font-medium line-clamp-2 mt-1">{doc.title}</h3>
-                {'isExternalLink' in doc && doc.isExternalLink && (
+                <h3 className="text-xs font-medium line-clamp-2 mt-1">{content.title}</h3>
+                {type === "external" && (
                   <div className="text-[10px] text-blue-500 mt-0.5">External Link</div>
                 )}
               </div>
-              {selectedSites.includes(doc._id) && (
+              {selectedContent.some(item => item.type === type && item.id === content._id) && (
                 <div className="absolute top-2 right-2 bg-blue-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
-                  {selectedSites.indexOf(doc._id) + 1}
+                  {selectedContent.findIndex(item => item.type === type && item.id === content._id) + 1}
                 </div>
               )}
             </div>

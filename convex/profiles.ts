@@ -155,8 +155,12 @@ export const update = mutation({
     isPublished: v.optional(v.boolean()),
     colorPreference: v.optional(v.string()),
     greetingText: v.optional(v.string()),
-    featuredContent: v.optional(v.array(v.id("documents"))),
-    // Add themeSettings if you want to update them
+    featuredContent: v.optional(v.array(
+      v.object({
+        type: v.string(),
+        id: v.union(v.id("documents"), v.id("externalLinks"))
+      })
+    )),
     themeSettings: v.optional(v.object({
       backgroundColor: v.string(),
       accentColor: v.string(),

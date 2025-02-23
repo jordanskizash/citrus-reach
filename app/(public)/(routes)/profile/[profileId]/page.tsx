@@ -28,12 +28,22 @@ import { useUser } from "@clerk/clerk-react";
 import { event } from "@/lib/analytics";
 import SmartMeetingButton from "@/app/(main)/_components/meetingButton";
 import LogoComparison from "@/app/(main)/_components/logo-comparison";
+import { motion } from "framer-motion";
 
 interface ProfileIdPageProps {
   params: {
     profileId: Id<"profiles">;
   };
 }
+
+type FeaturedContent = {
+  type: "document" | "external";
+  id: Id<"documents"> | Id<"externalLinks">;
+};
+
+type CombinedContent = Doc<"documents"> | Doc<"externalLinks">;
+
+const MotionLink = motion(Link);
 
 export default function ProfileIdPage({ params }: ProfileIdPageProps) {
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
@@ -59,74 +69,76 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
     } : "skip"
   );
 
+  const externalLinks = useQuery(
+    api.externalLinks.listByUser,
+    user ? { userId: user.id } : "skip"
+  );
+
   const userDetails = useQuery(
     api.users.getUserByClerkId,
     profile ? { clerkId: profile.userId } : "skip"
   );
 
-  useEffect(() => {
-    if (profile?.featuredContent && documents) {
-      console.log('All documents:', documents.map(doc => ({
-        id: doc._id,
-        title: doc.title,
-        isPublished: doc.isPublished,
-        isArchived: doc.isArchived
-      })));
+  // useEffect(() => {
+  //   if (profile?.featuredContent && documents) {
+  //     console.log('All documents:', documents.map(doc => ({
+  //       id: doc._id,
+  //       title: doc.title,
+  //       isPublished: doc.isPublished,
+  //       isArchived: doc.isArchived
+  //     })));
   
-      console.log('Featured Content IDs:', profile.featuredContent);
+  //     console.log('Featured Content IDs:', profile.featuredContent);
       
-      profile.featuredContent.forEach(id => {
-        const doc = documents.find(doc => doc._id === id);
-        if (!doc) {
-          console.log(`Document ${id} not found in documents array`);
-        } else {
-          console.log(`Found document:`, {
-            id: doc._id,
-            title: doc.title,
-            isPublished: doc.isPublished,
-            isArchived: doc.isArchived
-          });
-        }
-      });
-    }
-  }, [profile?.featuredContent, documents]);
+  //     profile.featuredContent.forEach(id => {
+  //       const doc = documents.find(doc => doc._id === id);
+  //       if (!doc) {
+  //         console.log(`Document ${id} not found in documents array`);
+  //       } else {
+  //         console.log(`Found document:`, {
+  //           id: doc._id,
+  //           title: doc.title,
+  //           isPublished: doc.isPublished,
+  //           isArchived: doc.isArchived
+  //         });
+  //       }
+  //     });
+  //   }
+  // }, [profile?.featuredContent, documents]);
     
 
   const latestDocuments = useMemo(() => {
-    if (!documents) return [];
+    if (!documents || !profile?.featuredContent) return [];
     
-    if (profile?.featuredContent && profile.featuredContent.length > 0) {
-      console.log('Processing featured content...');
-      
-      // Get all the featured documents with logging
-      const featuredDocs = profile.featuredContent.map(id => {
-        const doc = documents.find(doc => doc._id === id);
-        if (!doc) {
-          console.log(`Missing document in featuredDocs: ${id}`);
-        }
-        return doc;
-      })
-      .filter((doc): doc is Doc<"documents"> => {
-        if (!doc) {
-          return false;
-        }
-        // Add additional checks
-        if (!doc.isPublished || doc.isArchived) {
-          console.log(`Filtered out document ${doc._id}: isPublished=${doc.isPublished}, isArchived=${doc.isArchived}`);
-          return false;
-        }
-        return true;
-      });
+    if (profile.featuredContent.length > 0) {
+      // Get all the featured content
+      const featuredContent = profile.featuredContent
+        .map(item => {
+          if (item.type === "document") {
+            return documents.find(doc => doc._id === item.id);
+          } else if (item.type === "external" && externalLinks) {
+            return externalLinks.find(link => link._id === item.id);
+          }
+          return null;
+        })
+        .filter((content): content is CombinedContent => {
+          if (!content) return false;
+          if ('isPublished' in content) {
+            return content.isPublished && !content.isArchived;
+          }
+          // External links don't have isPublished/isArchived
+          return true;
+        });
   
-      // Sort by creation time, newest first
-      return featuredDocs.sort((a, b) => b._creationTime - a._creationTime);
+      return featuredContent.sort((a, b) => b._creationTime - a._creationTime);
     }
     
-    // If no featured content, show latest 6 documents sorted by creation time
+    // If no featured content, show latest 6 documents
     return documents
+      .filter(doc => doc.isPublished && !doc.isArchived)
       .sort((a, b) => b._creationTime - a._creationTime)
       .slice(0, 6);
-  }, [documents, profile?.featuredContent]);
+  }, [documents, externalLinks, profile?.featuredContent]);
 
   // Track page view with profile owner's ID
   useEffect(() => {
@@ -165,7 +177,7 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
     }
   }, [profile, params.profileId, user?.id]);
 
-  if (!profile || documents === undefined) {
+  if (!profile || documents === undefined || externalLinks === undefined) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-primary"></div>
@@ -244,12 +256,11 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
       : "white",
   };
 
-  const getPostUrl = (post: Doc<"documents">) => {
-    if (post.isExternalLink && post.externalUrl) {
-      return post.externalUrl;
+  const getPostUrl = (content: CombinedContent) => {
+    if ('url' in content) {
+      return content.url; // This is an external link
     }
-    // Default behavior for regular posts
-    return `/blog/${post.slug ?? post._id}`;
+    return `/blog/${content.slug ?? content._id}`; // This is a document
   };
 
   return (
@@ -441,29 +452,32 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
               </Link>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8 px-2 sm:px-0">
-            {latestDocuments.map((post) => (
-              <Link
-                key={post._id}
-                href={getPostUrl(post)}
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="flex flex-col group"
+            {latestDocuments.map((content) => (
+              <MotionLink
+                key={content._id}
+                href={getPostUrl(content)}
+                target={'url' in content ? "_blank" : undefined}
+                rel={'url' in content ? "noopener noreferrer" : undefined}
+                className="block bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200"
+                whileHover={{ y: -5 }}
+                transition={{ type: "spring", stiffness: 300 }}
               >
-                <div className="relative overflow-hidden rounded-xl shadow-lg">
+                <div className="relative h-48">
                   <img
-                    src={post.coverImage || "/placeholder.svg?height=300&width=400"}
-                    alt={post.title}
-                    className="w-full h-[200px] sm:h-[240px] object-cover transform group-hover:scale-105 transition-transform duration-300"
+                    src={content.coverImage || "/placeholder.svg?height=300&width=400"}
+                    alt={content.title}
+                    className="w-full h-full object-cover rounded-t-lg"
                   />
                 </div>
-                <p className="text-gray-500 text-sm mt-4 mb-1">
-                  {new Date(post._creationTime).toLocaleDateString()}
-                </p>
-                <h3 className="text-lg text-black sm:text-xl font-semibold mb-2 group-hover:text-primary transition-colors">
-                  {post.title}
-                </h3>
-                <p className="text-gray-600 text-sm sm:text-base">By {authorFullName}</p>
-              </Link>
+                <div className="p-4">
+                  <div className="flex items-center gap-1 text-sm text-gray-500 mb-2">
+                    <Calendar className="h-4 w-4" />
+                    {new Date(content._creationTime).toLocaleDateString()}
+                  </div>
+                  <h3 className="text-lg font-semibold mb-2 line-clamp-2">{content.title}</h3>
+                  <p className="text-gray-600 text-sm">By {authorFullName || "Unknown Author"}</p>
+                </div>
+              </MotionLink>
             ))}
             </div>
           </div>

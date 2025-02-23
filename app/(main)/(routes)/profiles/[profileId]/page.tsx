@@ -49,9 +49,22 @@ type ExternalLink = Doc<"documents"> & {
   externalUrl: string;
 };
 
+type FeaturedContent = {
+  type: "document" | "external";
+  id: Id<"documents"> | Id<"externalLinks">;
+};
+
+type CombinedContent = {
+  _id: Id<"documents"> | Id<"externalLinks">;
+  _creationTime: number;
+  title: string;
+  coverImage?: string;
+  isExternalLink?: boolean;
+  externalUrl?: string;
+};
+
 type DocumentOrLink = Doc<"documents"> | ExternalLink;
 
-type CombinedContent = Doc<"documents"> | ExternalLink;
 
 const MotionLink = motion(Link)
 
@@ -91,9 +104,11 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
 
   const documents = useQuery(api.documents.getPublishedDocuments)
   const userDetails = useQuery(api.users.getUserByClerkId, user?.id ? { clerkId: user.id } : "skip")
+  const externalLinks = useQuery(
+    api.externalLinks.listByUser,
+    profile?.userId ? { userId: profile.userId } : "skip"
+  );
 
- 
-  
 
 // Add a useEffect to update allDocuments when documents changes
 useEffect(() => {
@@ -110,7 +125,7 @@ useEffect(() => {
   // States
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [allDocuments, setAllDocuments] = useState<DocumentOrLink[]>([]);
-  const [selectedSites, setSelectedSites] = useState<Id<"documents">[]>([]);
+  const [selectedContent, setSelectedContent] = useState<FeaturedContent[]>([]);
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
   const [videoKey, setVideoKey] = useState(0);
   const [isReplyDialogOpen, setIsReplyDialogOpen] = useState(false);
@@ -122,6 +137,8 @@ useEffect(() => {
   const [videoDescription, setVideoDescription] = useState(profile?.description || "");
   const [isEditingDescription, setIsEditingDescription] = useState(false);
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
+  const [combinedContent, setCombinedContent] = useState<CombinedContent[]>([]);
+
 
   const { resolvedTheme } = useTheme();
   const { theme, setTheme } = useTheme();
@@ -132,9 +149,48 @@ useEffect(() => {
   // Initialize selectedSites from profile's featuredContent
   useEffect(() => {
     if (profile?.featuredContent) {
-      setSelectedSites(profile.featuredContent);
+      setSelectedContent(profile.featuredContent as FeaturedContent[]);
     }
   }, [profile?.featuredContent]);
+
+
+  useEffect(() => {
+    if (documents && externalLinks && selectedContent) {
+      // Map documents to combined format
+      const mappedDocs = documents.map(doc => ({
+        ...doc,
+        isExternalLink: false
+      }));
+  
+      // Map external links to combined format
+      const mappedLinks = externalLinks.map(link => ({
+        _id: link._id,
+        _creationTime: link._creationTime,
+        title: link.title,
+        coverImage: link.coverImage,
+        isExternalLink: true,
+        externalUrl: link.url
+      }));
+  
+      // Combine all content
+      const allContent = [...mappedDocs, ...mappedLinks];
+  
+      // If there are selected items, filter to show only those
+      if (selectedContent.length > 0) {
+        const filteredContent = allContent.filter(item => 
+          selectedContent.some(selected => 
+            selected.id === item._id && 
+            ((selected.type === "document" && !item.isExternalLink) || 
+             (selected.type === "external" && item.isExternalLink))
+          )
+        );
+        setCombinedContent(filteredContent);
+      } else {
+        // If no selection, show first 6 items
+        setCombinedContent(allContent.slice(0, 6));
+      }
+    }
+  }, [documents, externalLinks, selectedContent]);
 
   // Theme settings initialization
   const [themeSettings, setThemeSettings] = useState({
@@ -423,7 +479,7 @@ useEffect(() => {
         </Dialog>
 
         {/* More from {user.firstName} Section */}
-        {user && allDocuments.length > 0 && (
+        {user && combinedContent.length > 0 && (
         <div className="mt-12 w-full">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold" style={{ color: "#000000" }}>
@@ -435,38 +491,32 @@ useEffect(() => {
             </Button>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {(selectedSites.length > 0 
-              ? allDocuments.filter(doc => selectedSites.includes(doc._id as Id<"documents">))
-              : allDocuments.slice(0, 6)
-            ).map((post) => {
-              const isExternal = 'isExternalLink' in post && post.isExternalLink;
-              const postUrl = isExternal && 'externalUrl' in post 
-                ? post.externalUrl 
-                : getPostUrl(post as Doc<"documents">);
+            {combinedContent.map((item) => {
+              const postUrl = item.isExternalLink ? item.externalUrl : `/blog/${(item as Doc<"documents">).slug ?? item._id}`;
               
               return (
                 <MotionLink
-                  key={post._id}
+                  key={item._id}
                   href={postUrl}
                   className="block bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200"
                   whileHover={{ y: -5 }}
                   transition={{ type: "spring", stiffness: 300 }}
-                  target={isExternal ? "_blank" : undefined}
-                  rel={isExternal ? "noopener noreferrer" : undefined}
+                  target={item.isExternalLink ? "_blank" : undefined}
+                  rel={item.isExternalLink ? "noopener noreferrer" : undefined}
                 >
                   <div className="relative h-48">
                     <img
-                      src={post.coverImage || "/placeholder.svg?height=300&width=400"}
-                      alt={post.title}
+                      src={item.coverImage || "/placeholder.svg?height=300&width=400"}
+                      alt={item.title}
                       className="w-full h-full object-cover rounded-t-lg"
                     />
                   </div>
                   <div className="p-4">
                     <div className="flex items-center gap-1 text-sm text-gray-500 mb-2">
                       <Calendar className="h-4 w-4" />
-                      {new Date(post._creationTime).toLocaleDateString()}
+                      {new Date(item._creationTime).toLocaleDateString()}
                     </div>
-                    <h3 className="text-lg font-semibold mb-2 line-clamp-2">{post.title}</h3>
+                    <h3 className="text-lg font-semibold mb-2 line-clamp-2">{item.title}</h3>
                     <p className="text-gray-600 text-sm">By {user?.fullName || "Unknown Author"}</p>
                   </div>
                 </MotionLink>
@@ -476,10 +526,13 @@ useEffect(() => {
           <ContentSelectionDialog
             isOpen={isEditDialogOpen}
             onOpenChange={setIsEditDialogOpen}
-            documents={allDocuments}
-            selectedSites={selectedSites}
-            onSelectionChange={setSelectedSites}
-            onDocumentsChange={(docs: DocumentOrLink[]) => setAllDocuments(docs)}
+            documents={documents || []}
+            externalLinks={externalLinks || []}
+            selectedContent={selectedContent}
+            onSelectionChange={setSelectedContent}
+            onContentChange={(docs, links) => {
+              // Handle content updates if needed
+            }}
             profileId={params.profileId}
             updateProfile={updateProfile}
           />
