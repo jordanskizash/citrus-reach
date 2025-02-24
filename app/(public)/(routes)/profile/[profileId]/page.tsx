@@ -108,15 +108,21 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
     
 
   const latestDocuments = useMemo(() => {
-    if (!documents || !profile?.featuredContent) return [];
+    if (!documents || !externalLinks) return [];
     
-    if (profile.featuredContent.length > 0) {
-      // Get all the featured content
+    // Combine all documents and external links
+    const allContent = [
+      ...documents.filter(doc => doc.isPublished && !doc.isArchived),
+      ...(externalLinks || [])
+    ].sort((a, b) => b._creationTime - a._creationTime);
+  
+    // If there are specifically selected items in featuredContent, use those
+    if (profile?.featuredContent && profile.featuredContent.length > 0) {
       const featuredContent = profile.featuredContent
         .map(item => {
           if (item.type === "document") {
             return documents.find(doc => doc._id === item.id);
-          } else if (item.type === "external" && externalLinks) {
+          } else if (item.type === "external") {
             return externalLinks.find(link => link._id === item.id);
           }
           return null;
@@ -126,18 +132,14 @@ export default function ProfileIdPage({ params }: ProfileIdPageProps) {
           if ('isPublished' in content) {
             return content.isPublished && !content.isArchived;
           }
-          // External links don't have isPublished/isArchived
           return true;
         });
   
-      return featuredContent.sort((a, b) => b._creationTime - a._creationTime);
+      return featuredContent;
     }
     
-    // If no featured content, show latest 6 documents
-    return documents
-      .filter(doc => doc.isPublished && !doc.isArchived)
-      .sort((a, b) => b._creationTime - a._creationTime)
-      .slice(0, 6);
+    // If no featured content is selected, return the 6 most recent items
+    return allContent.slice(0, 6);
   }, [documents, externalLinks, profile?.featuredContent]);
 
   // Track page view with profile owner's ID
