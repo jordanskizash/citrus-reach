@@ -1,5 +1,6 @@
 import { internalMutation, mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { internal } from "./_generated/api";
 
 export const getUserSettings = query({
   args: { clerkId: v.string() },
@@ -190,5 +191,181 @@ export const checkUserExists = query({
       exists: !!user,
       user: user
     };
+  },
+});
+
+// Add these to your existing users.ts file
+
+export const updateUserSubscription = internalMutation({
+  args: { 
+    clerkId: v.string(),
+    subscriptionId: v.string(),
+    customerId: v.string(),
+    tier: v.string(),
+  },
+  handler: async (ctx, { clerkId, subscriptionId, customerId, tier }) => {
+    console.log(`[updateUserSubscription] Updating subscription for user ${clerkId} to tier: ${tier}`);
+    
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerk_id", (q) => q.eq("clerkId", clerkId))
+      .first();
+
+    if (!user) {
+      console.error(`[updateUserSubscription] User not found: ${clerkId}`);
+      
+      // Create a new user if they don't exist
+      console.log(`[updateUserSubscription] Creating new user for: ${clerkId}`);
+      await ctx.db.insert("users", {
+        clerkId,
+        name: "New User",  // Placeholder, should be updated later
+        email: "",         // Placeholder, should be updated later
+        subscriptionTier: tier,
+        subscriptionStatus: "active",
+        subscriptionId,
+        customerId,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      });
+      
+      console.log(`[updateUserSubscription] Created new user with tier: ${tier}`);
+      return;
+    }
+
+    // Update subscription info for existing user
+    console.log(`[updateUserSubscription] Updating existing user: ${user._id} to tier: ${tier}`);
+    await ctx.db.patch(user._id, {
+      subscriptionTier: tier,
+      subscriptionStatus: "active",
+      subscriptionId,
+      customerId,
+      updatedAt: Date.now(),
+    });
+    
+    console.log(`[updateUserSubscription] Successfully updated subscription for user ${clerkId} to ${tier}`);
+  },
+});
+
+export const updateSubscriptionFromWebhook = mutation({
+  args: { 
+    clerkId: v.string(),
+    subscriptionId: v.string(),
+    customerId: v.string(),
+    tier: v.string(),
+  },
+  handler: async (ctx, args) => {
+    console.log(`[updateSubscriptionFromWebhook] Received webhook for user: ${args.clerkId}, tier: ${args.tier}`);
+    
+    try {
+      await ctx.runMutation(internal.users.updateUserSubscription, args);
+      console.log(`[updateSubscriptionFromWebhook] Successfully processed webhook for: ${args.clerkId}`);
+      return null;
+    } catch (error) {
+      console.error(`[updateSubscriptionFromWebhook] Error processing webhook:`, error);
+      throw error;
+    }
+  },
+});
+
+export const handleSubscriptionChange = internalMutation({
+  args: { 
+    subscriptionId: v.string(),
+    status: v.string(),
+    currentPeriodEnd: v.number(),
+  },
+  handler: async (ctx, { subscriptionId, status, currentPeriodEnd }) => {
+    console.log(`[handleSubscriptionChange] Handling subscription change for ID: ${subscriptionId}, status: ${status}`);
+    
+    const user = await ctx.db
+      .query("users")
+      .filter((q) => q.eq(q.field("subscriptionId"), subscriptionId))
+      .first();
+
+    if (!user) {
+      console.error(`[handleSubscriptionChange] No user found with subscription ID: ${subscriptionId}`);
+      throw new Error("User not found");
+    }
+
+    await ctx.db.patch(user._id, {
+      subscriptionStatus: status,
+      currentPeriodEnd,
+      updatedAt: Date.now(),
+    });
+    
+    console.log(`[handleSubscriptionChange] Successfully updated subscription status to ${status} for user ID: ${user._id}`);
+  },
+});
+
+
+export const getUserSubscription = query({
+  args: { clerkId: v.string() },
+  handler: async (ctx, { clerkId }) => {
+    console.log(`[getUserSubscription] Fetching subscription for user: ${clerkId}`);
+    
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerk_id", (q) => q.eq("clerkId", clerkId))
+      .first();
+    
+    console.log(`[getUserSubscription] User data:`, user);
+    
+    // If subscription period has ended, revert to free tier
+    if (user?.currentPeriodEnd && user.currentPeriodEnd < Date.now() && user.subscriptionStatus !== "active") {
+      console.log(`[getUserSubscription] Subscription expired for user: ${clerkId}`);
+      return {
+        tier: "free",
+        status: "inactive",
+        currentPeriodEnd: user.currentPeriodEnd,
+        subscriptionId: user.subscriptionId, // Include this
+        customerId: user.customerId, // Include this too for completeness
+        cancelAtPeriodEnd: user.cancelAtPeriodEnd // Include cancellation status
+      };
+    }
+    
+    const result = {
+      tier: user?.subscriptionTier ?? "free",
+      status: user?.subscriptionStatus,
+      currentPeriodEnd: user?.currentPeriodEnd,
+      subscriptionId: user?.subscriptionId, // Include this
+      customerId: user?.customerId, // Include this too for completeness
+      cancelAtPeriodEnd: user?.cancelAtPeriodEnd // Include cancellation status
+    };
+    
+    console.log(`[getUserSubscription] Returning subscription data:`, result);
+    return result;
+  },
+});
+
+export const updateSubscriptionStatusFromWebhook = mutation({
+  args: { 
+    subscriptionId: v.string(),
+    status: v.string(),
+    currentPeriodEnd: v.number(),
+  },
+  handler: async (ctx, args) => {
+    console.log(`[updateSubscriptionStatusFromWebhook] Processing status update for subscription: ${args.subscriptionId}`);
+    
+    // Find the user by subscription ID
+    const user = await ctx.db
+      .query("users")
+      .filter((q) => q.eq(q.field("subscriptionId"), args.subscriptionId))
+      .first();
+      
+    if (!user) {
+      console.error(`[updateSubscriptionStatusFromWebhook] No user found with subscription ID: ${args.subscriptionId}`);
+      throw new Error("User not found");
+    }
+    
+    console.log(`[updateSubscriptionStatusFromWebhook] Found user: ${user.clerkId}`);
+    
+    // Update the subscription status
+    await ctx.db.patch(user._id, {
+      subscriptionStatus: args.status,
+      currentPeriodEnd: args.currentPeriodEnd,
+      updatedAt: Date.now(),
+    });
+    
+    console.log(`[updateSubscriptionStatusFromWebhook] Updated subscription status to: ${args.status}`);
+    return null;
   },
 });

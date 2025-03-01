@@ -5,16 +5,22 @@ import { useUser } from "@clerk/clerk-react"
 import { useQuery, useMutation } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import { useEdgeStore } from "@/lib/edgestore"
-import { Search, Bell, Zap, LinkIcon, Camera } from "lucide-react"
+import { Search, Bell, Zap, LinkIcon, Camera, CreditCard, Calendar, Receipt, ArrowRight, Crown, Star } from "lucide-react"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { ModeToggle } from "@/components/mode-toggle"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast } from "react-hot-toast"
 import { cn } from "@/lib/utils"
 import { DomainSetupModal } from "../../_components/domain-integration"
+import PlanCards from "../../_components/subscription/plan-cards"
+import { useSearchParams } from "next/navigation"
+import router from "next/router"
+import { PlanManagementDialog } from "../../_components/subscription/plan-management-dialog"
+
 
 // Add this type definition
 type DomainStatus = "processing" | "connected" | "failed" | null
@@ -22,6 +28,7 @@ type DomainStatus = "processing" | "connected" | "failed" | null
 export default function SettingsPage() {
   const { user } = useUser()
   const { edgestore } = useEdgeStore()
+  const searchParams = useSearchParams()
   const [activeTab, setActiveTab] = useState("my-account")
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
@@ -38,11 +45,49 @@ export default function SettingsPage() {
   const [image, setImage] = useState("")
   const [phoneNumber, setPhoneNumber] = useState("")
   const [isDomainModalOpen, setIsDomainModalOpen] = useState(false)
-  // Add this new state variable
   const [domainStatus, setDomainStatus] = useState<DomainStatus>(null)
 
   const userSettings = useQuery(api.users.getUserSettings, { clerkId: user?.id ?? "" })
   const updateUserSettings = useMutation(api.users.updateUserSettings)
+
+  const invoices = [
+    {
+      id: "INV-001",
+      date: Date.now() - 86400000 * 2, // 2 days ago
+      amount: 10.00,
+      status: "paid"
+    },
+    {
+      id: "INV-002",
+      date: Date.now() - 86400000 * 32, // 32 days ago
+      amount: 10.00,
+      status: "paid"
+    },
+    {
+      id: "INV-003",
+      date: Date.now() - 86400000 * 62, // 62 days ago
+      amount: 10.00,
+      status: "paid"
+    }
+  ];
+  
+  // Get subscription information
+  const subscription = useQuery(api.users.getUserSubscription, {
+    clerkId: user?.id ?? ""
+  })
+
+  // Check if this is a redirect back from Stripe successful checkout
+  const success = searchParams.get('success')
+  useEffect(() => {
+    if (success === 'true') {
+      toast.success("Payment successful! Your subscription has been updated.", {
+        duration: 5000,
+        position: "top-center",
+      })
+      // Set active tab to billing to show the updated plan
+      setActiveTab("billing")
+    }
+  }, [success])
 
   useEffect(() => {
     if (userSettings) {
@@ -170,6 +215,16 @@ export default function SettingsPage() {
     }, 5000) // Simulate a 5-second delay
   }
 
+  // Format date helper function
+  const formatDate = (timestamp?: number) => {
+    if (!timestamp) return "N/A";
+    return new Date(timestamp).toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
+  }
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -206,6 +261,15 @@ export default function SettingsPage() {
               )}
             >
               Company Information
+            </TabsTrigger>
+            <TabsTrigger
+              value="billing"
+              className={cn(
+                "pb-4 rounded-none border-b-2 border-transparent data-[state=active]:border-orange-500 data-[state=active]:text-orange-500",
+                "focus-visible:ring-0 focus-visible:ring-offset-0",
+              )}
+            >
+              Billing
             </TabsTrigger>
             <TabsTrigger
               value="integrations"
@@ -443,6 +507,167 @@ export default function SettingsPage() {
             </div>
           </TabsContent>
 
+          {/* New Billing Tab */}
+          <TabsContent value="billing" className="space-y-4 max-w-4xl">
+            <div className="space-y-2">
+              <h2 className="text-xl font-semibold">Billing & Subscription</h2>
+              <p className="text-sm text-muted-foreground">
+                Manage your plan and payment details.
+              </p>
+            </div>
+
+            {/* Current Plan Summary */}
+            <div className="mb-4">
+              <div className="bg-muted/30 rounded-lg p-4 mb-4">
+                <div className="flex justify-between items-center mb-2">
+                  <div>
+                    <h3 className="text-base font-medium">Current Plan</h3>
+                    <div className="flex items-center mt-1">
+                      {subscription?.tier === "enterprise" && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium" style={{ backgroundColor: 'rgba(16, 185, 129, 0.15)', color: '#10B981' }}>
+                          <Crown className="w-3 h-3 mr-1" />
+                          Enterprise
+                        </span>
+                      )}
+                      {subscription?.tier === "pro" && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium" style={{ backgroundColor: 'rgba(253, 140, 102, 0.15)', color: '#FD8C66' }}>
+                          <Star className="w-3 h-3 mr-1" />
+                          Pro
+                        </span>
+                      )}
+                      {(!subscription?.tier || subscription?.tier === "free") && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                          Free
+                        </span>
+                      )}
+                      {subscription?.status === "active" && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700 ml-2">
+                          Active
+                        </span>
+                      )}
+                      {subscription?.status !== "active" && (
+                        <span className="text-xs text-muted-foreground ml-2">
+                          Inactive
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    className="gap-1"
+                  >
+                    <PlanManagementDialog 
+                      trigger={
+                        <div className="flex items-center gap-1">
+                          Change Plan
+                          <ArrowRight className="w-3 h-3" />
+                        </div>
+                      } 
+                    />
+                  </Button>
+                </div>
+
+                <div className="grid grid-cols-3 gap-3 mt-3">
+                  <div className="rounded-md border p-3">
+                    <div className="flex items-center text-xs font-medium mb-1">
+                      <Calendar className="w-3 h-3 mr-1 text-muted-foreground" />
+                      Next billing date
+                    </div>
+                    <p className="text-xs">
+                      {subscription?.currentPeriodEnd 
+                        ? formatDate(subscription.currentPeriodEnd) 
+                        : "Not applicable"}
+                    </p>
+                  </div>
+                  <div className="rounded-md border p-3">
+                    <div className="flex items-center text-xs font-medium mb-1">
+                      <CreditCard className="w-3 h-3 mr-1 text-muted-foreground" />
+                      Payment method
+                    </div>
+                    <p className="text-xs">
+                      {subscription?.status === "active" 
+                        ? "Credit Card •••• 4242" 
+                        : "None"}
+                    </p>
+                  </div>
+                  <div className="rounded-md border p-3 flex flex-col justify-between">
+                    <div className="flex items-center text-xs font-medium mb-1">
+                      <Receipt className="w-3 h-3 mr-1 text-muted-foreground" />
+                      Billing history
+                    </div>
+                    <p className="text-xs">
+                      {invoices?.length 
+                        ? `${invoices.length} invoices` 
+                        : "No invoices yet"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Invoice Table */}
+            <div>
+              <h3 className="text-base font-medium mb-2">Recent Invoices</h3>
+              <div className="rounded-md border overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="bg-muted/50 border-b">
+                      <th className="py-2 px-3 text-left text-xs font-medium text-muted-foreground">Invoice</th>
+                      <th className="py-2 px-3 text-left text-xs font-medium text-muted-foreground">Date</th>
+                      <th className="py-2 px-3 text-left text-xs font-medium text-muted-foreground">Amount</th>
+                      <th className="py-2 px-3 text-left text-xs font-medium text-muted-foreground">Status</th>
+                      <th className="py-2 px-3 text-right text-xs font-medium text-muted-foreground"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {invoices && invoices.length > 0 ? (
+                      invoices.map((invoice, index) => (
+                        <tr key={invoice.id} className={index !== invoices.length - 1 ? "border-b" : ""}>
+                          <td className="py-2 px-3 text-xs">{invoice.id}</td>
+                          <td className="py-2 px-3 text-xs">{formatDate(invoice.date)}</td>
+                          <td className="py-2 px-3 text-xs">${invoice.amount.toFixed(2)}</td>
+                          <td className="py-2 px-3">
+                            <span className={cn(
+                              "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium",
+                              invoice.status === "paid" ? "bg-green-100 text-green-700" : 
+                              invoice.status === "pending" ? "bg-yellow-100 text-yellow-700" :
+                              "bg-red-100 text-red-700"
+                            )}>
+                              {invoice.status}
+                            </span>
+                          </td>
+                          <td className="py-2 px-3 text-right">
+                            <Button variant="ghost" size="sm" className="h-6 text-xs">
+                              Download
+                            </Button>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={5} className="py-4 px-3 text-center text-muted-foreground text-xs">
+                          No invoices found
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+              {invoices && invoices.length > 0 && (
+                <div className="mt-2 flex justify-end">
+                  <Button variant="link" size="sm" className="h-6 text-xs">
+                    View all invoices
+                    <ArrowRight size="sm" className="h-3 text-xs" />
+                  </Button>
+                </div>
+              )}
+            </div>
+
+            {/* Add debug panel in development only */}
+            {process.env.NODE_ENV === 'development'}
+          </TabsContent>
+
           <TabsContent value="integrations">
             <div className="space-y-8">
               <div className="space-y-4">
@@ -517,4 +742,3 @@ export default function SettingsPage() {
     </div>
   )
 }
-

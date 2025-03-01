@@ -27,6 +27,8 @@ import { Button } from "@/components/ui/button";
 import { useUser } from "@clerk/clerk-react";
 import { Progress } from "@/components/ui/progress";
 import NavbarEvents from "./navbarevent";
+import { UserDropdown } from "./user-dropdown";
+import Image from "next/image";
 
 
 
@@ -49,7 +51,7 @@ export const Navigation = () => {
     const [isCollapsed, setIsCollapsed] = useState(false); 
 
     const [isLoading, setIsLoading] = useState(false);
-    const createCheckoutSession = useAction(api.stripe.createCheckoutSession);
+    const createSubscriptionSession = useAction(api.stripe.createSubscriptionSession);
 
     const { user } = useUser();
 
@@ -83,15 +85,13 @@ export const Navigation = () => {
         clerkId: user?.id ?? ""
       });
 
-    const credits = useQuery(api.users.getCredits, { clerkId: user?.id ?? "" }) ?? 20;
+    const subscription = useQuery(api.users.getUserSubscription, {
+    clerkId: user?.id ?? ""
+    });
 
-    const totalCredits = userDetails?.credits ?? 10;
-    const usagePercentage = totalCredits > 0 ? (creditsInUse / totalCredits) * 100 : 0;
-
-    console.log('Current user:', user?.id);
-    console.log('User details:', userDetails);
-    console.log('Current credits:', credits);
-
+    const totalAllowed = subscription?.tier === "pro" ? Infinity : 20;
+    const currentUsage = (documents?.length ?? 0) + (profiles?.length ?? 0) + (events?.length ?? 0);
+    const usagePercentage = totalAllowed === Infinity ? 0 : (currentUsage / totalAllowed) * 100;
 
     const navigateToAnalytics = () => {
         router.push('/analytics');  
@@ -187,11 +187,6 @@ export const Navigation = () => {
 
     const handlecreateProfile = async () => {
         // Check if user has available credits
-        if (creditsInUse >= totalCredits) {
-            toast.error("Out of credits - Buy More");
-            return;
-        }
-    
         const promise = createProf({
             displayName: "Untitled",
             authorFullName: "Untitled"
@@ -211,11 +206,6 @@ export const Navigation = () => {
 
     const handleCreate = () => {
         // Check if user has available credits
-        if (creditsInUse >= totalCredits) {
-            toast.error("Out of credits - Buy More");
-            return;
-        }
-    
         const promise = create({ title: "Untitled" })
             .then((documentId) => router.push(`/documents/${documentId}`))
     
@@ -229,29 +219,28 @@ export const Navigation = () => {
     const handleUpgrade = async () => {
         try {
           setIsLoading(true);
-          console.log('Starting purchase for user:', user?.id);
           
           if (!user?.id) {
-            console.error('No user ID available');
-            toast.error("Please log in to purchase credits");
+            toast.error("Please log in to subscribe");
             return;
           }
-    
-          console.log('Starting checkout with:', {
+      
+          const priceId = subscription?.tier === "standard" 
+            ? process.env.NEXT_PUBLIC_STRIPE_PRO_PRICE_ID 
+            : process.env.NEXT_PUBLIC_STRIPE_STANDARD_PRICE_ID;
+      
+          const tier = subscription?.tier === "standard" ? "pro" : "standard";
+      
+          // Change this line:
+          const checkoutUrl = await createSubscriptionSession({
             userId: user.id,
-            currentCredits: userDetails?.credits,
+            priceId: priceId!,
+            tier
           });
-    
-          const checkoutUrl = await createCheckoutSession({
-            userId: user.id,
-            planType: "premium"
-          });
-    
+      
           if (checkoutUrl) {
-            console.log('Redirecting to:', checkoutUrl);
             window.location.href = checkoutUrl;
           } else {
-            console.error('No checkout URL received');
             toast.error("Failed to create checkout session");
           }
         } catch (error) {
@@ -308,7 +297,15 @@ export const Navigation = () => {
                         <ChevronsLeft className="h-6 w-6"/>
                 </div>
                 <div>
-                    <UserItem />
+                <div className="flex items-center justify-start px-4 py-4 mb-2 mt-2">
+                        <Image 
+                            src="/CitrusName.png" 
+                            alt="Citrus Logo" 
+                            width={80} 
+                            height={20} 
+                            priority
+                        />
+                    </div>
                     <Item
                         label="Dashboard" 
                         icon={LineChart}
@@ -320,19 +317,19 @@ export const Navigation = () => {
                         isSearch
                         onClick={search.onOpen}
                     />
-                    <Item
+                    {/* <Item
                         label="Settings"
                         icon={Settings}
                         onClick={() => window.location.href = '/settings'}
-                    />
+                    /> */}
                     <Item
                         onClick={handleCreate} 
-                        label="New page" 
+                        label="New Site" 
                         icon={PlusCircle} 
                     />
                 </div>
                 <div className="mt-4">
-                    <div className="flex items-center justify-between ml-4 mb-2">
+                    <div className="flex items-center justify-between ml-4 mb-2 mt-8">
                     <h1 className="text-sm text-muted-foreground">Blogs</h1>
                     <div 
                         onClick={() => {}} 
@@ -388,41 +385,9 @@ export const Navigation = () => {
                     onClick={resetWidth}
                     className="opacity-0 group-hover/sidebar:opacity-100 transition cursor-ew-resize absolute h-full w-1 bg-primary/10 right-0 top-0"
                 />
-                 <div className="mt-auto p-4">
-                    <div className="flex flex-col space-y-3">
-                        <div className="space-y-1">
-                        <div className="flex justify-between items-center text-sm text-muted-foreground">
-                            <span>Credits</span>
-                            <span>{creditsInUse} / {totalCredits}</span>
-                        </div>
-                        <div className="relative w-full">
-                            <Progress 
-                            value={usagePercentage} 
-                            className={cn(
-                                "h-2",
-                                getProgressColor(usagePercentage)
-                            )}
-                            />
-                        </div>
-                        
-                        </div>
-                        
-                        <Button
-                        onClick={handleUpgrade}
-                        className="w-full bg-orange-500 hover:bg-orange-600 text-white"
-                        disabled={isLoading}
-                        >
-                        <CreditCard className="mr-2 h-4 w-4" />
-                        {isLoading ? "Loading..." : "Add Credits"}
-                        </Button>
-
-                        {usagePercentage >= 90 && (
-                        <div className="text-xs text-red-500 text-center">
-                            Warning: Credits almost depleted!
-                        </div>
-                        )}
-                    </div>
-                </div>
+                 <div className="mt-auto">
+                <UserDropdown />
+            </div>
             </aside>
             <div
                 ref={navbarRef}

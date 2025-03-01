@@ -78,7 +78,13 @@ export default defineSchema ({
         calComUsername: v.optional(v.string()),
         meetingLink: v.optional(v.string()), 
         domainName: v.optional(v.string()),
-        credits: v.optional(v.number()),     
+        credits: v.optional(v.number()), 
+        subscriptionTier: v.optional(v.string()), // "standard" or "pro"
+        subscriptionStatus: v.optional(v.string()), // "active", "canceled", "past_due"
+        subscriptionId: v.optional(v.string()), // Stripe subscription ID
+        customerId: v.optional(v.string()), // Stripe customer ID
+        cancelAtPeriodEnd: v.optional(v.boolean()),
+        currentPeriodEnd: v.optional(v.number()),    
         logoUrl: v.optional(v.string()),
         description: v.optional(v.string()), 
         phoneNumber: v.optional(v.string()), 
@@ -90,7 +96,8 @@ export default defineSchema ({
       })
     
         .index("by_clerk_id", ["clerkId"])
-        .index("by_email", ["email"]),
+        .index("by_email", ["email"])
+        .index("by_subscription", ["subscriptionStatus", "currentPeriodEnd"]),
 
     payments: defineTable({
         userId: v.string(),
