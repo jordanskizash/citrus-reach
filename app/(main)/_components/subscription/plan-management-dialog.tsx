@@ -292,10 +292,6 @@ export function PlanManagementDialog({ trigger }: PlanManagementDialogProps) {
                       <span className="mr-2">•</span>
                       <span>You will not be charged again after your current period ends.</span>
                     </li>
-                    <li className="flex items-start">
-                      <span className="mr-2">•</span>
-                      <span>After your subscription ends, you'll be moved to the Free plan.</span>
-                    </li>
                   </ul>
                 </div>
                 
@@ -317,7 +313,7 @@ export function PlanManagementDialog({ trigger }: PlanManagementDialogProps) {
                   <h3 className="font-medium text-red-800">Confirm Cancellation</h3>
                   <p className="mt-2 text-sm text-red-700">
                     This action will cancel your {currentPlan === "pro" ? "Pro" : "Enterprise"} subscription.
-                    You'll have access until {formatDate(subscription?.currentPeriodEnd)}.
+                    You will have access until {formatDate(subscription?.currentPeriodEnd)}.
                   </p>
                 </div>
                 
