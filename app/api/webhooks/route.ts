@@ -15,11 +15,19 @@ export async function POST(req: Request) {
   const body = await req.text();
   const signature = headers().get("stripe-signature");
 
+  if (!signature) {
+    console.error('No signature found in webhook request');
+    return new Response(JSON.stringify({ error: 'No signature' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
   try {
     // First verify the webhook
     const event = stripe.webhooks.constructEvent(
       body,
-      signature!,
+      signature,
       process.env.STRIPE_WEBHOOK_SECRET!
     );
 
@@ -49,6 +57,8 @@ export async function POST(req: Request) {
         // Get the subscription tier from metadata
         const tier = session.metadata?.tier || "pro"; // Default to pro if not specified
         
+        console.log(`Updating subscription for user: ${session.client_reference_id} to tier: ${tier}`);
+        
         // Update the user's subscription
         await convex.mutation(api.users.updateSubscriptionFromWebhook, {
           clerkId: session.client_reference_id,
@@ -74,34 +84,35 @@ export async function POST(req: Request) {
     
     // Handle subscription update events
     else if (event.type === "customer.subscription.updated" || 
-             event.type === "customer.subscription.deleted") {
+      event.type === "customer.subscription.deleted") {
       const subscription = event.data.object as Stripe.Subscription;
-      
+
       console.log(`Subscription ${subscription.id} ${event.type === 'customer.subscription.deleted' ? 'canceled' : 'updated'}`);
       console.log(`Status: ${subscription.status}, Period End: ${subscription.current_period_end}`);
-      
+
       try {
-        // Update subscription status in the database
-        await convex.mutation(api.users.updateSubscriptionFromWebhook, {
-          subscriptionId: subscription.id,
-          status: subscription.status,
-          currentPeriodEnd: subscription.current_period_end
-        });
-        
-        console.log(`Subscription status updated to ${subscription.status}`);
-        
-        return new Response(JSON.stringify({ success: true }), {
-          status: 200,
-          headers: { 'Content-Type': 'application/json' },
-        });
+      // Update subscription status in the database
+      // Make sure to use updateSubscriptionStatusFromWebhook, not updateSubscriptionFromWebhook
+      await convex.mutation(api.users.updateSubscriptionStatusFromWebhook, {
+        subscriptionId: subscription.id,
+        status: subscription.status,
+        currentPeriodEnd: subscription.current_period_end
+      });
+      
+      console.log(`Subscription status updated to ${subscription.status}`);
+      
+      return new Response(JSON.stringify({ success: true }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      });
       } catch (error) {
-        console.error('Failed to update subscription status:', error);
-        return new Response(JSON.stringify({ error: 'Failed to update subscription status' }), {
-          status: 500,
-          headers: { 'Content-Type': 'application/json' },
-        });
-      }
+      console.error('Failed to update subscription status:', error);
+      return new Response(JSON.stringify({ error: 'Failed to update subscription status' }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
+  }
 
     // Always acknowledge other event types with 200
     return new Response(JSON.stringify({ received: true }), {

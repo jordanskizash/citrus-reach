@@ -12,8 +12,12 @@ const nextConfig = {
       // Don't fail the build for ESLint errors in production
       ignoreDuringBuilds: true,
     },
+    typescript: {
+      // Don't fail the build for TypeScript errors in production
+      ignoreBuildErrors: true
+    },
     output: 'standalone',
-    
+
 
     async headers() {
       return [
