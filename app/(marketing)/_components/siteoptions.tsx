@@ -18,16 +18,16 @@ const templates: Record<string, Template> = {
     image: "/NewsletterPic.png",
     description: "Share regular updates and insights with your prospects and customers"
   },
-  "video-microsite": {
-    id: "video-microsite",
-    title: "Video Microsite",
-    image: "/341_component.png",
+  "video-profile": {
+    id: "video-profile",
+    title: "Video Profile",
+    image: "/VideoSite.png",
     description: "Create an engaging video landing page to showcase your product"
   },
   "event": {
     id: "event",
     title: "Event",
-    image: "/api/placeholder/800/600",
+    image: "/EventsNice.png",
     description: "Generate excitement and registrations for your upcoming events"
   },
   "announcement": {
@@ -54,8 +54,8 @@ export default function SiteOptions() {
 
   return (
     <div className="min-h-100 w-full bg-gradient-to-b from-white via-orange-50 to-orange-100 md:pb-8 lg:pb-20 px-8 pb-16 mt-8">
-      <div className="mx-auto max-w-5xl h-full flex flex-col lg:flex-row lg:items-center">
-        <div className="lg:w-1/2 lg:pr-8 mb-12 lg:mb-0">
+      <div className="mx-auto max-w-6xl h-full flex flex-col lg:flex-row lg:items-start lg:justify-between lg:gap-12">
+        <div className="lg:w-1/2 mb-12 lg:mb-0 flex-shrink-0">
           <h1 className="mb-8 text-3xl text-left font-bold tracking-tight text-gray-900 lg:text-5xl">
             Customizable sites for any stage in the sales cycle
           </h1>
@@ -79,7 +79,7 @@ export default function SiteOptions() {
                 </Button>
               ))}
             </div>
-            <div className="flex flex-wrap gap-1">
+            <div className="flex flex-wrap gap-2 mt-2">
               {randomizedTemplates.slice(3).map((templateId) => (
                 <Button
                   key={templateId}
@@ -98,17 +98,12 @@ export default function SiteOptions() {
           </div>
         </div>
 
-        <div className="lg:w-1/2 relative">
-      
-           
-              <img 
-                src={templates[activeTemplate].image} 
-                alt={templates[activeTemplate].title} 
-                className="w-full h-full"
-              />
-          
-  
-       
+        <div className="lg:w-1/2 md:w-1/2 flex-shrink-0">
+          <img 
+            src={templates[activeTemplate].image} 
+            alt={templates[activeTemplate].title} 
+            className="w-full h-auto"
+          />
         </div>
       </div>
     </div>
