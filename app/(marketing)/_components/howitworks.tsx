@@ -2,7 +2,6 @@
 
 import { Calendar, CircleDot, ContactRound, LayoutTemplate } from 'lucide-react'
 import { Card } from "@/components/ui/card"
-import { useState } from 'react'
 import { Zilla_Slab } from 'next/font/google';
 
 const zilla = Zilla_Slab({
@@ -11,97 +10,76 @@ const zilla = Zilla_Slab({
   })
 
 export default function HowItWorks() {
-  const [activeScreen, setActiveScreen] = useState(0)
-
-  const screens = [
-    { content: "/profilesite.png" },
-    { content: "/bloghere.png" },
-    { content: "/EventsTwo.png" }
-  ]
-
   return (
-    <div className="container mx-auto px-4 py-8 mb-12" >
-      <h1 className="text-4xl md:text-5xl font-semibold text-center mb-8">
+    <div className="container mx-auto px-4 py-6 mb-8" >
+      <h1 className="text-3xl md:text-4xl font-semibold text-center mb-6">
         How Citrus Works
       </h1>
       
-      <div className="grid lg:grid-cols-2 gap-8 max-w-5xl mx-auto"> 
+      <div className="grid lg:grid-cols-2 gap-6 max-w-4xl mx-auto"> 
         {/* First Card */}
-        <Card className="p-8 shadow-lg rounded-2xl bg-gradient-to-b from-white via-orange-50 to-orange-100 overflow-hidden">
+        <Card className="p-4 shadow-md rounded-xl bg-gradient-to-b from-white via-orange-50 to-orange-500 overflow-hidden">
           <div className="flex flex-col h-full">
-            <div className="space-y-4 flex-shrink-0">
-              <h2 className="text-2xl md:text-3xl font-medium text-left">
+            <div className="space-y-2 flex-shrink-0">
+              <h2 className="text-xl md:text-2xl font-medium text-left">
                 Create micro-sites using our{" "}
-                <span className="inline-flex items-center gap-2 bg-[#FFF4E5] text-[#FF8A00] px-2 py-1 rounded-md">
-                  <LayoutTemplate className="w-5 h-5" />
+                <span className="inline-flex items-center gap-1 bg-[#FFF4E5] text-[#FF8A00] px-2 py-1 rounded-md">
+                  <LayoutTemplate className="w-4 h-4" />
                   templates
                 </span>
                 {" "}designed for your clients
               </h2>
             </div>
             
-            <div className="border rounded-xl p-4 bg-white shadow-sm mt-4 flex-grow flex flex-col relative">
-              <div className="absolute left-4 top-4 flex gap-2">
-                <div className="w-3 h-3 rounded-full bg-red-500" />
-                <div className="w-3 h-3 rounded-full bg-yellow-500" />
-                <div className="w-3 h-3 rounded-full bg-green-500" />
+            <div className="border rounded-lg p-3 bg-white shadow-sm mt-3 flex-grow flex flex-col relative">
+              <div className="absolute left-3 top-3 flex gap-1">
+                <div className="w-2 h-2 rounded-full bg-red-500" />
+                <div className="w-2 h-2 rounded-full bg-yellow-500" />
+                <div className="w-2 h-2 rounded-full bg-green-500" />
               </div>
               
               <img 
-                    src={screens[activeScreen].content}
-                    alt={`Screen ${activeScreen + 1}`}
-                    className="w-full h-full object-contain rounded-lg"
+                    src="/profilesite.png"
+                    alt="Profile Site Template"
+                    className="w-full h-full object-contain rounded-lg mt-4"
                 />
-              
-              <div className="mt-8 flex justify-center gap-2">
-                {[0, 1, 2].map((index) => (
-                  <button
-                    key={index}
-                    className={`w-3 h-3 rounded-full ${
-                      activeScreen === index ? 'bg-gray-800' : 'bg-gray-300'
-                    }`}
-                    onClick={() => setActiveScreen(index)}
-                    aria-label={`Switch to screen ${index + 1}`}
-                  />
-                ))}
-              </div>
             </div>
           </div>
         </Card>
 
         {/* Second Card */}
-        <Card className="p-8 shadow-lg rounded-2xl bg-gradient-to-b from-white via-orange-50 to-orange-100 overflow-hidden">
+        <Card className="p-4 shadow-md rounded-xl bg-gradient-to-b from-white via-orange-50 to-orange-500 overflow-hidden">
           <div className="flex flex-col h-full">
-            <div className="space-y-4 flex-shrink-0">
-              <h2 className="text-2xl md:text-3xl font-medium text-left">
+            <div className="space-y-2 flex-shrink-0">
+              <h2 className="text-xl md:text-2xl font-medium text-left">
                 As prospects interact with your sites {" "}
-                <span className="inline-flex items-center gap-2 bg-[#FFF4E5] text-[#FF8A00] px-2 py-1 rounded-md">
-                    <ContactRound className="w-5 h-5"  />
+                <span className="inline-flex items-center gap-1 bg-[#FFF4E5] text-[#FF8A00] px-2 py-1 rounded-md">
+                    <ContactRound className="w-4 h-4"  />
                     collect data
                 </span>
-                and
-                <span className="inline-flex items-center gap-2 bg-[#FFF4E5] text-[#FF8A00] px-2 py-1 rounded-md">
-                  <Calendar className="w-5 h-5" />
+                and improve pipeline
+                {/* <span className="inline-flex items-center gap-1 bg-[#FFF4E5] text-[#FF8A00] px-2 py-1 rounded-md">
+                  <Calendar className="w-4 h-4" />
                   book appointments
-                </span>
+                </span> */}
                 {" "}  
               </h2>
             </div>
             
-            <div className="border rounded-xl p-4 bg-white shadow-sm mt-4 flex-grow relative">
-              <div className="absolute left-4 top-4 flex gap-2">
-                <div className="w-3 h-3 rounded-full bg-red-500" />
-                <div className="w-3 h-3 rounded-full bg-yellow-500" />
-                <div className="w-3 h-3 rounded-full bg-green-500" />
+            <div className="border rounded-lg p-3 bg-white shadow-sm mt-3 flex-grow flex flex-col relative">
+              <div className="absolute left-3 top-3 flex gap-1">
+                <div className="w-2 h-2 rounded-full bg-red-500" />
+                <div className="w-2 h-2 rounded-full bg-yellow-500" />
+                <div className="w-2 h-2 rounded-full bg-green-500" />
               </div>
               
-              <div className="flex-grow pt-8 flex items-center justify-center">
+              <div className="flex-grow pt-6 flex items-center justify-center">
                 <img 
-                    src="/dashpic.png"
+                    src="/DashPicc.png"
                     alt="Collect respones and analytics"
                     className="w-full h-full object-contain rounded-lg"
                 />
-                </div>
+              </div>
             </div>
           </div>
         </Card>
@@ -109,4 +87,3 @@ export default function HowItWorks() {
     </div>
   )
 }
-
