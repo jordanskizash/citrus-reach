@@ -39,7 +39,7 @@ const templates: Record<string, Template> = {
   "deal-room": {
     id: "deal-room",
     title: "Deal Room",
-    image: "/api/placeholder/800/600",
+    image: "/DealRoom.png",
     description: "Create a secure space for sharing documents and closing deals"
   },
 }
