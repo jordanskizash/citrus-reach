@@ -33,7 +33,7 @@ const templates: Record<string, Template> = {
   "announcement": {
     id: "announcement",
     title: "Announcement",
-    image: "/api/placeholder/800/600",
+    image: "/Announcement.png",
     description: "Share important news and product launches with your audience"
   },
   "deal-room": {
