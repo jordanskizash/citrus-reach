@@ -102,6 +102,120 @@ export default function RootLayout({
             `
           }}
         />
+
+        {/* Schema.org WebSite Markup */}
+        <Script 
+          id="schema-website"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: `
+              {
+                "@context": "https://schema.org",
+                "@type": "WebSite",
+                "name": "Citrus Reach",
+                "url": "https://citrusreach.com/",
+                "potentialAction": {
+                  "@type": "SearchAction",
+                  "target": "https://citrusreach.com/search?q={search_term_string}",
+                  "query-input": "required name=search_term_string"
+                },
+                "sameAs": [
+                  "https://twitter.com/CitrusReach"
+                ]
+              }
+            `
+          }}
+        />
+        
+        {/* Schema.org SiteNavigationElement Markup */}
+        <Script 
+          id="schema-navigation"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: `
+              {
+                "@context": "https://schema.org",
+                "@type": "SiteNavigationElement",
+                "name": [
+                  "About",
+                  "Blog",
+                  "Pricing",
+                  "Examples",
+                  "Demo",
+                  "Sign Up"
+                ],
+                "url": [
+                  "https://citrusreach.com/about",
+                  "https://citrusreach.com/blog",
+                  "https://citrusreach.com/pricing",
+                  "https://citrusreach.com/examples",
+                  "https://citrusreach.com/demo",
+                  "https://accounts.citrusreach.com/sign-up"
+                ]
+              }
+            `
+          }}
+        />
+
+        {/* Schema.org Organization Markup */}
+        <Script 
+          id="schema-organization"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: `
+              {
+                "@context": "https://schema.org",
+                "@type": "Organization",
+                "name": "Citrus Reach",
+                "url": "https://citrusreach.com",
+                "logo": "https://citrusreach.com/icon-modern.svg",
+                "sameAs": [
+                  "https://twitter.com/CitrusReach"
+                ]
+              }
+            `
+          }}
+        />
+
+        {/* Schema.org BreadcrumbList Markup */}
+        <Script 
+          id="schema-breadcrumb"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: `
+              {
+                "@context": "https://schema.org",
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                  {
+                    "@type": "ListItem",
+                    "position": 1,
+                    "name": "Home",
+                    "item": "https://citrusreach.com"
+                  },
+                  {
+                    "@type": "ListItem",
+                    "position": 2,
+                    "name": "Pricing",
+                    "item": "https://citrusreach.com/pricing"
+                  },
+                  {
+                    "@type": "ListItem",
+                    "position": 3,
+                    "name": "Blog",
+                    "item": "https://citrusreach.com/blog"
+                  },
+                  {
+                    "@type": "ListItem",
+                    "position": 4,
+                    "name": "About",
+                    "item": "https://citrusreach.com/about"
+                  }
+                ]
+              }
+            `
+          }}
+        />
       </head>
       <body className={inter.className}>
         <ConvexClientProvider>

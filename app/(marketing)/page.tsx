@@ -15,6 +15,7 @@ import WordScreen from "./_components/parallax";
 import  HowItWorks  from "./_components/howitworks";
 import MeetingTemplates from "./_components/siteoptions";
 import ShareSites from "./_components/shareoptions";
+import CustomerTestimonial from "./_components/customer-testimonial";
 
 
 const logos = [
@@ -39,6 +40,7 @@ const MarketingPage = () => {
         <Catcher />
         {/* <Hero /> */}
         <HowItWorks />
+        <CustomerTestimonial />
         <MeetingTemplates />
         <ShareSites />
         {/* <CardFeatures /> */}
