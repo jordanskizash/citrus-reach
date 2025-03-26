@@ -31,7 +31,7 @@ export default function CustomerTestimonial({
       `}</style>
 
       <blockquote className="text-center">
-        <p className="zilla-slab text-[#333333] text-3xl font-medium leading-tight mb-8">{quote}</p>
+        <p className="zilla-slab text-[#333333] text-2xl font-medium leading-tight mb-8">{quote}</p>
         
         <div className="flex flex-row items-center justify-center">
           <div className="w-14 h-14 overflow-hidden rounded-full mr-4">
