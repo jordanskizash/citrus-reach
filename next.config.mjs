@@ -5,9 +5,6 @@ const nextConfig = {
         "files.edgestore.dev"
       ]
     },
-    experimental: {
-        serverActions: true,
-    },
     eslint: {
       // Don't fail the build for ESLint errors in production
       ignoreDuringBuilds: true,
