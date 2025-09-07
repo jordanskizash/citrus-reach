@@ -6,8 +6,15 @@ try {
   // Try running the build command
   execSync('npm run build', { stdio: 'inherit' });
 } catch (error) {
-  // If the build fails, check if it's just ESLint errors
-  console.log('Build failed, but continuing deployment...');
-  // We could add more sophisticated logic here to check the error type
-  process.exit(0); // Exit with success
+  console.log('Build failed with error:', error.message);
+  
+  // Only ignore ESLint errors, fail on everything else (including CSS issues)
+  if (error.message.includes('ESLint') || error.message.includes('lint')) {
+    console.log('Build failed due to ESLint errors, but continuing deployment...');
+    process.exit(0); // Exit with success for lint errors only
+  } else {
+    // For all other errors (including CSS/build failures), fail the deployment
+    console.log('Build failed due to non-ESLint error. Failing deployment.');
+    process.exit(1); // Exit with failure
+  }
 }
