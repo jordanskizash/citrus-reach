@@ -17,7 +17,6 @@ import {
   ChevronRight, 
   LucideIcon, 
   MoreHorizontal, 
-  Plus, 
   Trash, 
   UserIcon 
 } from "lucide-react";
@@ -77,32 +76,8 @@ export const ProfItem = ({
     onExpand?.();
   };
 
-  const onCreate = async (
-    event: React.MouseEvent<HTMLDivElement, MouseEvent>
-) => {
-    event.stopPropagation();
-    if (!id) return;
-    
-    const promise = create({ 
-        displayName: "Untitled", 
-        bio: "This One Works",
-        authorFullName: "Untitled" // Instead of handle
-    })
-    .then((profileId) => {
-        if (!expanded) {
-            onExpand?.();
-        }
-        router.push(`/profiles/${profileId}`);
-    });
 
-    toast.promise(promise, {
-        loading: "Creating a new profile...",
-        success: "New profile created!",
-        error: "Failed to create a new profile.",
-    });
-};
-
-  const ChevronIcon = expanded ? ChevronDown : ChevronRight;
+  // const ChevronIcon = expanded ? ChevronDown : ChevronRight;
 
   return (
     <div
@@ -122,9 +97,9 @@ export const ProfItem = ({
           className="h-full rounded-sm hover:bg-neutral-300 dark:hover:bg-neutral-600 mr-1"
           onClick={handleExpand}
         >
-          <ChevronIcon
+          {/* <ChevronIcon
             className="h-4 w-4 shrink-0 text-muted-foreground/50"
-          />
+          /> */}
         </div>
       )}
       {profileIcon ? (
@@ -174,13 +149,6 @@ export const ProfItem = ({
               </div>
             </DropdownMenuContent>
           </DropdownMenu>
-          <div
-            role="button"
-            onClick={onCreate}
-            className="opacity-0 group-hover:opacity-100 h-full ml-auto rounded-sm hover:bg-neutral-300 dark:hover:bg-neutral-600"
-          >
-            <Plus className="h-4 w-4 text-muted-foreground" />
-          </div>
         </div>
       )}
     </div>

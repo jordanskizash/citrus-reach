@@ -1,20 +1,23 @@
 "use client"
 
 import * as React from "react"
-import { Search, X, ArrowUpDown, ArrowRight } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Search } from 'lucide-react'
+import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { useQuery } from "convex/react"
+import { useQuery, useAction, useMutation } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import Image from "next/image"
+import { useTheme } from "next-themes"
+import { useRouter } from "next/navigation"
+import toast from "react-hot-toast"
 import {
   Table,
   TableBody,
@@ -43,16 +46,17 @@ interface PageViewsData {
 
 export default function Dashboard() {
   // State management
-  const [timeFilter, setTimeFilter] = React.useState("all")
-  const [typeFilter, setTypeFilter] = React.useState<string[]>([])
   const [searchTerm, setSearchTerm] = React.useState("")
-  const [sortColumn, setSortColumn] = React.useState<keyof Site>("name")
-  const [sortDirection, setSortDirection] = React.useState<"asc" | "desc">("asc")
+  const [activeTab, setActiveTab] = React.useState("personal")
+  const [selectedSites, setSelectedSites] = React.useState<string[]>([])
   const [currentPage, setCurrentPage] = React.useState(1)
   const [totalViews, setTotalViews] = useState(0)
-  const [totalMeetings, setTotalMeetings] = useState(0)
-  const [totalOpportunities, setTotalOpportunities] = useState(0)
-  const itemsPerPage = 6
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = React.useState(false)
+  const itemsPerPage = 7
+  const { theme } = useTheme()
+  const router = useRouter()
+  const create = useAction(api.documents.create)
+  const createProf = useMutation(api.profiles.create)
   const { user } = useUser();
   
   // Fetch data from Convex
@@ -60,12 +64,10 @@ export default function Dashboard() {
   const profiles = useQuery(api.profiles.getPublishedProfiles) || []
   const [blogViews, setBlogViews] = useState<PageViewsData>({});
   const [profileViews, setProfileViews] = useState<PageViewsData>({});
-  const [loading, setLoading] = useState(true);
 
   // Analytics fetching
   const fetchAnalytics = useCallback(async () => {
     try {
-      setLoading(true);
 
       // Fetch blog views
       const blogResponse = await fetch('/api/analytics', {
@@ -132,77 +134,9 @@ export default function Dashboard() {
 
     } catch (error) {
       console.error('Error fetching analytics:', error);
-    } finally {
-      setLoading(false);
     }
   }, [documents, profiles]);
 
-  type Activity = {
-    id: number;
-    content: string;
-    timestamp: string;
-    siteId: string; // Add this property for the link reference
-    siteName: string; // Add this property for displaying the site name
-  }
-  
-  const activities: Activity[] = [
-    { 
-      id: 1, 
-      content: "John Smith registered for", 
-      timestamp: "2024-03-15T14:30:00Z", 
-      siteId: "12", 
-      siteName: "Cloud Computing Summit"
-    },
-    { 
-      id: 2, 
-      content: "Sarah Williams liked", 
-      timestamp: "2024-03-15T13:45:00Z", 
-      siteId: "7", 
-      siteName: "AI Research Blog"
-    },
-    { 
-      id: 3, 
-      content: "Mike Chen replied to", 
-      timestamp: "2024-03-15T12:20:00Z", 
-      siteId: "15", 
-      siteName: "Python Programming Blog"
-    },
-    { 
-      id: 4, 
-      content: "Emma Davis shared", 
-      timestamp: "2024-03-15T11:15:00Z", 
-      siteId: "8", 
-      siteName: "Design Workshop Event"
-    },
-    { 
-      id: 5, 
-      content: "Alex Johnson registered for", 
-      timestamp: "2024-03-15T10:30:00Z", 
-      siteId: "6", 
-      siteName: "Local Hackathon"
-    },
-    { 
-      id: 6, 
-      content: "Lisa Brown liked", 
-      timestamp: "2024-03-15T09:45:00Z", 
-      siteId: "10", 
-      siteName: "Mobile Dev Conference"
-    },
-    { 
-      id: 7, 
-      content: "Tom Wilson replied to", 
-      timestamp: "2024-03-15T09:00:00Z", 
-      siteId: "11", 
-      siteName: "React Tips & Tricks"
-    },
-    { 
-      id: 8, 
-      content: "Rachel Green shared", 
-      timestamp: "2024-03-15T08:15:00Z", 
-      siteId: "5", 
-      siteName: "Jane Smith's Portfolio"
-    }
-  ];
 
   // Convert Convex data to Sites
   const sites: Site[] = [
@@ -234,63 +168,54 @@ export default function Dashboard() {
   }, [documents, profiles, fetchAnalytics]);
 
 
-  const typeOptions = [
-    { value: "blog", label: "Blog" },
-    { value: "profile", label: "Profile" },
-    { value: "event", label: "Event" },
-  ]
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString)
-    return date.toLocaleDateString('en-US', {
-      month: 'long',
-      day: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true
-    }).replace(',', ' at')
-  }
 
   const filterData = (data: Site[]) => {
     return data.filter(item => {
-      const now = new Date()
-      const itemDate = new Date(item.date)
-      const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
-      const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
-      const threeMonthsAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000)
-      const yearAgo = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000)
-
-      const passesTimeFilter = (() => {
-        switch (timeFilter) {
-          case "week":
-            return itemDate >= weekAgo
-          case "month":
-            return itemDate >= monthAgo
-          case "3months":
-            return itemDate >= threeMonthsAgo
-          case "year":
-            return itemDate >= yearAgo
-          default:
-            return true
-        }
-      })()
-
-      const passesTypeFilter = typeFilter.length === 0 || typeFilter.includes(item.type)
       const passesSearchFilter = item.name.toLowerCase().includes(searchTerm.toLowerCase())
-
-      return passesTimeFilter && passesTypeFilter && passesSearchFilter
+      return passesSearchFilter
     })
+  }
+
+  const handleCreate = () => {
+    const promise = create({ title: "Untitled" })
+      .then((documentId) => router.push(`/documents/${documentId}`))
+
+    toast.promise(promise, {
+      loading: "Creating a new blog",
+      success: "New Blog Created!",
+      error: "Failed to create a new blog",
+    })
+  }
+
+  const handleCreateProfile = async () => {
+    const promise = createProf({
+      displayName: "Untitled",
+      authorFullName: "Untitled"
+    })
+    
+    toast
+      .promise(promise, {
+        loading: "Creating a new profile...",
+        success: "New profile created!",
+        error: "Failed to create new profile.",
+      })
+      .then((profileId) => {
+        router.push(`/profiles/${profileId}`)
+      })
   }
 
   const sortData = (data: Site[]) => {
     return [...data].sort((a, b) => {
-      if (a[sortColumn] < b[sortColumn]) return sortDirection === "asc" ? -1 : 1
-      if (a[sortColumn] > b[sortColumn]) return sortDirection === "asc" ? 1 : -1
+      if (a.name < b.name) return -1
+      if (a.name > b.name) return 1
       return 0
     })
   }
 
-  const filteredAndSortedData = sortData(filterData(sites))
+  // Filter sites based on active tab (assume all existing sites are personal)
+  const tabFilteredSites = activeTab === "personal" ? sites : []
+  const filteredAndSortedData = sortData(filterData(tabFilteredSites))
   const totalPages = Math.ceil(filteredAndSortedData.length / itemsPerPage)
   const paginatedData = filteredAndSortedData.slice(
     (currentPage - 1) * itemsPerPage,
@@ -300,24 +225,16 @@ export default function Dashboard() {
   const getTagStyles = (type: string) => {
     switch (type) {
       case "blog":
-        return "bg-blue-50 text-blue-700 border border-blue-200"
+        return "bg-blue-100 text-blue-800 px-2 py-1 text-xs font-medium rounded-full"
       case "profile":
-        return "bg-orange-50 text-orange-700 border border-orange-200"
+        return "bg-green-100 text-green-800 px-2 py-1 text-xs font-medium rounded-full"
       case "event":
-        return "bg-emerald-50 text-emerald-700 border border-emerald-200"
+        return "bg-yellow-100 text-yellow-800 px-2 py-1 text-xs font-medium rounded-full"
       default:
-        return "bg-gray-50 text-gray-700 border border-gray-200"
+        return "bg-gray-100 text-gray-800 px-2 py-1 text-xs font-medium rounded-full"
     }
   }
 
-  const handleSort = (column: keyof Site) => {
-    if (column === sortColumn) {
-      setSortDirection(sortDirection === "asc" ? "desc" : "asc")
-    } else {
-      setSortColumn(column)
-      setSortDirection("asc")
-    }
-  }
 
   return (
     <div className="container mx-auto p-4 space-y-4">
@@ -339,173 +256,214 @@ export default function Dashboard() {
         </Card>
         <Card>
           <CardContent className="pt-6">
-            <div className="text-2xl font-bold text-orange-500">{totalMeetings}</div>
+            <div className="text-2xl font-bold text-orange-500">0</div>
             <p className="text-sm text-muted-foreground">Meetings (30 days)</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-6">
-            <div className="text-2xl font-bold text-orange-500">{totalOpportunities}</div>
+            <div className="text-2xl font-bold text-orange-500">0</div>
             <p className="text-sm text-muted-foreground">Opportunities (30 days)</p>
           </CardContent>
         </Card>
       </div>
 
-      <div className="grid grid-cols-12 gap-4">
-        <div className="col-span-8">
-          <Card>
-            <CardHeader>
-              <CardTitle>All Sites</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex flex-1 items-center space-x-2">
-                  <div className="relative w-[300px]">
-                    <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      placeholder="Search sites..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-8"
-                    />
-                  </div>
-                  {(searchTerm || typeFilter.length > 0) && (
-                    <Button
-                      variant="ghost"
-                      onClick={() => {
-                        setSearchTerm("")
-                        setTypeFilter([])
-                      }}
-                      className="h-8 px-2 lg:px-3"
-                    >
-                      Reset
-                      <X className="ml-2 h-4 w-4" />
-                    </Button>
-                  )}
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Select
-                    value={typeFilter.join(",")}
-                    onValueChange={(value) => {
-                      const selectedTypes = value.split(",").filter(Boolean)
-                      setTypeFilter(selectedTypes)
-                    }}
-                  >
-                    <SelectTrigger className="w-[180px]">
-                      <SelectValue placeholder="Type">
-                        {typeFilter.length > 0 
-                          ? `${typeFilter.length} selected`
-                          : "Select type"}
-                      </SelectValue>
-                    </SelectTrigger>
-                    <SelectContent>
-                      {typeOptions.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
-                          <div className="flex items-center space-x-2">
-                            <Checkbox
-                              id={`type-${option.value}`}
-                              checked={typeFilter.includes(option.value)}
-                              onCheckedChange={(checked) => {
-                                if (checked) {
-                                  setTypeFilter([...typeFilter, option.value])
-                                } else {
-                                  setTypeFilter(typeFilter.filter(t => t !== option.value))
-                                }
-                              }}
-                            />
-                            <label htmlFor={`type-${option.value}`}>{option.label}</label>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Select value={timeFilter} onValueChange={setTimeFilter}>
-                    <SelectTrigger className="w-[140px]">
-                      <SelectValue placeholder="Time period" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All time</SelectItem>
-                      <SelectItem value="week">Past week</SelectItem>
-                      <SelectItem value="month">Past month</SelectItem>
-                      <SelectItem value="3months">Past 3 months</SelectItem>
-                      <SelectItem value="year">Past year</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+      <div className="space-y-6">
+        <div>
+          <h2 className="text-2xl font-semibold mb-6">My Sites</h2>
+          
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center space-x-6">
+              <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg">
+                <button
+                  className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                    activeTab === "personal"
+                      ? "bg-white text-gray-900 shadow-sm"
+                      : "text-gray-500 hover:text-gray-900"
+                  }`}
+                  onClick={() => setActiveTab("personal")}
+                >
+                  Personal Sites
+                </button>
+                <button
+                  className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                    activeTab === "team"
+                      ? "bg-white text-gray-900 shadow-sm"
+                      : "text-gray-500 hover:text-gray-900"
+                  }`}
+                  onClick={() => setActiveTab("team")}
+                >
+                  Team Sites
+                </button>
               </div>
+              <div className="text-sm text-gray-600">
+                <span className="font-semibold">{filteredAndSortedData.length}</span> Sites
+              </div>
+            </div>
+            
+            <div className="relative w-[300px]">
+              <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 dark:text-gray-500" />
+              <Input
+                placeholder="Search Sites"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder:text-gray-400"
+              />
+            </div>
+          </div>
+          
+          <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
 
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[300px] text-left">
-                      <Button variant="ghost" onClick={() => handleSort("name")} className="text-left">
-                        Name
-                        {sortColumn === "name" && (
-                          <ArrowUpDown className="ml-2 h-4 w-4" />
-                        )}
-                      </Button>
-                    </TableHead>
-                    <TableHead className="text-left">Type</TableHead>
-                    <TableHead className="text-left">
-                      <Button variant="ghost" onClick={() => handleSort("views")} className="text-left">
-                        Views
-                        {sortColumn === "views" && (
-                          <ArrowUpDown className="ml-2 h-4 w-4" />
-                        )}
-                      </Button>
-                    </TableHead>
-                    <TableHead className="text-left">
-                      <Button variant="ghost" onClick={() => handleSort("likes")} className="text-left">
-                        Likes
-                        {sortColumn === "likes" && (
-                          <ArrowUpDown className="ml-2 h-4 w-4" />
-                        )}
-                      </Button>
-                    </TableHead>
-                    <TableHead className="text-left">
-                      <Button variant="ghost" onClick={() => handleSort("published")} className="text-left">
-                        Published
-                        {sortColumn === "published" && (
-                          <ArrowUpDown className="ml-2 h-4 w-4" />
-                        )}
-                      </Button>
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                {paginatedData.map((site) => (
-                    <TableRow key={site.id}>
-                    <TableCell className="font-medium">{site.name}</TableCell>
-                    <TableCell>
-                        <Badge variant="secondary" className={`${getTagStyles(site.type)} font-normal`}>
-                        {site.type}
-                        </Badge>
-                    </TableCell>
-                    <TableCell className="text-left">{site.views.toLocaleString()}</TableCell>
-                    <TableCell className="text-left">{site.likes.toLocaleString()}</TableCell>
-                    <TableCell className="text-left">{new Date(site.published).toLocaleDateString('en-US', {
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+                  <TableHead className="w-12 text-left pl-6">
+                    <Checkbox
+                      checked={selectedSites.length === paginatedData.length && paginatedData.length > 0}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          setSelectedSites([...selectedSites, ...paginatedData.map(site => site.id)])
+                        } else {
+                          setSelectedSites(selectedSites.filter(id => !paginatedData.map(site => site.id).includes(id)))
+                        }
+                      }}
+                      className="border-gray-300 dark:border-gray-600"
+                    />
+                  </TableHead>
+                  <TableHead className="text-left font-medium text-gray-900 dark:text-gray-100 pl-6">
+                    Name
+                  </TableHead>
+                  <TableHead className="text-left font-medium text-gray-900 dark:text-gray-100 pl-4">Type</TableHead>
+                  <TableHead className="text-left font-medium text-gray-900 dark:text-gray-100 pl-4">Views</TableHead>
+                  <TableHead className="text-left font-medium text-gray-900 dark:text-gray-100 pl-4">Likes</TableHead>
+                  <TableHead className="text-left font-medium text-gray-900 dark:text-gray-100 pl-4">Published</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {paginatedData.length > 0 ? (
+                  paginatedData.map((site) => (
+                    <TableRow key={site.id} className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
+                      <TableCell className="pl-6 py-4">
+                        <Checkbox
+                          checked={selectedSites.includes(site.id)}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setSelectedSites([...selectedSites, site.id])
+                            } else {
+                              setSelectedSites(selectedSites.filter(id => id !== site.id))
+                            }
+                          }}
+                          className="border-gray-300 dark:border-gray-600"
+                        />
+                      </TableCell>
+                      <TableCell className="font-medium text-gray-900 dark:text-gray-100 pl-6 py-4">{site.name}</TableCell>
+                      <TableCell className="pl-4 py-4">
+                        <span className={getTagStyles(site.type)}>
+                          {site.type.charAt(0).toUpperCase() + site.type.slice(1)}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-gray-600 dark:text-gray-300 pl-4 py-4">{site.views.toLocaleString()}</TableCell>
+                      <TableCell className="text-gray-600 dark:text-gray-300 pl-4 py-4">{site.likes.toLocaleString()}</TableCell>
+                      <TableCell className="text-gray-600 dark:text-gray-300 pl-4 py-4">{new Date(site.published).toLocaleDateString('en-US', {
                         month: 'long',
                         day: 'numeric',
                         year: 'numeric'
-                    })}</TableCell>
+                      })}</TableCell>
                     </TableRow>
-                ))}
-                {/* Add empty rows to maintain consistent height */}
-                {Array.from({ length: Math.max(0, itemsPerPage - paginatedData.length) }).map((_, index) => (
-                    <TableRow key={`empty-${index}`}>
-                    <TableCell className="h-[56px]">&nbsp;</TableCell>
-                    <TableCell>&nbsp;</TableCell>
-                    <TableCell>&nbsp;</TableCell>
-                    <TableCell>&nbsp;</TableCell>
-                    <TableCell>&nbsp;</TableCell>
-                    </TableRow>
-                ))}
-                </TableBody>
-              </Table>
-
-              <div className="flex items-center justify-between space-x-2 py-4">
-                <div className="text-sm text-muted-foreground">
-                  Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, filteredAndSortedData.length)} of {filteredAndSortedData.length} results
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={6} className="h-96">
+                      <div className="flex flex-col items-center justify-center space-y-4">
+                        <Image
+                          src={theme === 'dark' ? '/empty-dark.png' : '/empty.png'}
+                          alt="Empty state"
+                          width={200}
+                          height={150}
+                          className="opacity-50"
+                        />
+                        {activeTab === "team" ? (
+                          <Button disabled className="bg-gray-300 text-gray-500 cursor-not-allowed">
+                            Team Sites Coming Soon
+                          </Button>
+                        ) : (
+                          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+                            <DialogTrigger asChild>
+                              <Button onClick={() => setIsCreateDialogOpen(true)}>
+                                New Site
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="sm:max-w-md">
+                              <DialogHeader>
+                                <DialogTitle>Create New Site</DialogTitle>
+                              </DialogHeader>
+                              <div className="grid grid-cols-2 gap-4 py-4">
+                                <button
+                                  onClick={() => {
+                                    handleCreate()
+                                    setIsCreateDialogOpen(false)
+                                  }}
+                                  className="flex flex-col items-center justify-center p-6 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer group"
+                                >
+                                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-3 group-hover:bg-blue-200">
+                                    <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5a2 2 0 00-2-2h-2m-2 9h2m-2 0V9.5m0 10.5H9" />
+                                    </svg>
+                                  </div>
+                                  <span className="font-medium text-gray-900">Blog</span>
+                                  <span className="text-sm text-gray-500 text-center">Create articles and posts</span>
+                                </button>
+                                
+                                <button
+                                  onClick={() => {
+                                    handleCreateProfile()
+                                    setIsCreateDialogOpen(false)
+                                  }}
+                                  className="flex flex-col items-center justify-center p-6 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer group"
+                                >
+                                  <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-3 group-hover:bg-green-200">
+                                    <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                    </svg>
+                                  </div>
+                                  <span className="font-medium text-gray-900">Profile</span>
+                                  <span className="text-sm text-gray-500 text-center">Personal or company page</span>
+                                </button>
+                                
+                                <div className="flex flex-col items-center justify-center p-6 border border-gray-200 rounded-lg bg-gray-50 cursor-not-allowed opacity-60">
+                                  <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center mb-3">
+                                    <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                  </div>
+                                  <span className="font-medium text-gray-400">Event</span>
+                                  <span className="text-sm text-gray-400 text-center">Coming soon</span>
+                                </div>
+                                
+                                <div className="flex flex-col items-center justify-center p-6 border border-gray-200 rounded-lg bg-gray-50 cursor-not-allowed opacity-60">
+                                  <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center mb-3">
+                                    <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                    </svg>
+                                  </div>
+                                  <span className="font-medium text-gray-400">Deal Room</span>
+                                  <span className="text-sm text-gray-400 text-center">Coming soon</span>
+                                </div>
+                              </div>
+                            </DialogContent>
+                          </Dialog>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+            
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 dark:border-gray-700">
+                <div className="text-sm text-gray-600 dark:text-gray-300">
+                  Showing {Math.min(currentPage * itemsPerPage, filteredAndSortedData.length)} of {filteredAndSortedData.length} sites
                 </div>
                 <div className="flex items-center space-x-2">
                   <Button
@@ -513,6 +471,7 @@ export default function Dashboard() {
                     size="sm"
                     onClick={() => setCurrentPage(page => Math.max(1, page - 1))}
                     disabled={currentPage === 1}
+                    className="text-sm"
                   >
                     Previous
                   </Button>
@@ -521,48 +480,18 @@ export default function Dashboard() {
                     size="sm"
                     onClick={() => setCurrentPage(page => Math.min(totalPages, page + 1))}
                     disabled={currentPage === totalPages}
+                    className="text-sm"
                   >
                     Next
                   </Button>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-        </div>
+            )}
 
-        <div className="col-span-4">
-          <Card className="h-full">
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>Activity</CardTitle>
-              <Button variant="ghost" size="sm" className="text-sm">
-                View all
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {activities.map((activity) => (
-                  <div key={activity.id} className="flex flex-col space-y-1">
-                    <p className="text-sm">
-                      {activity.content}{" "}
-                      <a href={`#site-${activity.siteId}`} className="text-amber-500 hover:underline">
-                        {activity.siteName}
-                      </a>
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {formatDate(activity.timestamp)}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+          </div>
         </div>
       </div>
     </div>
   )
-}
-function setTotalViews(arg0: number) {
-  throw new Error("Function not implemented.")
 }
 

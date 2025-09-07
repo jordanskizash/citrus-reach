@@ -10,19 +10,24 @@ import { UserItem } from "./user-item";
 import { useAction, useMutation, useQuery } from "convex/react";
 import { Item } from "./item";
 import toast from "react-hot-toast";
-import { DocumentList } from "./document-list";
-import { ProfileList } from "./profile-list";
+import { UnifiedSiteList } from "./unified-site-list";
 import{
     Popover,
     PopoverTrigger,
     PopoverContent,
 } from "@/components/ui/popover";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog";
 import { useSearch } from "@/hooks/use-search";
 import { useSettings } from "@/hooks/use-settings";
 import { TrashBox } from "./trash-box";
 import { Navbar } from "./navbar";
 import { NavbarProfile } from "./navbarprof";
-import { EventList } from "./event-list";
 import { Button } from "@/components/ui/button";
 import { useUser } from "@clerk/clerk-react";
 import { Progress } from "@/components/ui/progress";
@@ -48,7 +53,8 @@ export const Navigation = () => {
     const sidebarRef = useRef<ElementRef<"aside">>(null);
     const navbarRef = useRef<ElementRef<"div">>(null);
     const [isResetting, setIsResetting] = useState(false);
-    const [isCollapsed, setIsCollapsed] = useState(false); 
+    const [isCollapsed, setIsCollapsed] = useState(false);
+    const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false); 
 
     const [isLoading, setIsLoading] = useState(false);
     const createSubscriptionSession = useAction(api.stripe.createSubscriptionSession);
@@ -317,57 +323,92 @@ export const Navigation = () => {
                         isSearch
                         onClick={search.onOpen}
                     />
-                    {/* <Item
+                    <Item
                         label="Settings"
                         icon={Settings}
                         onClick={() => window.location.href = '/settings'}
-                    /> */}
-                    <Item
-                        onClick={handleCreate} 
-                        label="New Site" 
-                        icon={PlusCircle} 
                     />
+                    <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+                        <DialogTrigger asChild>
+                            <div>
+                                <Item
+                                    onClick={() => setIsCreateDialogOpen(true)} 
+                                    label="New Site" 
+                                    icon={PlusCircle} 
+                                />
+                            </div>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-md">
+                            <DialogHeader>
+                                <DialogTitle>Create New Site</DialogTitle>
+                            </DialogHeader>
+                            <div className="grid grid-cols-2 gap-4 py-4">
+                                <button
+                                    onClick={() => {
+                                        handleCreate();
+                                        setIsCreateDialogOpen(false);
+                                    }}
+                                    className="flex flex-col items-center justify-center p-6 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer group"
+                                >
+                                    <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-3 group-hover:bg-blue-200">
+                                        <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5a2 2 0 00-2-2h-2m-2 9h2m-2 0V9.5m0 10.5H9" />
+                                        </svg>
+                                    </div>
+                                    <span className="font-medium text-gray-900">Blog</span>
+                                    <span className="text-sm text-gray-500 text-center">Create articles and posts</span>
+                                </button>
+                                
+                                <button
+                                    onClick={() => {
+                                        handlecreateProfile();
+                                        setIsCreateDialogOpen(false);
+                                    }}
+                                    className="flex flex-col items-center justify-center p-6 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer group"
+                                >
+                                    <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-3 group-hover:bg-green-200">
+                                        <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                        </svg>
+                                    </div>
+                                    <span className="font-medium text-gray-900">Profile</span>
+                                    <span className="text-sm text-gray-500 text-center">Personal or company page</span>
+                                </button>
+                                
+                                <div className="flex flex-col items-center justify-center p-6 border border-gray-200 rounded-lg bg-gray-50 cursor-not-allowed opacity-60">
+                                    <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center mb-3">
+                                        <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                        </svg>
+                                    </div>
+                                    <span className="font-medium text-gray-400">Event</span>
+                                    <span className="text-sm text-gray-400 text-center">Coming soon</span>
+                                </div>
+                                
+                                <div className="flex flex-col items-center justify-center p-6 border border-gray-200 rounded-lg bg-gray-50 cursor-not-allowed opacity-60">
+                                    <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center mb-3">
+                                        <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                        </svg>
+                                    </div>
+                                    <span className="font-medium text-gray-400">Deal Room</span>
+                                    <span className="text-sm text-gray-400 text-center">Coming soon</span>
+                                </div>
+                            </div>
+                        </DialogContent>
+                    </Dialog>
                 </div>
                 <div className="mt-4">
                     <div className="flex items-center justify-between ml-4 mb-2 mt-8">
-                    <h1 className="text-sm text-muted-foreground">Blogs</h1>
-                    <div 
-                        onClick={() => {}} 
-                        className="cursor-pointer group-hover:opacity-100 h-full ml-auto rounded-md hover:bg-neutral-300 dark:hover:bg-neutral-600 mr-2"
-                    >
-                        <CirclePlusIcon className="h-5 w-5 text-muted-foreground" onClick={handleCreate} />  
-                    </div>
-                </div>
-                    <DocumentList />
-
-                {/* Add this block for the Profiles header */}
-                <div className="flex items-center justify-between mt-4 ml-4 mb-2">
-                    <h1 className="text-sm text-muted-foreground">Profiles</h1>
-                    <div 
-                        onClick={() => {}} 
-                        className="cursor-pointer group-hover:opacity-100 h-full ml-auto rounded-md hover:bg-neutral-300 dark:hover:bg-neutral-600 mr-2"
-                    >
-                        <CirclePlusIcon className="h-5 w-5 text-muted-foreground" onClick={handlecreateProfile} />  
-                    </div>
-                </div>
-                    <ProfileList />
-
-                {/* Events Section */}
-                <div className="flex items-center justify-between mt-4 ml-4 mb-2">
-                        <h1 className="text-sm text-muted-foreground">Events</h1>
+                        <h1 className="text-sm text-muted-foreground">All Sites</h1>
                         <div 
-                            // className="cursor-pointer group-hover:opacity-100 h-full ml-auto rounded-md hover:bg-neutral-300 dark:hover:bg-neutral-600 mr-2"
+                            onClick={() => setIsCreateDialogOpen(true)} 
+                            className="cursor-pointer group-hover:opacity-100 h-full ml-auto rounded-md hover:bg-neutral-300 dark:hover:bg-neutral-600 mr-2"
                         >
-                            <h2 className="text-sm text-muted-foreground mr-4">Coming soon!</h2>
-                            {/* <CirclePlusIcon className="h-5 w-5 text-muted-foreground" onClick={handleCreateEvent} />   */}
+                            <CirclePlusIcon className="h-5 w-5 text-muted-foreground" />  
                         </div>
                     </div>
-                    {/* <EventList /> */}
-                    {/* <Item 
-                        onClick={handleCreate} 
-                        icon={Plus}
-                        label="Add a page"
-                    /> */}
+                    <UnifiedSiteList />
                     <Popover>
                         <PopoverTrigger className="w-full mt-4">
                             <Item label="Trash" icon={Trash} />
@@ -416,4 +457,3 @@ export const Navigation = () => {
         </>
      );
 }
-

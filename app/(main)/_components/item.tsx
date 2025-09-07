@@ -10,8 +10,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { cn } from "@/lib/utils";
-import { useAction, useMutation } from "convex/react";
-import { ChevronDown, ChevronRight, LucideIcon, MoreHorizontal, Plus, Trash } from "lucide-react";
+import { useMutation } from "convex/react";
+import { ChevronDown, ChevronRight, LucideIcon, MoreHorizontal, Trash } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/clerk-react";
 import toast from "react-hot-toast";
@@ -43,7 +43,6 @@ export const Item = ({
 }: ItemProps) => {
     const { user } = useUser();
     const router = useRouter();
-    const create = useAction(api.documents.create);
     const archive = useMutation(api.documents.archive);
 
     const onArchive = (
@@ -71,27 +70,8 @@ export const Item = ({
         //     .then(() => router.push("/documents"))
     };
 
-    const onCreate = async (
-        event: React.MouseEvent<HTMLDivElement, MouseEvent>
-    ) => {
-        event.stopPropagation();
-        if(!id) return;
-        const promise = create({ title: "Untitled", parentDocument: id })
-            .then((documentId) => {
-                if(!expanded) {
-                    onExpand?.();
-                }
-                router.push(`/documents/${documentId}`);
-            })
 
-        toast.promise(promise, {
-            loading: "Creating a new note...",
-            success: "New note created!",
-            error: "Failed to create a new note."
-        });
-    };
-
-    const ChevronIcon = expanded ? ChevronDown: ChevronRight;
+    // const ChevronIcon = expanded ? ChevronDown: ChevronRight;
 
     return (
         <div
@@ -109,9 +89,9 @@ export const Item = ({
                     className="h-full rounded-sm hover:bg-neutral-300 dark:hover:bg-neutral-600 mr-1"
                     onClick={handleExpand}
                 >
-                    <ChevronIcon
+                    {/* <ChevronIcon
                         className="h-4 w-4 shrink-0 text-muted-foreground/50"
-                    />
+                    /> */}
                 </div>
             )}
             {documentIcon ? (
@@ -161,13 +141,6 @@ export const Item = ({
                             </div>
                         </DropdownMenuContent>
                     </DropdownMenu>
-                    <div
-                        role="button"
-                        onClick={onCreate}
-                        className="opacity-0 group-hover:opacity-100 h-full ml-auto rounded-sm hover:bg-neutral-300 dark:hover:bg-neutral-600"
-                    >
-                        <Plus className="h-4 w-4 text-muted-foreground" />
-                    </div>
                 </div>
             )}
         </div>

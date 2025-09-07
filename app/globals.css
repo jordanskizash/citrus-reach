@@ -39,6 +39,22 @@
       --ring: 0 0% 3.9%;
 
       --radius: 0.5rem;
+
+      --sidebar-background: 0 0% 98%;
+
+      --sidebar-foreground: 240 5.3% 26.1%;
+
+      --sidebar-primary: 240 5.9% 10%;
+
+      --sidebar-primary-foreground: 0 0% 98%;
+
+      --sidebar-accent: 240 4.8% 95.9%;
+
+      --sidebar-accent-foreground: 240 5.9% 10%;
+
+      --sidebar-border: 220 13% 91%;
+
+      --sidebar-ring: 217.2 91.2% 59.8%;
     }
 
     .dark {
@@ -69,6 +85,14 @@
       --border: 0 0% 14.9%;
       --input: 0 0% 14.9%;
       --ring: 0 0% 83.1%;
+      --sidebar-background: 240 5.9% 10%;
+      --sidebar-foreground: 240 4.8% 95.9%;
+      --sidebar-primary: 224.3 76.3% 48%;
+      --sidebar-primary-foreground: 0 0% 100%;
+      --sidebar-accent: 240 3.7% 15.9%;
+      --sidebar-accent-foreground: 240 4.8% 95.9%;
+      --sidebar-border: 240 3.7% 15.9%;
+      --sidebar-ring: 217.2 91.2% 59.8%;
     }
   }
 
@@ -315,4 +339,48 @@
   --bn-spacing-s: 4px !important;   /* Reduced from 8px */
   --bn-spacing-m: 4px !important;   /* Reduced from 8px */
   --bn-spacing-l: 4px !important;   /* Reduced from 8px */
+}
+
+/* Add these styles to your globals.css file */
+
+/* Ensure sidebar items are visible in both light and dark modes */
+a[class*="sidebar-text"],
+.sidebar-text,
+.text-muted-foreground {
+  @apply text-primary;
+}
+
+/* Fix sidebar text visibility */
+[data-sidebar="menu-button"] {
+  @apply text-primary;
+}
+
+[data-sidebar="group-label"] {
+  @apply text-primary/70;
+}
+
+/* Fix for collapsible triggers in light mode */
+[data-state="expanded"],
+[data-state="collapsed"] {
+  @apply text-primary;
+}
+
+/* Override document and profile item styles */
+.group.min-h-\[27px\] {
+  @apply text-primary;
+}
+
+/* Override document and profile icons */
+.group.min-h-\[27px\] svg {
+  @apply text-primary;
+}
+
+/* Override hover states */
+.hover\:bg-primary\/5:hover {
+  @apply text-primary bg-primary/5;
+}
+
+/* Active states for items */
+.bg-primary\/5.text-primary {
+  @apply font-medium;
 }
