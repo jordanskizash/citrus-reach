@@ -4,7 +4,7 @@ const { execSync } = require('child_process');
 
 try {
   // Try running the build command
-  execSync('npm run build', { stdio: 'inherit' });
+  execSync('pnpm build', { stdio: 'inherit' });
 } catch (error) {
   console.log('Build failed with error:', error.message);
   
