@@ -1,5 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+    // Enable experimental instrumentation
+    experimental: {
+      instrumentationHook: true,
+    },
     images: {
       domains: [
         "files.edgestore.dev"
