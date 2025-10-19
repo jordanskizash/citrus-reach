@@ -2,7 +2,7 @@
 const nextConfig = {
     // Enable experimental instrumentation
     experimental: {
-      instrumentationHook: true,
+      instrumentationHook: process.env.DASH0_OTLP_ENDPOINT && process.env.DASH0_AUTHORIZATION_TOKEN ? true : false,
     },
     images: {
       domains: [

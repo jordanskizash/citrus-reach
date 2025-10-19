@@ -3,14 +3,14 @@ import { Navbar} from './_components/navbar';
 import { Merriweather, Raleway, Zilla_Slab } from 'next/font/google';
 import Script from 'next/script';
 
+export const dynamic = 'force-dynamic';
+
 const raleway = Zilla_Slab({
     subsets: ['latin'],
     weight: ['400']
   })
 
 const GA_MEASUREMENT_ID = 'G-M5LKWJ4EZ9';
-
-export const dynamic = 'force-dynamic';
 
 const MarketingLayout = ({
     children 

@@ -6,7 +6,7 @@ const config = {
     './app/**/*.{js,ts,jsx,tsx,mdx}',
     './pages/**/*.{js,ts,jsx,tsx,mdx}',
     './components/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/**/*.{js,ts,jsx,tsx,mdx}', // Added this line
+    './src/**/*.{js,ts,jsx,tsx,mdx}',
     './lib/**/*.{js,ts,jsx,tsx}',
     './hooks/**/*.{js,ts,jsx,tsx}',
   ],
@@ -122,10 +122,10 @@ const config = {
               borderRadius: '0.5rem'
             },
             'code::before': {
-              content: '"'
+              content: '""'
             },
             'code::after': {
-              content: '"'
+              content: '""'
             }
           }
         }
