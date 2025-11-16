@@ -235,8 +235,11 @@ export const getSidebar = query({
                     .eq("userId", userId)
                     .eq("parentDocument", args.parentDocument)
             )
-            .filter((q) => 
-                q.eq(q.field("isArchived"), false)
+            .filter((q) =>
+                q.and(
+                    q.eq(q.field("isArchived"), false),
+                    q.neq(q.field("isExternalLink"), true)
+                )
             )
             .order("desc")
             .collect();
